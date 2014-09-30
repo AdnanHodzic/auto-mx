@@ -83,16 +83,7 @@ echo -e "\n------------------------------------\n"
 read -p "Specify \"User password\": " app_password
 }
 
-
-# calling step1 functions
-app_servicename_func
-app_displayname_func
-app_description_func
-app_startup_func
-app_username_func
-app_password_func
-
-
+spec(){
 echo -e "\n------------------------------------\n"
 echo -e "\nYou've specified following values:\n"
 echo -e "\n++++++++++++++++++++++++++++++++++++\n"
@@ -103,7 +94,18 @@ echo -e "Start at boot: $boot"
 echo -e "App. username: $app_username"
 echo -e "App. password: $app_password"
 echo -e "\n++++++++++++++++++++++++++++++++++++\n"
+}
 
+
+# calling step1 functions
+app_servicename_func
+app_displayname_func
+app_description_func
+app_startup_func
+app_username_func
+app_password_func
+
+spec
 }
 
 # Installer beginning
@@ -151,21 +153,54 @@ then
 
 elif [[ "$letter" == [Ee]* ]]; 
 then
-	# todo
-	# add a call to individual functions
-	 
-	# call step1
-	step1
 
-#	echo -e "\nWhat would you like to edit?\n"
-#	echo -e \"[1] Service Name\n"
-#	echo -e \"[2] Display Name\n"
-#	echo -e \"[3] Description\n"
-#	echo -e \"[4] Start at boot\n"
-#	echo -e \"[5] App. username\n"
-#	echo -e \"[6] App. password\n"
-#
-#	read -p "Enter option number: " step1_edit
+	echo "\nWhat would you like to edit?\n"
+	echo "[1] Service Name"
+	echo "[2] Display Name"
+	echo "[3] Description"
+	echo "[4] Start at boot"
+	echo "[5] App. username"
+	echo "[6] App. password"
+
+	read -p "Enter option number: " step1_edit
+
+	for letter in "$step1_edit"; do
+
+	if [[ "$letter" == [1] ]]; 
+	then
+		app_servicename_func
+		spec
+
+	elif [[ "$letter" == [2] ]]; 
+	then
+		app_displayname_func
+		spec
+
+	elif [[ "$letter" == [3] ]]; 
+	then
+		app_description_func
+		spec
+
+	elif [[ "$letter" == [4] ]]; 
+	then
+		app_startup_func
+		spec
+
+	elif [[ "$letter" == [5] ]]; 
+	then
+		app_username_func
+		spec
+	
+	elif [[ "$letter" == [6] ]]; 
+	then
+		app_password_func
+		spec
+	else
+		echo "Seriously?"
+		# exit | exit 1	
+	
+	fi
+	done
 
 elif [[ "$letter" == [Ff]* ]]; 
 then
