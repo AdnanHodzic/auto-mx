@@ -1,0 +1,13 @@
+Package: auto-mx
+Version: 0.1
+Architecture: all
+Maintainer: Adnan Hodzic <ahodzic.hodzic@mendix.com>
+Installed-Size: 37
+Depends: m2ee-tools, postgresql, oracle-java7-jre | openjdk-6-jre | openjdk-7-jre
+Section: contrib/utils
+Priority: optional
+Homepage: https://mendix.com
+Description: Mendix Auto Utility (auto-mx)
+  Utility which aims to automatically install and
+  setup Mendix runtime, and rest of utility's
+  which are needed to run Mendix applications.

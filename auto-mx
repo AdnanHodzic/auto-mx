@@ -1,0 +1,183 @@
+#!/bin/bash -e
+#
+# Mendix Installer (auto-mx)
+# Utility to interactively install and setup
+# Mendix, as well rest of utility's which
+# are needed to run Mendix applications.
+
+# todo, refactor existing code
+# into functions
+
+step1(){
+
+app_servicename_func(){
+# Service Name
+echo -e "\n------------------------------------\n"
+read -p "Specify \"Service Name\", i.e (NewApp): " app_servicename
+}
+
+app_displayname_func(){
+# Display Name 
+echo -e "\n------------------------------------\n"
+read -p "Specify \"Display Name\", i.e (NewApp): " app_displayname
+}
+
+app_description_func(){
+# Description:  
+echo -e "\n------------------------------------\n"
+read -p "Specify \"Description\": " app_description
+}
+
+app_startup_func(){
+# Startup Type
+echo -e "\n------------------------------------\n"
+echo -e "Start Mendix at boot?"
+read -p "[Y]es, [N]o, [S]kip: " app_startup
+
+for letter in "$app_startup"; do
+
+if [[ "$letter" == [Yy] ]]; 
+then
+	# Start Mendix at boot
+	crontab -l > bootmx
+	echo -e "#Start Mendix at boot\n@reboot /usr/bin/m2ee start" >> bootmx
+	crontab bootmx
+	rm bootmx
+
+	boot="Yes"	
+	continue
+
+elif [[ "$letter" == [Nn]* ]]; 
+then
+	echo -e "\nMendix will not start at boot ...\n"
+	boot="No"
+	continue
+
+elif [[ "$letter" == [Nn]* ]]; 
+then
+	echo -e "\nMendix will not start at boot ..."
+	boot="Option skip"
+	
+	continue
+
+else 
+	echo -e "\n--------------------------------\n"
+	echo    "Non existing value: exiting ..."
+	echo -e "\n--------------------------------\n"
+	
+	exit 1
+fi
+done
+}
+
+app_username_func(){
+# Username 
+echo -e "------------------------------------\n"
+read -p "Specify \"User Name\": " app_username
+}
+
+app_password_func(){
+
+# Password 
+echo -e "\n------------------------------------\n"
+read -p "Specify \"User password\": " app_password
+}
+
+
+# calling step1 functions
+app_servicename_func
+app_displayname_func
+app_description_func
+app_startup_func
+app_username_func
+app_password_func
+
+
+echo -e "\n------------------------------------\n"
+echo -e "\nYou've specified following values:\n"
+echo -e "\n++++++++++++++++++++++++++++++++++++\n"
+echo -e "Service name: $app_servicename"
+echo -e "Display name: $app_displayname"
+echo -e "Description: $app_description"
+echo -e "Start at boot: $boot"
+echo -e "App. username: $app_username"
+echo -e "App. password: $app_password"
+echo -e "\n++++++++++++++++++++++++++++++++++++\n"
+
+}
+
+# Installer beginning
+
+echo -e "\n--------------------------------------\n"
+echo -e "Welcome to Mendix installer (auto-mx)"
+echo -e "\nPlease follow on-screen instructions"
+read -p "Continue? [Y]es, [N]o: " inst
+
+for letter in "$inst"; do  
+
+if [[ "$letter" == [Yy] ]]; 
+then
+
+# step1 call
+step1
+
+elif [[ "$letter" == [Nn]* ]]; 
+then
+	echo -e "\n--------------------------------------\n"	
+	echo -e "Quitting ...\n"
+	echo -e "Run \"auto-mx\" to start again"
+	echo -e "\n--------------------------------------\n"
+	
+	exit
+
+else 
+	echo -e "\n--------------------------------\n"
+	echo -e "Non existing value: exiting ...\n"
+	echo -e "Run \"auto-mx\" to start again"	
+	echo -e "\n--------------------------------\n"
+	exit 1
+fi
+done
+
+# Step1 end dialog
+read -p "[N]ext Step, [E]dit Existing, [F]inish: " step1_end
+
+for letter in "$step1_end"; do
+
+if [[ "$letter" == [Nn] ]]; 
+then
+	echo -e "\nNeed to code this part (:\n"	
+	#continue
+
+elif [[ "$letter" == [Ee]* ]]; 
+then
+	# todo
+	# add a call to individual functions
+	 
+	# call step1
+	step1
+
+#	echo -e "\nWhat would you like to edit?\n"
+#	echo -e \"[1] Service Name\n"
+#	echo -e \"[2] Display Name\n"
+#	echo -e \"[3] Description\n"
+#	echo -e \"[4] Start at boot\n"
+#	echo -e \"[5] App. username\n"
+#	echo -e \"[6] App. password\n"
+#
+#	read -p "Enter option number: " step1_edit
+
+elif [[ "$letter" == [Ff]* ]]; 
+then
+
+	# Store variable somwhere ...
+	echo -e "\nNeed to code this part (:\n"
+
+else 
+	echo -e "\n--------------------------------\n"
+	echo    "Non existing value: exiting ..."
+	echo -e "\n--------------------------------\n"
+	
+	exit 1
+fi
+done
