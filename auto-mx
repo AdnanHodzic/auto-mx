@@ -53,9 +53,9 @@ then
 	boot="No"
 	continue
 
-elif [[ "$letter" == [Nn]* ]]; 
+elif [[ "$letter" == [Ss]* ]]; 
 then
-	echo -e "\nMendix will not start at boot ..."
+	echo -e "\nSetting Mendix at boot, skipped ..."
 	boot="Option skip"
 	
 	continue
