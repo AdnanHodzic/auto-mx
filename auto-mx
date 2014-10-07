@@ -1,36 +1,31 @@
-#!/bin/bash -e
+#!/bin/bash
 #
 # Mendix Installer (auto-mx)
 # Utility to interactively install and setup
 # Mendix, as well rest of utility's which
 # are needed to run Mendix applications.
 
-# todo, refactor existing code
-# into functions
-
-step1(){
-
 app_servicename_func(){
 # Service Name
-echo -e "\n------------------------------------\n"
+echo -e "\n-----------------------------------------\n"
 read -p "Specify \"Service Name\", i.e (NewApp): " app_servicename
 }
 
 app_displayname_func(){
 # Display Name 
-echo -e "\n------------------------------------\n"
+echo -e "\n-----------------------------------------\n"
 read -p "Specify \"Display Name\", i.e (NewApp): " app_displayname
 }
 
 app_description_func(){
 # Description:  
-echo -e "\n------------------------------------\n"
+echo -e "\n-----------------------------------------\n"
 read -p "Specify \"Description\": " app_description
 }
 
 app_startup_func(){
 # Startup Type
-echo -e "\n------------------------------------\n"
+echo -e "\n-----------------------------------------\n"
 echo -e "Start Mendix at boot?"
 read -p "[Y]es, [N]o, [S]kip: " app_startup
 
@@ -61,9 +56,9 @@ then
 	continue
 
 else 
-	echo -e "\n--------------------------------\n"
+	echo -e "\n------------------------------------\n"
 	echo    "Non existing value: exiting ..."
-	echo -e "\n--------------------------------\n"
+	echo -e "\n------------------------------------\n"
 	
 	exit 1
 fi
@@ -72,96 +67,116 @@ done
 
 app_username_func(){
 # Username 
-echo -e "------------------------------------\n"
+echo -e "-----------------------------------------\n"
 read -p "Specify \"User Name\": " app_username
 }
 
 app_password_func(){
 
 # Password 
-echo -e "\n------------------------------------\n"
+echo -e "\n----------------------------------------\n"
 read -p "Specify \"User password\": " app_password
 }
 
 spec(){
-echo -e "\n------------------------------------\n"
+echo -e "\n-----------------------------------------\n"
 echo -e "\nYou've specified following values:\n"
-echo -e "\n++++++++++++++++++++++++++++++++++++\n"
+echo -e "\n++++++++++++++++++++++++++++++++++++++++\n"
 echo -e "Service name: $app_servicename"
 echo -e "Display name: $app_displayname"
 echo -e "Description: $app_description"
 echo -e "Start at boot: $boot"
 echo -e "App. username: $app_username"
 echo -e "App. password: $app_password"
-echo -e "\n++++++++++++++++++++++++++++++++++++\n"
+echo -e "\n++++++++++++++++++++++++++++++++++++++++\n"
 }
 
+# Step1
+while [ step1 != "Q" ]
+do 
+clear
 
-# calling step1 functions
-app_servicename_func
-app_displayname_func
-app_description_func
-app_startup_func
-app_username_func
-app_password_func
-
-spec
-}
-
-# Installer beginning
-
-echo -e "\n--------------------------------------\n"
-echo -e "Welcome to Mendix installer (auto-mx)"
+# Display menu
+echo -e "\n------------------------------------------\n"
+echo -e "Welcome to Mendix installer (auto-mx)\n"
 echo -e "\nPlease follow on-screen instructions"
-read -p "Continue? [Y]es, [N]o: " inst
+echo -e "\n------------------------------------------\n"
 
-for letter in "$inst"; do  
+echo -e "Continue?\n"
+echo "[Y]es"
+echo "[N]o"
+echo "[Q]uit"
 
-if [[ "$letter" == [Yy] ]]; 
-then
-
-# step1 call
-step1
-
-elif [[ "$letter" == [Nn]* ]]; 
-then
-	echo -e "\n--------------------------------------\n"	
-	echo -e "Quitting ...\n"
-	echo -e "Run \"auto-mx\" to start again"
-	echo -e "\n--------------------------------------\n"
+read -p ": " step1
+	case $step1 in
 	
-	exit
+	Q|q)
+		echo "Goodbye!"
+		exit 1
+	;;
 
-else 
-	echo -e "\n--------------------------------\n"
-	echo -e "Non existing value: exiting ...\n"
-	echo -e "Run \"auto-mx\" to start again"	
-	echo -e "\n--------------------------------\n"
-	exit 1
-fi
+	Y|y)
+	# calling step1 functions
+	app_servicename_func
+	app_displayname_func
+	app_description_func
+	app_startup_func
+	app_username_func
+	app_password_func
+
+	spec
+	break	
+	;;
+
+	N|n)
+		echo "Aborting installation"
+		exit 1
+	;;
+
+	*) 
+	echo "Non existing value"
+	;;
+	
+	esac
+
+	echo "press Enter for menu"
+	read key
 done
 
-# Step1 end dialog
-read -p "[N]ext Step, [E]dit Existing, [F]inish: " step1_end
+# Step2
+while [ step2 != "Q" ]
+do 
+clear
 
-for letter in "$step1_end"; do
+spec
 
-if [[ "$letter" == [Nn] ]]; 
-then
-	echo -e "\nNeed to code this part (:\n"	
-	#continue
+echo "[N]ext Step, [E]edit Existing, [F]inish: "
 
-elif [[ "$letter" == [Ee]* ]]; 
-then
+read -p ": " step2
+	case $step2 in 
 
-	echo "\nWhat would you like to edit?\n"
-	echo "[1] Service Name"
-	echo "[2] Display Name"
-	echo "[3] Description"
-	echo "[4] Start at boot"
-	echo "[5] App. username"
-	echo "[6] App. password"
+	Q|q)
+		echo "Goodbye!"
+		exit
+	;;
 
+	N|n)
+		echo "Moving to next step"
+		break
+	;;
+	
+	E|e)
+		spec
+	
+		echo -e "\nWhat would you like to edit?\n"
+		echo "[1] Service Name"
+		echo "[2] Display Name"
+		echo "[3] Description"
+		echo "[4] Start at boot"
+		echo "[5] App. username"
+		echo "[6] App. password"
+		echo "[F]inish editing"
+	
 	read -p "Enter option number: " step1_edit
 
 	for letter in "$step1_edit"; do
@@ -195,24 +210,34 @@ then
 	then
 		app_password_func
 		spec
+	elif [[ "$letter" == [Ff] ]]; 
+	then
+		echo "finishing"
+		break
+
 	else
 		echo "Seriously?"
-		# exit | exit 1	
-	
+		# exit | exit 1			
+
 	fi
 	done
+	;;
 
-elif [[ "$letter" == [Ff]* ]]; 
-then
+	F|f)
+		echo "my work is done here"
+		break
+	;;
 
-	# Store variable somwhere ...
-	echo -e "\nNeed to code this part (:\n"
-
-else 
-	echo -e "\n--------------------------------\n"
-	echo    "Non existing value: exiting ..."
-	echo -e "\n--------------------------------\n"
+	*) 
+	echo "Non existing value"
+	;;
 	
-	exit 1
-fi
+	esac
+
+	echo "press Enter for menu"
+	read key
 done
+	
+echo "Step 3!"
+
+exit 0
