@@ -5,6 +5,7 @@
 # Mendix, as well rest of utility's which
 # are needed to run Mendix applications.
 
+# Service Settings (service_settings)
 app_servicename_func(){
 # Service Name
 echo -e "\n-----------------------------------------\n"
@@ -91,8 +92,8 @@ echo -e "App. password: $app_password"
 echo -e "\n++++++++++++++++++++++++++++++++++++++++\n"
 }
 
-# Step1
-while [ step1 != "Q" ]
+# Installer started (install_start) 
+while [ install_start != "Q" ]
 do 
 clear
 
@@ -107,8 +108,8 @@ echo "[Y]es"
 echo "[N]o"
 echo "[Q]uit"
 
-read -p ": " step1
-	case $step1 in
+read -p ": " install_start
+	case $install_start in
 	
 	Q|q)
 		echo "Goodbye!"
@@ -116,7 +117,7 @@ read -p ": " step1
 	;;
 
 	Y|y)
-	# calling step1 functions
+	# calling service_settings functions
 	app_servicename_func
 	app_displayname_func
 	app_description_func
@@ -143,8 +144,73 @@ read -p ": " step1
 	read key
 done
 
-# Step2
-while [ step2 != "Q" ]
+# Specify destinaton path (destination_path)
+destination_path(){
+custom_appdest_func(){
+# destination path
+echo -e "-----------------------------------------\n"
+read -p "Specify \"custom app. destination\": " custom_appdest
+}
+
+# specify username
+
+while [ destination_path != "Q" ]
+do
+clear
+
+# Specify destination path
+echo -e "\n------------------------------------------\n"
+echo -e "Specify location of apps and server files "
+echo -e "\n++++++++++++++++++++++++++++++++++++++++++\n"
+echo -e "\nWe recommend: /srv/mendix/$app_username"
+echo -e "\nto be your path.\n"
+echo -e "\n++++++++++++++++++++++++++++++++++++++++++\n"
+
+echo -e "[A]ccept and proceed\n"
+echo -e "[C]ustomize your own path"
+echo -e "[Q]uit"
+
+read -p ": " destination_path
+
+    case $destination_path in
+
+    A|a )
+    	path="/srv/mendix/$app_username"
+    	echo "$path"
+    	echo "movin on"
+    	break
+    	#echo "/srv/mendix/$app_username"
+    	#echo "anything"
+		#echo "Specified $location"
+		# break
+	;;
+
+    C|c )
+    	# todo
+    	# extend this!
+        read -p "Enter your own path: " path
+        echo "Specified path: $path"   
+        echo "Moving on"
+		break
+    ;;
+
+	Q|q)
+		echo "Aborting installation"
+		exit 1
+	;;
+
+	*) 
+	echo "Non existing value"
+	;;
+
+    esac
+    echo "press Enter for menu"
+	read key
+done
+}
+
+# Confirm Service Settings
+while [ service_settings_confrim != "Q" ]
 do 
 clear
 
@@ -152,8 +218,8 @@ spec
 
 echo "[N]ext Step, [E]edit Existing, [F]inish: "
 
-read -p ": " step2
-	case $step2 in 
+read -p ": " service_settings_confrim
+	case $service_settings_confrim in 
 
 	Q|q)
 		echo "Goodbye!"
@@ -162,6 +228,8 @@ read -p ": " step2
 
 	N|n)
 		echo "Moving to next step"
+		# Jump to the next step
+		destination_path
 		break
 	;;
 	
@@ -175,11 +243,10 @@ read -p ": " step2
 		echo "[4] Start at boot"
 		echo "[5] App. username"
 		echo "[6] App. password"
-		echo "[F]inish editing"
 	
-	read -p "Enter option number: " step1_edit
+	read -p "Enter option number: " service_settings_edit
 
-	for letter in "$step1_edit"; do
+	for letter in "$service_settings_edit"; do
 
 	if [[ "$letter" == [1] ]]; 
 	then
@@ -237,7 +304,5 @@ read -p ": " step2
 	echo "press Enter for menu"
 	read key
 done
-	
-echo "Step 3!"
 
 exit 0
