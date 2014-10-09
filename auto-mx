@@ -7,25 +7,26 @@
 
 # Service Settings (service_settings)
 app_servicename_func(){
+
 # Service Name
 echo -e "\n-----------------------------------------\n"
 read -p "Specify \"Service Name\", i.e (NewApp): " app_servicename
 }
 
-app_displayname_func(){
 # Display Name 
+app_displayname_func(){
 echo -e "\n-----------------------------------------\n"
 read -p "Specify \"Display Name\", i.e (NewApp): " app_displayname
 }
 
-app_description_func(){
 # Description:  
+app_description_func(){
 echo -e "\n-----------------------------------------\n"
 read -p "Specify \"Description\": " app_description
 }
 
-app_startup_func(){
 # Startup Type
+app_startup_func(){
 echo -e "\n-----------------------------------------\n"
 echo -e "Start Mendix at boot?"
 read -p "[Y]es, [N]o, [S]kip: " app_startup
@@ -66,15 +67,14 @@ fi
 done
 }
 
-app_username_func(){
 # Username 
+app_username_func(){
 echo -e "-----------------------------------------\n"
 read -p "Specify \"User Name\": " app_username
 }
 
-app_password_func(){
-
 # Password 
+app_password_func(){
 echo -e "\n----------------------------------------\n"
 read -p "Specify \"User password\": " app_password
 }
@@ -146,13 +146,12 @@ done
 
 # Specify destinaton path (destination_path)
 destination_path(){
+
+# Define custom path
 custom_appdest_func(){
-# destination path
 echo -e "-----------------------------------------\n"
 read -p "Specify \"custom app. destination\": " custom_appdest
 }
-
-# specify username
 
 while [ destination_path != "Q" ]
 do
@@ -179,10 +178,6 @@ read -p ": " destination_path
     	echo "$path"
     	echo "movin on"
     	break
-    	#echo "/srv/mendix/$app_username"
-    	#echo "anything"
-		#echo "Specified $location"
-		# break
 	;;
 
     C|c )
