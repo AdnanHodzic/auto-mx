@@ -324,6 +324,10 @@ chmod 700 -R /srv/mendix/$app_servicename/data/
 chmod 700 -R /srv/mendix/$app_servicename/model/
 
 # m2ee.yaml contents
+# move contents to: 
+# /usr/share/doc/m2ee-tools/examples/auto-mx-template.m2ee.yaml
+# Eventually put this template as file
+# in auto-mx deb package.
 yaml_content='# Full m2ee.yaml documentation available on:
 # https://github.com/mendix/m2ee-tools/blob/develop/examples/full-documented-m2ee.yaml
 #
@@ -337,15 +341,15 @@ yaml_content='# Full m2ee.yaml documentation available on:
 mxnode:
  # myjar (https://github.com/mendix/m2ee-tools/blob/develop/examples/full-documented-m2ee.yaml)
  # mxjar_repo: /usr/local/share/mendix/
- mxjar_repo: /srv/mendix/myapp/data/runtime
+ mxjar_repo: /srv/mendix/${2}/data/runtime
 
 m2ee:
- app_name: My First Application
- app_base: /srv/mendix/myapp/
+ app_name: ${1}
+ app_base: /srv/mendix/${2}
  # m2ee http admin interface and password
  admin_port: 9000
  admin_listen_addresses: "*"
- admin_pass: mend1x_p5w
+ admin_pass: ${3}
  # mxruntime web interface port
  runtime_port: 8000
 
@@ -366,14 +370,14 @@ logging:
    name: FileSubscriber
    type: file
    autosubscribe: INFO
-   filename: /var/log/mendix/log
+   filename: /var/log/mendix/${2}/log
    max_size: 10485760 # bytes(!!)
    max_rotation: 7
 mxruntime:
  # Database login credentials
  DatabaseType: PostgreSQL
  # The DatabaseHost contains the database hostname and optionally, also the TCP
- # port number.  It'\''s possible to use a plain IPv6 address by enclosing it in
+ # port number.  It\s possible to use a plain IPv6 address by enclosing it in
  # brackets, like: "[::1]:5432"
  DatabaseHost: "127.0.0.1:5432"
  DatabaseName: mxpgdb
@@ -399,12 +403,23 @@ yaml=/home/$app_servicename/.m2ee/m2ee.yaml
 # .m2ee creation
 echo -e "\nm2ee creation\n"
 mkdir -p /home/$app_servicename/.m2ee
-touch $yaml
+#touch $yaml
 
+# create log file
+mkdir -p /var/log/mendix/$app_servicename
+touch /var/log/mendix/$app_servicename/log
+
+# todo
 # make a loop if the $yaml already exists
 # ask user what to do
-
 echo -n "$yaml_content" > "$yaml"
+
+# todo
+# make a phraser
+# Yaml Interpreter
+sed -i "s/\${1}/$app_displayname/g" $yaml
+sed -i "s/\${2}/$app_servicename/g" $yaml
+sed -i "s/\${3}/$app_password/g" $yaml
 
 # Make sure permissions are still correct
 chown $app_servicename:$app_servicename -R /home/$app_servicename
