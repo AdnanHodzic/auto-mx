@@ -1,0 +1,16 @@
+while :
+do
+	read -p "enter a value sucka: " choice
+
+	case $choice in
+
+	A|a )
+		echo "choice A"
+	;;
+
+	2)
+		echo "Choice 2"
+	;;
+
+	esac
+done
