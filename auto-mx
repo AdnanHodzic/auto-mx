@@ -6,15 +6,9 @@
 # are needed to run Mendix applications.
 
 # Service Settings (service_settings)
-<<<<<<< HEAD
-app_servicename_func(){
-
-# Service Name
-=======
 
 # Service Name
 app_servicename_func(){
->>>>>>> staging
 echo -e "\n-----------------------------------------\n"
 read -p "Specify \"Service Name\", i.e (NewApp): " app_servicename
 }
@@ -87,11 +81,7 @@ read -p "Specify \"User password\": " app_password
 
 spec(){
 echo -e "\n-----------------------------------------\n"
-<<<<<<< HEAD
-echo -e "\nYou've specified following values:\n"
-=======
 echo -e "You've specified following values:"
->>>>>>> staging
 echo -e "\n++++++++++++++++++++++++++++++++++++++++\n"
 echo -e "Service name: $app_servicename"
 echo -e "Display name: $app_displayname"
@@ -112,36 +102,6 @@ echo -e "\n------------------------------------------\n"
 echo -e "Welcome to Mendix installer (auto-mx)\n"
 echo -e "\nPlease follow on-screen instructions"
 echo -e "\n------------------------------------------\n"
-<<<<<<< HEAD
-
-echo -e "Continue?\n"
-echo "[Y]es"
-echo "[N]o"
-echo "[Q]uit"
-
-read -p ": " install_start
-	case $install_start in
-	
-	Q|q)
-		echo "Goodbye!"
-		exit 1
-	;;
-
-	Y|y)
-	# calling service_settings functions
-	app_servicename_func
-	app_displayname_func
-	app_description_func
-	app_startup_func
-	app_username_func
-	app_password_func
-
-	spec
-	break	
-	;;
-
-	N|n)
-=======
 
 echo -e "Continue?\n"
 echo "[Y]es"
@@ -230,168 +190,6 @@ read -p ": " destination_path
     ;;
 
 	Q|q)
->>>>>>> staging
-		echo "Aborting installation"
-		exit 1
-	;;
-
-	*) 
-	echo "Non existing value"
-	;;
-<<<<<<< HEAD
-	
-=======
-
-    esac
-    echo "press Enter for menu"
-	read key
-done
-}
-
-# Confirm Service Settings
-while [ service_settings_confrim != "Q" ]
-do 
-clear
-
-spec
-
-echo "[N]ext Step, [E]edit Existing, [F]inish: "
-
-read -p ": " service_settings_confrim
-	case $service_settings_confrim in 
-
-	Q|q)
-		echo "Goodbye!"
-		exit
-	;;
-
-	N|n)
-		echo "Moving to next step"
-		# Jump to the next step
-		destination_path
-		break
-	;;
-	
-	E|e)
-		spec
-	
-		echo -e "\nWhat would you like to edit?\n"
-		echo "[1] Service Name"
-		echo "[2] Display Name"
-		echo "[3] Description"
-		echo "[4] Start at boot"
-		echo "[5] App. username"
-		echo "[6] App. password"
-	
-	read -p "Enter option number: " service_settings_edit
-
-	for letter in "$service_settings_edit"; do
-
-	if [[ "$letter" == [1] ]]; 
-	then
-		app_servicename_func
-		spec
-
-	elif [[ "$letter" == [2] ]]; 
-	then
-		app_displayname_func
-		spec
-
-	elif [[ "$letter" == [3] ]]; 
-	then
-		app_description_func
-		spec
-
-	elif [[ "$letter" == [4] ]]; 
-	then
-		app_startup_func
-		spec
-
-	elif [[ "$letter" == [5] ]]; 
-	then
-		app_username_func
-		spec
-	
-	elif [[ "$letter" == [6] ]]; 
-	then
-		app_password_func
-		spec
-	elif [[ "$letter" == [Ff] ]]; 
-	then
-		echo "finishing"
-		break
-
-	else
-		echo "Seriously?"
-		# exit | exit 1			
-
-	fi
-	done
-	;;
-
-	F|f)
-		echo "my work is done here"
-		break
-	;;
-
-	*) 
-	echo "Non existing value"
-	;;
-	
->>>>>>> staging
-	esac
-
-	echo "press Enter for menu"
-	read key
-done
-
-<<<<<<< HEAD
-# Specify destinaton path (destination_path)
-destination_path(){
-
-# Define custom path
-custom_appdest_func(){
-echo -e "-----------------------------------------\n"
-read -p "Specify \"custom app. destination\": " custom_appdest
-}
-
-while [ destination_path != "Q" ]
-do
-clear
-
-# Specify destination path
-echo -e "\n------------------------------------------\n"
-echo -e "Specify location of apps and server files "
-echo -e "\n++++++++++++++++++++++++++++++++++++++++++\n"
-echo -e "\nWe recommend: /srv/mendix/$app_username"
-echo -e "\nto be your path.\n"
-echo -e "\n++++++++++++++++++++++++++++++++++++++++++\n"
-
-echo -e "[A]ccept and proceed\n"
-echo -e "[C]ustomize your own path"
-echo -e "[Q]uit"
-
-read -p ": " destination_path
-
-    case $destination_path in
-
-    A|a )
-    	path="/srv/mendix/$app_username"
-    	echo "$path"
-    	echo "movin on"
-    	break
-	;;
-
-    C|c )
-    	# todo
-    	# extend this!
-        read -p "Enter your own path: " path
-        echo "Specified path: $path"   
-        echo "Moving on"
-		break
-    ;;
-
-	Q|q)
 		echo "Aborting installation"
 		exit 1
 	;;
@@ -501,7 +299,7 @@ read -p ": " service_settings_confrim
 	echo "press Enter for menu"
 	read key
 done
-=======
+
 # Database configuration
 db_config(){
 
@@ -850,6 +648,5 @@ sed -i "s/\${8}/$db_pass/g" $yaml
 
 # Make sure permissions are still correct
 chown $app_servicename:$app_servicename -R /home/$app_servicename
->>>>>>> staging
 
 exit 0
