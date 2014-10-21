@@ -649,4 +649,11 @@ sed -i "s/\${8}/$db_pass/g" $yaml
 # Make sure permissions are still correct
 chown $app_servicename:$app_servicename -R /home/$app_servicename
 
+# goodbye message
+echo -e "\n-----------------------------------------\n"
+echo -e "Installation complete!\n"
+echo -e "For any additional customization please take"
+echo -e "take a look in: /home/$app_servicename/.m2ee/m2ee.yaml"
+echo -e "\n-----------------------------------------\n" 
+
 exit 0
