@@ -527,21 +527,21 @@ echo -e "\nCreating "$app_username" user ...\n"
 adduser --disabled-password --gecos "$app_displayname" $app_servicename
 
 # Create a directory structure
-mkdir -p /srv/mendix/$app_servicename
-mkdir -p /srv/mendix/$app_servicename/web
-mkdir -p /srv/mendix/$app_servicename/model
-mkdir -p /srv/mendix/$app_servicename/data
-mkdir -p /srv/mendix/$app_servicename/data/database
-mkdir -p /srv/mendix/$app_servicename/data/files
-mkdir -p /srv/mendix/$app_servicename/data/model-upload
-mkdir -p /srv/mendix/$app_servicename/data/runtime
-mkdir -p /srv/mendix/$app_servicename/data/tmp
+mkdir -p $path
+mkdir -p $path/web
+mkdir -p $path/model
+mkdir -p $path/data
+mkdir -p $path/data/database
+mkdir -p $path/data/files
+mkdir -p $path/data/model-upload
+mkdir -p $path/data/runtime
+mkdir -p $path/data/tmp
 
 # Fixing permissions
 echo -e "\nFixing permissions\n"
-chown $app_servicename:$app_servicename -R /srv/mendix/$app_servicename
-chmod 700 -R /srv/mendix/$app_servicename/data/
-chmod 700 -R /srv/mendix/$app_servicename/model/
+chown $app_servicename:$app_servicename -R $path
+chown 700 -R $path/data/
+chown 700 -R $path/model/
 
 # m2ee.yaml contents
 # move contents to: 
