@@ -106,7 +106,7 @@ echo -e "\n----------------------------------------------------\n"
 echo -e "Continue?\n"
 echo "[Y]es"
 echo "[N]o"
-echo "[Q]uit"
+#echo "[Q]uit"
 
 read -p ": " install_start
 	case $install_start in
@@ -167,7 +167,7 @@ echo -e "\n++++++++++++++++++++++++++++++++++++++++++\n"
 
 echo -e "[A]ccept and proceed"
 echo -e "[C]ustomize your own path"
-echo -e "[Q]uit"
+#echo -e "[Q]uit"
 
 read -p ": " destination_path
 
@@ -211,7 +211,7 @@ clear
 
 spec
 
-echo "[N]ext Step, [E]edit Existing, [F]inish: "
+echo "[N]ext Step, [E]edit Existing: "
 
 read -p ": " service_settings_confrim
 	case $service_settings_confrim in 
@@ -272,10 +272,10 @@ read -p ": " service_settings_confrim
 	then
 		app_password_func
 		spec
-	elif [[ "$letter" == [Ff] ]]; 
-	then
-		echo "finishing"
-		break
+	#elif [[ "$letter" == [Ff] ]]; 
+	#then
+	#	echo "finishing"
+	#	break
 
 	else
 		echo "Seriously?"
@@ -497,7 +497,7 @@ echo -e "Configure database?"
 echo -e "\n------------------------------------------------\n"
 echo -e "[Y]es"
 echo -e "[D]efault/Local install"
-echo -e "[Q]uit"
+#echo -e "[Q]uit"
 
 read -p ": " db_init
 	case $db_init in
@@ -573,7 +573,7 @@ clear
 
 db_spec
 
-echo "[N]ext Step, [E]dit Existing, [F]inish: "
+echo "[N]ext Step, [E]dit Existing: "
 
 read -p ": " db_config_confirm
 	case $db_config_confirm in
@@ -630,10 +630,10 @@ read -p ": " db_config_confirm
 	
 		db_spec
 	
-	elif [[ "$letter" == [Ff] ]];
-	then
-		echo "finishing up"
-		break
+	#elif [[ "$letter" == [Ff] ]];
+	#then
+	#	echo "finishing up"
+	#	break
 
 	else 
 		echo "Seriously?"
