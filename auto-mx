@@ -300,6 +300,175 @@ read -p ": " service_settings_confrim
 	read key
 done
 
+# Java configuration
+java_config(){
+
+# Java Heap (Max Size)
+java_heap_max_func(){
+echo -e "\n----------------------------------------------------------\n"
+read -p "Specify \"Java Heap Max Size\", i.e (512M): " java_heap_max
+} 
+
+# Java Heap (Min Size)
+java_heap_min_func(){
+echo -e "\n----------------------------------------------------------\n"
+read -p "Specify \"Java Heap Min Size\", i.e (512M): " java_heap_min
+}
+
+# Max PermGen Size
+java_permgen_func(){
+echo -e "\n----------------------------------------------------------\n"
+read -p "Specify \"Max PermGen Size\", i.e (128M): " java_permgen
+}
+
+java_spec(){
+echo -e "\n----------------------------------------------------------\n"
+echo -e "You've specified following values:"
+echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
+echo -e "Java Heap Max Size: $java_heap_max"
+echo -e "Java Heap Min Size: $java_heap_min"
+echo -e "Max PermGen Size: $java_permgen"
+echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
+}
+
+# Java Config Start
+while [ java_init != "Q" ]
+do
+clear
+
+# Display menu
+echo -e "\n------------------------------------------------\n"
+echo -e "Configure Java?"
+echo -e "\n------------------------------------------------\n"
+echo -e "[Y]es"
+echo -e "[N]o, use default Mendix settings"
+#echo -e "[Q]uit"
+
+read -p ": " java_init
+	case $java_init in
+
+	Q|q)
+		echo "Goodbye!"
+		exit 1
+	;;
+
+	Y|y)
+		# calling db functions
+		java_heap_max_func
+		java_heap_min_func
+		java_permgen_func
+
+		java_spec
+		break
+	;;
+
+	N|n)
+		java_heap_max="512M"
+		java_heap_min="512M"
+		java_permgen="128M"
+
+		echo -e "\nFinished with Java configuration\n"
+		echo -e "\nEnter any key to continue"
+		read key
+		# make a different func jump?
+		goodbye
+	;;
+	
+	#S|s)
+	#	echo "\nSkipping database configuration/install ....\n"
+	#	#exit 1
+	#	break
+	#;;
+
+	*)
+		echo "Non existing value"
+	;;
+
+	esac
+	
+	echo "press Enter for menu"
+	read key
+done
+}
+
+# java_config confirm
+java_config_confirm_func(){
+
+#java_config_confirm
+while [ java_config_confirm != "Q" ]
+do
+clear
+
+java_spec
+
+echo "[N]ext Step, [E]dit Existing: "
+
+read -p ": " java_config_confirm
+	case $java_config_confirm in
+
+	Q|q)
+		echo "Goodbye!"
+		exit
+	;;
+
+	N|n)
+		echo "Moving to next step"
+		# jump to goodbye?
+		echo -e "\njumping to where ...?\n"
+		break
+	;;
+
+	E|e)
+		java_spec
+
+		echo -e "\nWhat would you like to edit\n"
+		echo "[1] Java Heap Max Size"
+		echo "[2] Java Heap Min Size"
+		echo "[3] Max PermGen Size"
+
+	read -p "Enter option number: " java_config_edit
+
+	for letter in "$java_config_edit"; do
+
+	if [[ "$letter" == [1] ]];
+	then
+		java_heap_max_func
+		java_spec
+
+	elif [[ "$letter" == [2] ]];
+	then
+		java_heap_min_func
+		java_spec
+
+	elif [[ "$letter" == [3] ]];
+	then
+		permgen_size_func
+		db_spec
+	
+	else 
+		echo "Seriously?"
+		# exit | exit 1
+
+fi
+done
+;;
+
+F|f)
+	echo "my work is done here"
+	break
+;;
+
+*)
+	echo "non existing value"
+;;
+
+esac
+
+echo "press Enter for menu"
+read key
+done
+}
+
 # goodbye message
 goodbye(){
 echo -e "\n-------------------------------------------------\n"
@@ -369,7 +538,7 @@ m2ee:
  runtime_listen_addresses: "*"
  # custom java options, like -Xmx256m or -Djava.foo=bar
 javaopts: [
-   "-Dfile.encoding=UTF-8", "-XX:MaxPermSize=128M", "-Xmx512M", "-Xms512M",
+   "-Dfile.encoding=UTF-8", "-XX:MaxPermSize=${java_permgen}", "-Xmx${java_heap_max}", "-Xms${java_heap_min}",
    "-Djava.io.tmpdir=/path/to/project/directory/data/tmp",
  ]
  # file which will be read back by the m2ee log command to provide live logging
@@ -436,6 +605,9 @@ sed -i "s/\${db_host}/$db_host/g" $yaml
 sed -i "s/\${db_name}/$db_name/g" $yaml
 sed -i "s/\${db_user}/$db_user/g" $yaml
 sed -i "s/\${db_pass}/$db_pass/g" $yaml
+sed -i "s/\${java_heap_max}/$java_heap_max/g" $yaml
+sed -i "s/\${java_heap_min}/$java_heap_min/g" $yaml
+sed -i "s/\${java_permgen}/$java_permgen/g" $yaml
 
 # Make sure permissions are still correct
 chown $app_servicename:$app_servicename -R /home/$app_servicename
@@ -658,6 +830,10 @@ echo "press Enter for menu"
 read key
 done
 }
+
+# call java_config/confirm
+java_config
+java_config_confirm_func
 
 # nuff said
 config_mgmt_func
