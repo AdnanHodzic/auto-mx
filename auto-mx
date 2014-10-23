@@ -5,6 +5,12 @@
 # Mendix, as well rest of utility's which
 # are needed to run Mendix applications.
 
+# Root checker
+if [[ $EUID -ne 0 ]]; then
+   echo "Please run \"auto-mx\" as root user" 1>&2
+   exit 1
+fi
+
 # Service Settings
 service_settings(){
 
