@@ -5,7 +5,8 @@
 # Mendix, as well rest of utility's which
 # are needed to run Mendix applications.
 
-# Service Settings (service_settings)
+# Service Settings
+service_settings(){
 
 # Service Name
 app_servicename_func(){
@@ -91,6 +92,10 @@ echo -e "App. username: $app_username"
 echo -e "App. password: $app_password"
 echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++\n"
 }
+}
+
+# call service settings
+service_settings
 
 # Installer started (install_start) 
 while [ install_start != "Q" ]
@@ -204,7 +209,10 @@ read -p ": " destination_path
 done
 }
 
+
 # Confirm Service Settings
+service_settings_confirm(){
+
 while [ service_settings_confrim != "Q" ]
 do 
 clear
@@ -299,6 +307,11 @@ read -p ": " service_settings_confrim
 	echo "press Enter for menu"
 	read key
 done
+}
+
+# call service_settings_confirm
+service_settings
+service_settings_confirm
 
 # Java configuration
 java_config(){
@@ -368,10 +381,15 @@ read -p ": " java_init
 		java_permgen="128M"
 
 		echo -e "\nFinished with Java configuration\n"
-		echo -e "\nEnter any key to continue"
+		echo -e "Enter any key to continue"
 		read key
 		# make a different func jump?
-		goodbye
+	
+		echo -e "\nRunning config_mgmt_func\n"
+        config_mgmt_func
+        echo -e "\nrunning goodbye\n"
+        goodbye	
+
 	;;
 	
 	#S|s)
@@ -611,6 +629,7 @@ sed -i "s/\${java_permgen}/$java_permgen/g" $yaml
 
 # Make sure permissions are still correct
 chown $app_servicename:$app_servicename -R /home/$app_servicename
+goodbye
 }
 
 # Database configuration
@@ -702,6 +721,13 @@ read -p ": " db_init
 		echo -e "\nFinished with PostgresSQL local setup\n"
 		echo -e "\nEnter any key to continue"
 		read key
+		
+		echo -e "\nRunning config_mgmt_func\n"
+		java_config
+		java_config_confirm_func
+
+		config_mgmt_func
+		echo -e "\nrunning goodbye\n"
 		goodbye
 	;;
 	
@@ -732,9 +758,6 @@ echo -e "Database name: $db_name"
 echo -e "Database username: $db_user"
 echo -e "Database pasword: $db_password\n"
 }
-
-# db_config call
-db_config
 
 db_config_confirm_func(){
 
@@ -830,6 +853,10 @@ echo "press Enter for menu"
 read key
 done
 }
+
+# call db_config/confirm
+db_config
+db_config_confirm_func
 
 # call java_config/confirm
 java_config
