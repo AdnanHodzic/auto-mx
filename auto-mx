@@ -164,6 +164,13 @@ echo -e "-----------------------------------------\n"
 read -p "Specify \"custom app. destination\": " path
 }
 
+custom_path_spec(){
+echo -e "\n----------------------------------------------------------\n"
+echo -e "You've specified following as your custom path:"
+echo -e "$path"
+echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
+}
+
 while [ destination_path != "Q" ]
 do
 clear
@@ -194,9 +201,12 @@ read -p ": " destination_path
     C|c )
     	# todo | extend this!
 		custom_appdest_func	
-        echo "Specified path: $path"   
+		custom_path_spec
+        # echo "Specified path: $path"   
 		# if this var specified
 		# jump to next func?
+		read key
+		config_mgmt_func
 		break
     ;;
 
