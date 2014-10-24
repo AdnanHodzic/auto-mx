@@ -6,10 +6,12 @@
 # are needed to run Mendix applications.
 
 # Root checker
+root_check(){
 if [[ $EUID -ne 0 ]]; then
    echo "Please run \"auto-mx\" as root user" 1>&2
    exit 1
 fi
+}
 
 # Service Settings
 service_settings(){
@@ -122,7 +124,8 @@ read -p ": " service_settings_confrim
 	N|n)
 		echo "Moving to next step"
 		# Jump to the next step
-		destination_path
+		# destination_path
+		# destination_path_func
 		break
 	;;
 	
@@ -199,12 +202,109 @@ read -p ": " service_settings_confrim
 done
 }
 
+# Destination Path
+destination_path_func(){
 
+# Define custom path
+custom_appdest_func(){
+echo -e "-----------------------------------------\n"
+read -p "Specify custom app. destination: " path
+}
 
-# call service settings
-service_settings
+custom_path_spec(){
+echo -e "\n----------------------------------------------------------\n"
+echo -e "You've specified following location as your custom"
+echo -e "\napp. path (i.e /opt/app-03): $path"
+echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
+}
+
+while [ destination_path != "Q" ]
+do
+clear
+
+# Specify destination path
+echo -e "\n------------------------------------------\n"
+echo -e "Specify location of apps and server files "
+echo -e "\n++++++++++++++++++++++++++++++++++++++++++\n"
+echo -e "We recommend: /srv/mendix/$app_servicename"
+echo -e "to be your path."
+echo -e "\n++++++++++++++++++++++++++++++++++++++++++\n"
+
+echo -e "[A]ccept and proceed"
+echo -e "[C]ustomize your own path"
+#echo -e "[Q]uit"
+
+# Destination Path Start
+read -p ": " destination_path_init
+
+    case $destination_path_init in
+
+    A|a )
+    	path="/srv/mendix/$app_username"
+		
+		# Jump to Database Configuration
+		db_config
+	;;
+
+    C|c )
+		# calling custom destination func
+		custom_appdest_func	
+		custom_path_spec
+		
+		# confirm custom path
+		destination_path_confirm_func
+    ;;
+
+	Q|q)
+		echo "Aborting installation"
+		exit 1
+	;;
+
+	*) 
+	echo "Non existing value"
+	;;
+
+    esac
+    echo "press Enter for menu"
+	read key
+done
+}
+
+# destination_path_confirm function
+destination_path_confirm_func(){
+
+while [ destination_path_confirm != "Q" ]
+do
+clear
+
+custom_path_spec
+
+echo "[N]ext Step, [E]dit Existing: "
+
+read -p ": " destination_path_confirm
+    case $destination_path_confirm in
+
+    Q|q)
+        echo "Goodbye!"
+        exit
+    ;;
+
+    N|n)
+        db_config 
+		#break
+    ;;
+
+	E|e)
+		custom_path_spec
+		custom_appdest_func
+	;;
+	esac
+done
+}
+
 
 # Installer started (install_start) 
+install_start_func(){
 while [ install_start != "Q" ]
 do 
 clear
@@ -255,80 +355,220 @@ read -p ": " install_start
 	echo "press Enter for menu"
 	read key
 done
-
-# Specify destinaton path (destination_path)
-destination_path(){
-
-# Define custom path
-custom_appdest_func(){
-echo -e "-----------------------------------------\n"
-read -p "Specify \"custom app. destination\": " path
 }
 
-custom_path_spec(){
+# Database configuration
+db_config(){
+
+# db_type
+db_type_func(){
 echo -e "\n----------------------------------------------------------\n"
-echo -e "You've specified following as your custom path:"
-echo -e "$path"
+read -p "Specify \"Database Type\", i.e (PostgreSQL): " db_type
+} 
+
+# db_host
+db_host_func(){
+echo -e "\n----------------------------------------------------------\n"
+read -p "Specify \"Database Host\", i.e (127.0.0.1:5432): " db_host
+}
+
+# db_name
+db_name_func(){
+echo -e "\n----------------------------------------------------------\n"
+read -p "Specify \"Database Name\", i.e (mxpgdb): " db_name
+}
+
+# db_username
+db_user_func(){
+echo -e "\n----------------------------------------------------------\n"
+read -p "Specify \"Database Username\", i.e (mxpgusr): " db_user
+}
+
+# db_password
+db_pass_func(){
+echo -e "\n----------------------------------------------------------\n"
+read -p "Specify \"Database Password\", i.e (mx7gdb_p5w): " db_pass
+}
+
+db_spec(){
+echo -e "\n----------------------------------------------------------\n"
+echo -e "You've specified following values:"
+echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
+echo -e "Database type: $db_type"
+echo -e "Database host: $db_host"
+echo -e "Database name: $db_name"
+echo -e "Database username: $db_user"
+echo -e "Database password: $db_pass"
 echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
 }
 
-while [ destination_path != "Q" ]
+# DB Init start
+while [ db_init != "Q" ]
 do
 clear
 
-# Specify destination path
-echo -e "\n------------------------------------------\n"
-echo -e "Specify location of apps and server files "
-echo -e "\n++++++++++++++++++++++++++++++++++++++++++\n"
-echo -e "We recommend: /srv/mendix/$app_servicename"
-echo -e "to be your path."
-echo -e "\n++++++++++++++++++++++++++++++++++++++++++\n"
-
-echo -e "[A]ccept and proceed"
-echo -e "[C]ustomize your own path"
+# Display menu
+echo -e "\n------------------------------------------------\n"
+echo -e "Configure database?"
+echo -e "\n------------------------------------------------\n"
+echo -e "[Y]es"
+echo -e "[D]efault/Local install"
 #echo -e "[Q]uit"
 
-read -p ": " destination_path
-
-    case $destination_path in
-
-    A|a )
-    	path="/srv/mendix/$app_username"
-    	echo "$path"
-    	echo "movin on"
-    	break
-	;;
-
-    C|c )
-    	# todo | extend this!
-		custom_appdest_func	
-		custom_path_spec
-        # echo "Specified path: $path"   
-		# if this var specified
-		# jump to next func?
-		read key
-		config_mgmt_func
-		break
-    ;;
+read -p ": " db_init
+	case $db_init in
 
 	Q|q)
-		echo "Aborting installation"
+		echo "Goodbye!"
 		exit 1
 	;;
 
-	*) 
-	echo "Non existing value"
+	Y|y)
+		# calling db functions
+		db_type_func
+		db_host_func
+		db_name_func
+		db_user_func
+		db_pass_func
+
+		db_spec
+		
+		db_config_confirm_func
 	;;
 
-    esac
-    echo "press Enter for menu"
+	D|d)
+		# postgres local setup
+		su - postgres -c "psql -d template1 -U postgres -c \"CREATE USER mxpgusr WITH PASSWORD 'mx7gdb_p5w' \" "
+		su - postgres -c "psql -d template1 -U postgres -c \"CREATE DATABASE mxpgdb \" "
+		su - postgres -c "psql -d template1 -U postgres -c \"GRANT ALL PRIVILEGES ON DATABASE mxpgdb to mxpgusr \" "
+		
+		echo -e "\nFinished with PostgresSQL local setup\n"
+		echo -e "\nEnter any key to continue"
+		read key
+		
+		java_config
+	;;
+	
+	S|s)
+		echo "\nSkipping database configuration/install ....\n"
+		#exit 1
+		break
+	;;
+
+	*)
+		echo "Non existing value"
+	;;
+
+	esac
+	
+	echo "press Enter for menu"
 	read key
 done
 }
 
-# call service_settings_confirm
-service_settings
-service_settings_confirm
+db_spec(){
+echo -e "\n-----------------------------------------\n"
+echo -e "\nYou've specified following values:\n"
+echo -e "\n++++++++++++++++++++++++++++++++++++++++\n"
+echo -e "Database type: $db_type"
+echo -e "Database host: $db_host"
+echo -e "Database name: $db_name"
+echo -e "Database username: $db_user"
+echo -e "Database pasword: $db_password\n"
+}
+
+db_config_confirm_func(){
+
+#db_config_confirm
+while [ db_config_confirm != "Q" ]
+do
+clear
+
+db_spec
+
+echo "[N]ext Step, [E]dit Existing: "
+
+read -p ": " db_config_confirm
+	case $db_config_confirm in
+
+	Q|q)
+		echo "Goodbye!"
+		exit
+	;;
+
+	N|n)
+		echo "Moving to next step"
+		java_config
+	;;
+
+	E|e)
+		db_spec
+
+		echo -e "\nWhat would you like to edit\n"
+		echo "[1] Database type"
+		echo "[2] Database host"
+		echo "[3] Database name"
+		echo "[4] Database username"
+		echo "[5] Database password"
+
+	read -p "Enter option number: " db_config_edit
+
+	for letter in "$db_config_edit"; do
+
+	if [[ "$letter" == [1] ]];
+	then
+		db_type_func
+		db_spec
+
+	elif [[ "$letter" == [2] ]];
+	then
+		db_host_func
+		db_spec
+
+	elif [[ "$letter" == [3] ]];
+	then
+		db_name_func
+		db_spec
+
+	elif [[ "$letter" == [4] ]];
+	then
+		db_user_func
+		db_spec
+	
+	elif [[ "$letter" == [5] ]];
+	then
+		db_pass_func
+	
+		db_spec
+	
+	#elif [[ "$letter" == [Ff] ]];
+	#then
+	#	echo "finishing up"
+	#	break
+
+	else 
+		echo "Seriously?"
+		# exit | exit 1
+
+fi
+done
+;;
+
+F|f)
+	echo "my work is done here"
+	break
+;;
+
+*)
+	echo "non existing value"
+;;
+
+esac
+
+echo "press Enter for menu"
+read key
+done
+}
 
 # Java configuration
 java_config(){
@@ -504,6 +744,36 @@ read key
 done
 }
 
+
+# Calls
+
+# root check 
+root_check
+
+# call service settings
+service_settings
+
+# install start
+install_start_func
+
+# service settings confirm
+service_settings_confirm
+
+# destination path
+destination_path_func
+#destination_path_confirm_func
+
+
+echo -e "\nWe're here (line 378)\n"
+read key
+
+# post db_config/confirm?
+
+
+# call service_settings/confirm
+#service_settings
+#service_settings_confirm
+
 # goodbye message
 goodbye(){
 echo -e "\n-------------------------------------------------\n"
@@ -556,10 +826,12 @@ yaml_content='# Full m2ee.yaml documentation available on:
 mxnode:
  # myjar (https://github.com/mendix/m2ee-tools/blob/develop/examples/full-documented-m2ee.yaml)
  # mxjar_repo: /usr/local/share/mendix/
- mxjar_repo: /srv/mendix/${app_servicename}/data/runtime
+ #mxjar_repo: /srv/mendix/${app_servicename}/data/runtime
+ mxjar_repo: ${path}/data/runtime
 
 m2ee:
- app_name: ${app_displayname}
+ #app_name: ${app_displayname}
+ app_name: ${path} 
  app_base: /srv/mendix/${app_servicename}
  # m2ee http admin interface and password
  admin_port: 9000
@@ -579,7 +851,7 @@ javaopts: [
  # file which will be read back by the m2ee log command to provide live logging
  # info this is *not* a file m2ee-tools is going to write to, it is a hint
  # about where to find the log which is written by the mendix application
- # logfile: /var/log/mendix/log
+ # logf (i.e ile: /var/log/mendix/log
 logging:
  - # example of file logging by the platform itself
    name: FileSubscriber
@@ -643,233 +915,14 @@ sed -i "s/\${db_pass}/$db_pass/g" $yaml
 sed -i "s/\${java_heap_max}/$java_heap_max/g" $yaml
 sed -i "s/\${java_heap_min}/$java_heap_min/g" $yaml
 sed -i "s/\${java_permgen}/$java_permgen/g" $yaml
+sed -i "s/\${path}/$path/g" $yaml
+
 
 # Make sure permissions are still correct
 chown $app_servicename:$app_servicename -R /home/$app_servicename
 goodbye
 }
 
-# Database configuration
-db_config(){
-
-# db_type
-db_type_func(){
-echo -e "\n----------------------------------------------------------\n"
-read -p "Specify \"Database Type\", i.e (PostgreSQL): " db_type
-} 
-
-# db_host
-db_host_func(){
-echo -e "\n----------------------------------------------------------\n"
-read -p "Specify \"Database Host\", i.e (127.0.0.1:5432): " db_host
-}
-
-# db_name
-db_name_func(){
-echo -e "\n----------------------------------------------------------\n"
-read -p "Specify \"Database Name\", i.e (mxpgdb): " db_name
-}
-
-# db_username
-db_user_func(){
-echo -e "\n----------------------------------------------------------\n"
-read -p "Specify \"Database Username\", i.e (mxpgusr): " db_user
-}
-
-# db_password
-db_pass_func(){
-echo -e "\n----------------------------------------------------------\n"
-read -p "Specify \"Database Password\", i.e (mx7gdb_p5w): " db_pass
-}
-
-db_spec(){
-echo -e "\n----------------------------------------------------------\n"
-echo -e "You've specified following values:"
-echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
-echo -e "Database type: $db_type"
-echo -e "Database host: $db_host"
-echo -e "Database name: $db_name"
-echo -e "Database username: $db_user"
-echo -e "Database password: $db_pass"
-echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
-}
-
-# DB Init start
-while [ db_init != "Q" ]
-do
-clear
-
-# Display menu
-echo -e "\n------------------------------------------------\n"
-echo -e "Configure database?"
-echo -e "\n------------------------------------------------\n"
-echo -e "[Y]es"
-echo -e "[D]efault/Local install"
-#echo -e "[Q]uit"
-
-read -p ": " db_init
-	case $db_init in
-
-	Q|q)
-		echo "Goodbye!"
-		exit 1
-	;;
-
-	Y|y)
-		# calling db functions
-		db_type_func
-		db_host_func
-		db_name_func
-		db_user_func
-		db_pass_func
-
-		db_spec
-		break
-	;;
-
-	D|d)
-		# postgres setup
-		#su -u postgres psql -c "ALTER USER postgres PASSWORD 'postgres';"
-		#su - postgres -c "psql -d template1 -U postgres -c \"CREATE USER mxpgusr WITH PASSWORD' \''mx7gdb_p5w'\'' \" "
-		su - postgres -c "psql -d template1 -U postgres -c \"CREATE USER mxpgusr WITH PASSWORD 'mx7gdb_p5w' \" "
-		su - postgres -c "psql -d template1 -U postgres -c \"CREATE DATABASE mxpgdb \" "
-		su - postgres -c "psql -d template1 -U postgres -c \"GRANT ALL PRIVILEGES ON DATABASE mxpgdb to mxpgusr \" "
-		
-		echo -e "\nFinished with PostgresSQL local setup\n"
-		echo -e "\nEnter any key to continue"
-		read key
-		
-		echo -e "\nRunning config_mgmt_func\n"
-		java_config
-		java_config_confirm_func
-
-		config_mgmt_func
-		echo -e "\nrunning goodbye\n"
-		goodbye
-	;;
-	
-	S|s)
-		echo "\nSkipping database configuration/install ....\n"
-		#exit 1
-		break
-	;;
-
-	*)
-		echo "Non existing value"
-	;;
-
-	esac
-	
-	echo "press Enter for menu"
-	read key
-done
-}
-
-db_spec(){
-echo -e "\n-----------------------------------------\n"
-echo -e "\nYou've specified following values:\n"
-echo -e "\n++++++++++++++++++++++++++++++++++++++++\n"
-echo -e "Database type: $db_type"
-echo -e "Database host: $db_host"
-echo -e "Database name: $db_name"
-echo -e "Database username: $db_user"
-echo -e "Database pasword: $db_password\n"
-}
-
-db_config_confirm_func(){
-
-#db_config_confirm
-while [ db_config_confirm != "Q" ]
-do
-clear
-
-db_spec
-
-echo "[N]ext Step, [E]dit Existing: "
-
-read -p ": " db_config_confirm
-	case $db_config_confirm in
-
-	Q|q)
-		echo "Goodbye!"
-		exit
-	;;
-
-	N|n)
-		echo "Moving to next step"
-		# Jump to yaml interpreter
-		echo -e "\njumping to yaml interpreter part ...\n"
-		break
-	;;
-
-	E|e)
-		db_spec
-
-		echo -e "\nWhat would you like to edit\n"
-		echo "[1] Database type"
-		echo "[2] Database host"
-		echo "[3] Database name"
-		echo "[4] Database username"
-		echo "[5] Database password"
-
-	read -p "Enter option number: " db_config_edit
-
-	for letter in "$db_config_edit"; do
-
-	if [[ "$letter" == [1] ]];
-	then
-		db_type_func
-		db_spec
-
-	elif [[ "$letter" == [2] ]];
-	then
-		db_host_func
-		db_spec
-
-	elif [[ "$letter" == [3] ]];
-	then
-		db_name_func
-		db_spec
-
-	elif [[ "$letter" == [4] ]];
-	then
-		db_user_func
-		db_spec
-	
-	elif [[ "$letter" == [5] ]];
-	then
-		db_pass_func
-	
-		db_spec
-	
-	#elif [[ "$letter" == [Ff] ]];
-	#then
-	#	echo "finishing up"
-	#	break
-
-	else 
-		echo "Seriously?"
-		# exit | exit 1
-
-fi
-done
-;;
-
-F|f)
-	echo "my work is done here"
-	break
-;;
-
-*)
-	echo "non existing value"
-;;
-
-esac
-
-echo "press Enter for menu"
-read key
-done
-}
 
 # call db_config/confirm
 db_config
