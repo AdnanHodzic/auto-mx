@@ -100,6 +100,107 @@ echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++\n"
 }
 }
 
+# Confirm Service Settings
+service_settings_confirm(){
+
+while [ service_settings_confrim != "Q" ]
+do 
+clear
+
+spec
+
+echo "[N]ext Step, [E]edit Existing: "
+
+read -p ": " service_settings_confrim
+	case $service_settings_confrim in 
+
+	Q|q)
+		echo "Goodbye!"
+		exit
+	;;
+
+	N|n)
+		echo "Moving to next step"
+		# Jump to the next step
+		destination_path
+		break
+	;;
+	
+	E|e)
+		spec
+	
+		echo -e "\nWhat would you like to edit?\n"
+		echo "[1] Service Name"
+		echo "[2] Display "
+		echo "[3] Description"
+		echo "[4] Start at boot"
+		echo "[5] App. username"
+		echo "[6] App. password"
+	
+	read -p "Enter option number: " service_settings_edit
+
+	for letter in "$service_settings_edit"; do
+
+	if [[ "$letter" == [1] ]]; 
+	then
+		app_servicename_func
+		spec
+
+	elif [[ "$letter" == [2] ]]; 
+	then
+		app_displayname_func
+		spec
+
+	elif [[ "$letter" == [3] ]]; 
+	then
+		app_description_func
+		spec
+
+	elif [[ "$letter" == [4] ]]; 
+	then
+		app_startup_func
+		spec
+
+	elif [[ "$letter" == [5] ]]; 
+	then
+		app_username_func
+		spec
+	
+	elif [[ "$letter" == [6] ]]; 
+	then
+		app_password_func
+		spec
+	#elif [[ "$letter" == [Ff] ]]; 
+	#then
+	#	echo "finishing"
+	#	break
+
+	else
+		echo "Seriously?"
+		# exit | exit 1			
+
+	fi
+	done
+	;;
+
+	F|f)
+		echo "my work is done here"
+		break
+	;;
+
+	*) 
+	echo "Non existing value"
+	;;
+	
+	esac
+
+	echo "press Enter for menu"
+	read key
+done
+}
+
+
+
 # call service settings
 service_settings
 
@@ -221,106 +322,6 @@ read -p ": " destination_path
 
     esac
     echo "press Enter for menu"
-	read key
-done
-}
-
-
-# Confirm Service Settings
-service_settings_confirm(){
-
-while [ service_settings_confrim != "Q" ]
-do 
-clear
-
-spec
-
-echo "[N]ext Step, [E]edit Existing: "
-
-read -p ": " service_settings_confrim
-	case $service_settings_confrim in 
-
-	Q|q)
-		echo "Goodbye!"
-		exit
-	;;
-
-	N|n)
-		echo "Moving to next step"
-		# Jump to the next step
-		destination_path
-		break
-	;;
-	
-	E|e)
-		spec
-	
-		echo -e "\nWhat would you like to edit?\n"
-		echo "[1] Service Name"
-		echo "[2] Display "
-		echo "[3] Description"
-		echo "[4] Start at boot"
-		echo "[5] App. username"
-		echo "[6] App. password"
-	
-	read -p "Enter option number: " service_settings_edit
-
-	for letter in "$service_settings_edit"; do
-
-	if [[ "$letter" == [1] ]]; 
-	then
-		app_servicename_func
-		spec
-
-	elif [[ "$letter" == [2] ]]; 
-	then
-		app_displayname_func
-		spec
-
-	elif [[ "$letter" == [3] ]]; 
-	then
-		app_description_func
-		spec
-
-	elif [[ "$letter" == [4] ]]; 
-	then
-		app_startup_func
-		spec
-
-	elif [[ "$letter" == [5] ]]; 
-	then
-		app_username_func
-		spec
-	
-	elif [[ "$letter" == [6] ]]; 
-	then
-		app_password_func
-		spec
-	#elif [[ "$letter" == [Ff] ]]; 
-	#then
-	#	echo "finishing"
-	#	break
-
-	else
-		echo "Seriously?"
-		# exit | exit 1			
-
-	fi
-	done
-	;;
-
-	F|f)
-		echo "my work is done here"
-		break
-	;;
-
-	*) 
-	echo "Non existing value"
-	;;
-	
-	esac
-
-	echo "press Enter for menu"
 	read key
 done
 }
