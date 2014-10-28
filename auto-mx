@@ -357,6 +357,17 @@ read -p ": " install_start
 done
 }
 
+# goodbye message
+goodbye(){
+echo -e "\n-------------------------------------------------\n"
+echo -e "Installation complete!\n"
+echo -e "For any additional customization please take"
+echo -e "take a look in: /home/$app_servicename/.m2ee/m2ee.yaml"
+echo -e "\n-------------------------------------------------\n" 
+exit
+}
+
+
 # Database configuration
 db_config(){
 
@@ -570,6 +581,145 @@ read key
 done
 }
 
+# Configuration Management
+config_mgmt_func(){
+
+# User creation
+echo -e "\nCreating "$app_username" user ...\n"
+adduser --disabled-password --gecos "$app_displayname" $app_servicename
+
+# Create a directory structure
+mkdir -p $path
+mkdir -p $path/web
+mkdir -p $path/model
+mkdir -p $path/data
+mkdir -p $path/data/database
+mkdir -p $path/data/files
+mkdir -p $path/data/model-upload
+mkdir -p $path/data/runtime
+mkdir -p $path/data/tmp
+
+# Fixing permissions
+echo -e "\nFixing permissions\n"
+chown $app_servicename:$app_servicename -R $path
+chown 700 -R $path/data/
+chown 700 -R $path/model/
+
+# m2ee.yaml contents
+# move contents to: 
+# /usr/share/doc/m2ee-tools/examples/auto-mx-template.m2ee.yaml
+# Eventually put this template as file
+# in auto-mx deb package.
+yaml_content='# Full m2ee.yaml documentation available on:
+# https://github.com/mendix/m2ee-tools/blob/develop/examples/full-documented-m2ee.yaml
+#
+# ~/.m2ee/m2ee.yaml
+# user/application specific configuration
+#
+# All non-essential configuration settings have been omitted in this example
+# file. Refer to the full-documented-m2ee.yaml in the examples directory for a
+# full list of available options and explanation about them.
+#
+mxnode:
+ # myjar (https://github.com/mendix/m2ee-tools/blob/develop/examples/full-documented-m2ee.yaml)
+ # mxjar_repo: /usr/local/share/mendix/
+ #mxjar_repo: /srv/mendix/${app_servicename}/data/runtime
+ mxjar_repo: ${path}/data/runtime
+
+m2ee:
+ app_name: ${app_displayname}
+ app_base: ${path}
+ # m2ee http admin interface and password
+ admin_port: 9000
+ admin_listen_addresses: "*"
+ admin_pass: ${app_password}
+ # mxruntime web interface port
+ runtime_port: 8000
+
+ # set to * if you want to have the public runtime port accessible from other
+ # hosts than localhost (Mendix >= 4.3.0)
+ runtime_listen_addresses: "*"
+ # custom java options, like -Xmx256m or -Djava.foo=bar
+javaopts: [
+   "-Dfile.encoding=UTF-8", "-XX:MaxPermSize=${java_permgen}", "-Xmx${java_heap_max}", "-Xms${java_heap_min}",
+   "-Djava.io.tmpdir=/path/to/project/directory/data/tmp",
+ ]
+ # file which will be read back by the m2ee log command to provide live logging
+ # info this is *not* a file m2ee-tools is going to write to, it is a hint
+ # about where to find the log which is written by the mendix application
+ # logf (i.e ile: /var/log/mendix/log
+logging:
+ - # example of file logging by the platform itself
+   name: FileSubscriber
+   type: file
+   autosubscribe: INFO
+   filename: /var/log/mendix/${app_servicename}/log
+   max_size: 10485760 # bytes(!!)
+   max_rotation: 7
+mxruntime:
+ # Database login credentials
+ DatabaseType: ${db_type}
+ # The DatabaseHost contains the database hostname and optionally, also the TCP
+ # port number.  It\s possible to use a plain IPv6 address by enclosing it in
+ # brackets, like: "[::1]:5432"
+ DatabaseHost: ${db_host}
+ DatabaseName: ${db_name}
+ DatabaseUserName: ${db_user}
+ DatabasePassword: ${db_pass}
+
+ MicroflowConstants:
+  # put microflow constants in here
+  Module.Constant: text
+  AnotherModule.AnotherConstant: bla
+
+ # ScheduledEventExecution can be set to ALL, NONE (default) or SPECIFIED
+ ScheduledEventExecution: NONE
+ # When using ScheduledEventExecution SPECIFIED, provide a list of actions to
+ # enable:
+ MyScheduledEvents:
+  - Module1.Event1
+  - Module2.Event2
+  - Module3.Event3'
+
+yaml=/home/$app_servicename/.m2ee/m2ee.yaml
+
+# .m2ee creation
+echo -e "\nm2ee creation\n"
+mkdir -p /home/$app_servicename/.m2ee
+#touch $yaml
+
+# create log file
+mkdir -p /var/log/mendix/$app_servicename
+touch /var/log/mendix/$app_servicename/log
+
+# todo
+# make a loop if the $yaml already exists
+# ask user what to do
+echo -n "$yaml_content" > "$yaml"
+
+# todo
+# make a phraser
+# Yaml Interpreter
+sed -i "s/\${app_displayname}/$app_displayname/g" $yaml
+sed -i "s/\${app_servicename}/$app_servicename/g" $yaml
+sed -i "s/\${app_password}/$app_password/g" $yaml
+sed -i "s/\${db_type}/$db_type/g" $yaml
+sed -i "s/\${db_host}/$db_host/g" $yaml
+sed -i "s/\${db_name}/$db_name/g" $yaml
+sed -i "s/\${db_user}/$db_user/g" $yaml
+sed -i "s/\${db_pass}/$db_pass/g" $yaml
+sed -i "s/\${java_heap_max}/$java_heap_max/g" $yaml
+sed -i "s/\${java_heap_min}/$java_heap_min/g" $yaml
+sed -i "s/\${java_permgen}/$java_permgen/g" $yaml
+sed -i "s+\${path}+$path+g" $yaml
+
+
+# Make sure permissions are still correct
+chown $app_servicename:$app_servicename -R /home/$app_servicename
+goodbye
+}
+
+
 # Java configuration
 java_config(){
 
@@ -774,154 +924,7 @@ read key
 #service_settings
 #service_settings_confirm
 
-# goodbye message
-goodbye(){
-echo -e "\n-------------------------------------------------\n"
-echo -e "Installation complete!\n"
-echo -e "For any additional customization please take"
-echo -e "take a look in: /home/$app_servicename/.m2ee/m2ee.yaml"
-echo -e "\n-------------------------------------------------\n" 
-exit
-}
 
-# Configuration Management
-config_mgmt_func(){
-
-# User creation
-echo -e "\nCreating "$app_username" user ...\n"
-adduser --disabled-password --gecos "$app_displayname" $app_servicename
-
-# Create a directory structure
-mkdir -p $path
-mkdir -p $path/web
-mkdir -p $path/model
-mkdir -p $path/data
-mkdir -p $path/data/database
-mkdir -p $path/data/files
-mkdir -p $path/data/model-upload
-mkdir -p $path/data/runtime
-mkdir -p $path/data/tmp
-
-# Fixing permissions
-echo -e "\nFixing permissions\n"
-chown $app_servicename:$app_servicename -R $path
-chown 700 -R $path/data/
-chown 700 -R $path/model/
-
-# m2ee.yaml contents
-# move contents to: 
-# /usr/share/doc/m2ee-tools/examples/auto-mx-template.m2ee.yaml
-# Eventually put this template as file
-# in auto-mx deb package.
-yaml_content='# Full m2ee.yaml documentation available on:
-# https://github.com/mendix/m2ee-tools/blob/develop/examples/full-documented-m2ee.yaml
-#
-# ~/.m2ee/m2ee.yaml
-# user/application specific configuration
-#
-# All non-essential configuration settings have been omitted in this example
-# file. Refer to the full-documented-m2ee.yaml in the examples directory for a
-# full list of available options and explanation about them.
-#
-mxnode:
- # myjar (https://github.com/mendix/m2ee-tools/blob/develop/examples/full-documented-m2ee.yaml)
- # mxjar_repo: /usr/local/share/mendix/
- #mxjar_repo: /srv/mendix/${app_servicename}/data/runtime
- mxjar_repo: ${path}/data/runtime
-
-m2ee:
- #app_name: ${app_displayname}
- app_name: ${path} 
- app_base: /srv/mendix/${app_servicename}
- # m2ee http admin interface and password
- admin_port: 9000
- admin_listen_addresses: "*"
- admin_pass: ${app_password}
- # mxruntime web interface port
- runtime_port: 8000
-
- # set to * if you want to have the public runtime port accessible from other
- # hosts than localhost (Mendix >= 4.3.0)
- runtime_listen_addresses: "*"
- # custom java options, like -Xmx256m or -Djava.foo=bar
-javaopts: [
-   "-Dfile.encoding=UTF-8", "-XX:MaxPermSize=${java_permgen}", "-Xmx${java_heap_max}", "-Xms${java_heap_min}",
-   "-Djava.io.tmpdir=/path/to/project/directory/data/tmp",
- ]
- # file which will be read back by the m2ee log command to provide live logging
- # info this is *not* a file m2ee-tools is going to write to, it is a hint
- # about where to find the log which is written by the mendix application
- # logf (i.e ile: /var/log/mendix/log
-logging:
- - # example of file logging by the platform itself
-   name: FileSubscriber
-   type: file
-   autosubscribe: INFO
-   filename: /var/log/mendix/${app_servicename}/log
-   max_size: 10485760 # bytes(!!)
-   max_rotation: 7
-mxruntime:
- # Database login credentials
- DatabaseType: ${db_type}
- # The DatabaseHost contains the database hostname and optionally, also the TCP
- # port number.  It\s possible to use a plain IPv6 address by enclosing it in
- # brackets, like: "[::1]:5432"
- DatabaseHost: ${db_host}
- DatabaseName: ${db_name}
- DatabaseUserName: ${db_user}
- DatabasePassword: ${db_pass}
-
- MicroflowConstants:
-  # put microflow constants in here
-  Module.Constant: text
-  AnotherModule.AnotherConstant: bla
-
- # ScheduledEventExecution can be set to ALL, NONE (default) or SPECIFIED
- ScheduledEventExecution: NONE
- # When using ScheduledEventExecution SPECIFIED, provide a list of actions to
- # enable:
- MyScheduledEvents:
-  - Module1.Event1
-  - Module2.Event2
-  - Module3.Event3'
-
-yaml=/home/$app_servicename/.m2ee/m2ee.yaml
-
-# .m2ee creation
-echo -e "\nm2ee creation\n"
-mkdir -p /home/$app_servicename/.m2ee
-#touch $yaml
-
-# create log file
-mkdir -p /var/log/mendix/$app_servicename
-touch /var/log/mendix/$app_servicename/log
-
-# todo
-# make a loop if the $yaml already exists
-# ask user what to do
-echo -n "$yaml_content" > "$yaml"
-
-# todo
-# make a phraser
-# Yaml Interpreter
-sed -i "s/\${app_displayname}/$app_displayname/g" $yaml
-sed -i "s/\${app_servicename}/$app_servicename/g" $yaml
-sed -i "s/\${app_password}/$app_password/g" $yaml
-sed -i "s/\${db_type}/$db_type/g" $yaml
-sed -i "s/\${db_host}/$db_host/g" $yaml
-sed -i "s/\${db_name}/$db_name/g" $yaml
-sed -i "s/\${db_user}/$db_user/g" $yaml
-sed -i "s/\${db_pass}/$db_pass/g" $yaml
-sed -i "s/\${java_heap_max}/$java_heap_max/g" $yaml
-sed -i "s/\${java_heap_min}/$java_heap_min/g" $yaml
-sed -i "s/\${java_permgen}/$java_permgen/g" $yaml
-sed -i "s/\${path}/$path/g" $yaml
-
-
-# Make sure permissions are still correct
-chown $app_servicename:$app_servicename -R /home/$app_servicename
-goodbye
-}
 
 
 # call db_config/confirm
