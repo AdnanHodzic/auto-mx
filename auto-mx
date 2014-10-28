@@ -458,6 +458,7 @@ read -p ": " db_init
 		read key
 		
 		java_config
+		java_config_confirm
 	;;
 	
 	S|s)
@@ -623,7 +624,6 @@ yaml_content='# Full m2ee.yaml documentation available on:
 mxnode:
  # myjar (https://github.com/mendix/m2ee-tools/blob/develop/examples/full-documented-m2ee.yaml)
  # mxjar_repo: /usr/local/share/mendix/
- #mxjar_repo: /srv/mendix/${app_servicename}/data/runtime
  mxjar_repo: ${path}/data/runtime
 
 m2ee:
@@ -779,7 +779,9 @@ read -p ": " java_init
 		java_permgen_func
 
 		java_spec
-		break
+		#break
+
+		java_config_confirm_func
 	;;
 
 	N|n)
@@ -837,10 +839,7 @@ read -p ": " java_config_confirm
 	;;
 
 	N|n)
-		echo "Moving to next step"
-		# jump to goodbye?
-		echo -e "\njumping to where ...?\n"
-		break
+		config_mgmt_func	
 	;;
 
 	E|e)
@@ -867,8 +866,8 @@ read -p ": " java_config_confirm
 
 	elif [[ "$letter" == [3] ]];
 	then
-		permgen_size_func
-		db_spec
+		java_permgen_func
+		java_spec
 	
 	else 
 		echo "Seriously?"
@@ -894,8 +893,9 @@ read key
 done
 }
 
-
 # Calls
+# ToDo
+# Clear out unused
 
 # root check 
 root_check
@@ -913,19 +913,11 @@ service_settings_confirm
 destination_path_func
 #destination_path_confirm_func
 
-
-echo -e "\nWe're here (line 378)\n"
-read key
-
 # post db_config/confirm?
-
 
 # call service_settings/confirm
 #service_settings
 #service_settings_confirm
-
-
-
 
 # call db_config/confirm
 db_config
