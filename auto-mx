@@ -16,11 +16,17 @@ fi
 # Service Settings
 service_settings(){
 
-# Service Name
-app_servicename_func(){
-echo -e "\n---------------------------------------------------\n"
-read -p "Specify \"Service Name\", i.e (NewApp): " app_servicename
+# System User Account
+app_system_user_func(){
+echo -e "---------------------------------------------------\n"
+read -p "Specify \"System User Account\": " app_system_user
 }
+
+# Service Name
+#app_servicename_func(){
+#echo -e "\n---------------------------------------------------\n"
+#read -p "Specify \"Service Name\", i.e (NewApp): " app_servicename
+# }
 
 # Display Name 
 app_displayname_func(){
@@ -76,11 +82,11 @@ fi
 done
 }
 
-# Username 
-app_username_func(){
-echo -e "---------------------------------------------------\n"
-read -p "Specify \"User Name\": " app_username
-}
+## Username 
+#app_username_func(){
+#echo -e "---------------------------------------------------\n"
+#read -p "Specify \"User Name\": " app_username
+#}
 
 # Password 
 app_password_func(){
@@ -92,11 +98,12 @@ spec(){
 echo -e "\n--------------------------------------------------\n"
 echo -e "You've specified following values:"
 echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++\n"
-echo -e "Service name: $app_servicename"
+#echo -e "Service name: $app_servicename"
+echo -e "System User Account: $app_system_user"
 echo -e "Display name: $app_displayname"
 echo -e "Description: $app_description"
 echo -e "Start at boot: $boot"
-echo -e "App. username: $app_username"
+#echo -e "App. username: $app_username"
 echo -e "App. password: $app_password"
 echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++\n"
 }
@@ -133,7 +140,7 @@ read -p ": " service_settings_confrim
 		spec
 	
 		echo -e "\nWhat would you like to edit?\n"
-		echo "[1] Service Name"
+	#	echo "[1] Service Name"
 		echo "[2] Display "
 		echo "[3] Description"
 		echo "[4] Start at boot"
@@ -144,9 +151,14 @@ read -p ": " service_settings_confrim
 
 	for letter in "$service_settings_edit"; do
 
+	#if [[ "$letter" == [1] ]]; 
+	#then
+	#	app_servicename_func
+	#	spec
+
 	if [[ "$letter" == [1] ]]; 
 	then
-		app_servicename_func
+		app_system_user_func
 		spec
 
 	elif [[ "$letter" == [2] ]]; 
@@ -164,10 +176,10 @@ read -p ": " service_settings_confrim
 		app_startup_func
 		spec
 
-	elif [[ "$letter" == [5] ]]; 
-	then
-		app_username_func
-		spec
+	#elif [[ "$letter" == [5] ]]; 
+	#then
+	#	app_username_func
+	#	spec
 	
 	elif [[ "$letter" == [6] ]]; 
 	then
@@ -226,7 +238,7 @@ clear
 echo -e "\n------------------------------------------\n"
 echo -e "Specify location of apps and server files "
 echo -e "\n++++++++++++++++++++++++++++++++++++++++++\n"
-echo -e "We recommend: /srv/mendix/$app_servicename"
+echo -e "We recommend: /srv/mendix/$app_system_user"
 echo -e "to be your path."
 echo -e "\n++++++++++++++++++++++++++++++++++++++++++\n"
 
@@ -240,7 +252,7 @@ read -p ": " destination_path_init
     case $destination_path_init in
 
     A|a )
-    	path="/srv/mendix/$app_username"
+    	path="/srv/mendix/$app_system_user"
 		
 		# Jump to Database Configuration
 		db_config
@@ -330,11 +342,12 @@ read -p ": " install_start
 
 	Y|y)
 	# calling service_settings functions
-	app_servicename_func
+	#app_servicename_func
+	app_system_user_func
 	app_displayname_func
 	app_description_func
 	app_startup_func
-	app_username_func
+	#app_username_func
 	app_password_func
 
 	spec
@@ -362,7 +375,7 @@ goodbye(){
 echo -e "\n-------------------------------------------------\n"
 echo -e "Installation complete!\n"
 echo -e "For any additional customization please take"
-echo -e "take a look in: /home/$app_servicename/.m2ee/m2ee.yaml"
+echo -e "take a look in: /home/$app_system_user/.m2ee/m2ee.yaml"
 echo -e "\n-------------------------------------------------\n" 
 exit
 }
@@ -420,10 +433,10 @@ clear
 
 # Display menu
 echo -e "\n------------------------------------------------\n"
-echo -e "Configure database?"
+echo -e "Set up Database?"
 echo -e "\n------------------------------------------------\n"
 echo -e "[Y]es"
-echo -e "[D]efault/Local install"
+echo -e "[D]efault/Local install (Not endorsed by Mendix)"
 #echo -e "[Q]uit"
 
 read -p ": " db_init
@@ -586,8 +599,8 @@ done
 config_mgmt_func(){
 
 # User creation
-echo -e "\nCreating "$app_username" user ...\n"
-adduser --disabled-password --gecos "$app_displayname" $app_servicename
+echo -e "\nCreating "$app_system_user" user ...\n"
+adduser --disabled-password --gecos "$app_displayname" $app_system_user
 
 # Create a directory structure
 mkdir -p $path
@@ -602,7 +615,7 @@ mkdir -p $path/data/tmp
 
 # Fixing permissions
 echo -e "\nFixing permissions\n"
-chown $app_servicename:$app_servicename -R $path
+chown $app_system_user:$app_system_user -R $path
 chown 700 -R $path/data/
 chown 700 -R $path/model/
 
@@ -653,7 +666,7 @@ logging:
    name: FileSubscriber
    type: file
    autosubscribe: INFO
-   filename: /var/log/mendix/${app_servicename}/log
+   filename: /var/log/mendix/${app_system_user}/log
    max_size: 10485760 # bytes(!!)
    max_rotation: 7
 mxruntime:
@@ -681,16 +694,16 @@ mxruntime:
   - Module2.Event2
   - Module3.Event3'
 
-yaml=/home/$app_servicename/.m2ee/m2ee.yaml
+yaml=/home/$app_system_user/.m2ee/m2ee.yaml
 
 # .m2ee creation
 echo -e "\nm2ee creation\n"
-mkdir -p /home/$app_servicename/.m2ee
+mkdir -p /home/$app_system_user/.m2ee
 #touch $yaml
 
 # create log file
-mkdir -p /var/log/mendix/$app_servicename
-touch /var/log/mendix/$app_servicename/log
+mkdir -p /var/log/mendix/$app_system_user
+touch /var/log/mendix/$app_system_user/log
 
 # todo
 # make a loop if the $yaml already exists
@@ -701,7 +714,7 @@ echo -n "$yaml_content" > "$yaml"
 # make a phraser
 # Yaml Interpreter
 sed -i "s/\${app_displayname}/$app_displayname/g" $yaml
-sed -i "s/\${app_servicename}/$app_servicename/g" $yaml
+sed -i "s/\${app_system_user}/$app_system_user/g" $yaml
 sed -i "s/\${app_password}/$app_password/g" $yaml
 sed -i "s/\${db_type}/$db_type/g" $yaml
 sed -i "s/\${db_host}/$db_host/g" $yaml
@@ -715,7 +728,7 @@ sed -i "s+\${path}+$path+g" $yaml
 
 
 # Make sure permissions are still correct
-chown $app_servicename:$app_servicename -R /home/$app_servicename
+chown $app_system_user:$app_system_user -R /home/$app_system_user
 goodbye
 }
 
