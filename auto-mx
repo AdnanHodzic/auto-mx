@@ -5,7 +5,16 @@
 # Mendix, as well rest of utility's which
 # are needed to run Mendix applications.
 
-# Service Settings (service_settings)
+# Root checker
+root_check(){
+if [[ $EUID -ne 0 ]]; then
+   echo "Please run \"auto-mx\" as root user" 1>&2
+   exit 1
+fi
+}
+
+# Service Settings
+service_settings(){
 
 # Service Name
 app_servicename_func(){
@@ -91,127 +100,18 @@ echo -e "App. username: $app_username"
 echo -e "App. password: $app_password"
 echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++\n"
 }
-
-# Installer started (install_start) 
-while [ install_start != "Q" ]
-do 
-clear
-
-# Display menu
-echo -e "\n----------------------------------------------------\n"
-echo -e "Welcome to Mendix installer (auto-mx)\n"
-echo -e "\nPlease follow on-screen instructions"
-echo -e "\n----------------------------------------------------\n"
-
-echo -e "Continue?\n"
-echo "[Y]es"
-echo "[N]o"
-echo "[Q]uit"
-
-read -p ": " install_start
-	case $install_start in
-	
-	Q|q)
-		echo "Goodbye!"
-		exit 1
-	;;
-
-	Y|y)
-	# calling service_settings functions
-	app_servicename_func
-	app_displayname_func
-	app_description_func
-	app_startup_func
-	app_username_func
-	app_password_func
-
-	spec
-	break	
-	;;
-
-	N|n)
-		echo "Aborting installation"
-		exit 1
-	;;
-
-	*) 
-	echo "Non existing value"
-	;;
-	
-	esac
-
-	echo "press Enter for menu"
-	read key
-done
-
-# Specify destinaton path (destination_path)
-destination_path(){
-
-# Define custom path
-custom_appdest_func(){
-echo -e "-----------------------------------------\n"
-read -p "Specify \"custom app. destination\": " path
-}
-
-while [ destination_path != "Q" ]
-do
-clear
-
-# Specify destination path
-echo -e "\n------------------------------------------\n"
-echo -e "Specify location of apps and server files "
-echo -e "\n++++++++++++++++++++++++++++++++++++++++++\n"
-echo -e "We recommend: /srv/mendix/$app_servicename"
-echo -e "to be your path."
-echo -e "\n++++++++++++++++++++++++++++++++++++++++++\n"
-
-echo -e "[A]ccept and proceed"
-echo -e "[C]ustomize your own path"
-echo -e "[Q]uit"
-
-read -p ": " destination_path
-
-    case $destination_path in
-
-    A|a )
-    	path="/srv/mendix/$app_username"
-    	echo "$path"
-    	echo "movin on"
-    	break
-	;;
-
-    C|c )
-    	# todo | extend this!
-		custom_appdest_func	
-        echo "Specified path: $path"   
-		# if this var specified
-		# jump to next func?
-		break
-    ;;
-
-	Q|q)
-		echo "Aborting installation"
-		exit 1
-	;;
-
-	*) 
-	echo "Non existing value"
-	;;
-
-    esac
-    echo "press Enter for menu"
-	read key
-done
 }
 
 # Confirm Service Settings
+service_settings_confirm(){
+
 while [ service_settings_confrim != "Q" ]
 do 
 clear
 
 spec
 
-echo "[N]ext Step, [E]edit Existing, [F]inish: "
+echo "[N]ext Step, [E]edit Existing: "
 
 read -p ": " service_settings_confrim
 	case $service_settings_confrim in 
@@ -224,7 +124,8 @@ read -p ": " service_settings_confrim
 	N|n)
 		echo "Moving to next step"
 		# Jump to the next step
-		destination_path
+		# destination_path
+		# destination_path_func
 		break
 	;;
 	
@@ -272,10 +173,10 @@ read -p ": " service_settings_confrim
 	then
 		app_password_func
 		spec
-	elif [[ "$letter" == [Ff] ]]; 
-	then
-		echo "finishing"
-		break
+	#elif [[ "$letter" == [Ff] ]]; 
+	#then
+	#	echo "finishing"
+	#	break
 
 	else
 		echo "Seriously?"
@@ -299,6 +200,162 @@ read -p ": " service_settings_confrim
 	echo "press Enter for menu"
 	read key
 done
+}
+
+# Destination Path
+destination_path_func(){
+
+# Define custom path
+custom_appdest_func(){
+echo -e "-----------------------------------------\n"
+read -p "Specify custom app. destination: " path
+}
+
+custom_path_spec(){
+echo -e "\n----------------------------------------------------------\n"
+echo -e "You've specified following location as your custom"
+echo -e "\napp. path (i.e /opt/app-03): $path"
+echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
+}
+
+while [ destination_path != "Q" ]
+do
+clear
+
+# Specify destination path
+echo -e "\n------------------------------------------\n"
+echo -e "Specify location of apps and server files "
+echo -e "\n++++++++++++++++++++++++++++++++++++++++++\n"
+echo -e "We recommend: /srv/mendix/$app_servicename"
+echo -e "to be your path."
+echo -e "\n++++++++++++++++++++++++++++++++++++++++++\n"
+
+echo -e "[A]ccept and proceed"
+echo -e "[C]ustomize your own path"
+#echo -e "[Q]uit"
+
+# Destination Path Start
+read -p ": " destination_path_init
+
+    case $destination_path_init in
+
+    A|a )
+    	path="/srv/mendix/$app_username"
+		
+		# Jump to Database Configuration
+		db_config
+	;;
+
+    C|c )
+		# calling custom destination func
+		custom_appdest_func	
+		custom_path_spec
+		
+		# confirm custom path
+		destination_path_confirm_func
+    ;;
+
+	Q|q)
+		echo "Aborting installation"
+		exit 1
+	;;
+
+	*) 
+	echo "Non existing value"
+	;;
+
+    esac
+    echo "press Enter for menu"
+	read key
+done
+}
+
+# destination_path_confirm function
+destination_path_confirm_func(){
+
+while [ destination_path_confirm != "Q" ]
+do
+clear
+
+custom_path_spec
+
+echo "[N]ext Step, [E]dit Existing: "
+
+read -p ": " destination_path_confirm
+    case $destination_path_confirm in
+
+    Q|q)
+        echo "Goodbye!"
+        exit
+    ;;
+
+    N|n)
+        db_config 
+		#break
+    ;;
+
+	E|e)
+		custom_path_spec
+		custom_appdest_func
+	;;
+	esac
+done
+}
+
+
+# Installer started (install_start) 
+install_start_func(){
+while [ install_start != "Q" ]
+do 
+clear
+
+# Display menu
+echo -e "\n----------------------------------------------------\n"
+echo -e "Welcome to Mendix installer (auto-mx)\n"
+echo -e "\nPlease follow on-screen instructions"
+echo -e "\n----------------------------------------------------\n"
+
+echo -e "Continue?\n"
+echo "[Y]es"
+echo "[N]o"
+#echo "[Q]uit"
+
+read -p ": " install_start
+	case $install_start in
+	
+	Q|q)
+		echo "Goodbye!"
+		exit 1
+	;;
+
+	Y|y)
+	# calling service_settings functions
+	app_servicename_func
+	app_displayname_func
+	app_description_func
+	app_startup_func
+	app_username_func
+	app_password_func
+
+	spec
+	break	
+	;;
+
+	N|n)
+		echo "Aborting installation"
+		exit 1
+	;;
+
+	*) 
+	echo "Non existing value"
+	;;
+	
+	esac
+
+	echo "press Enter for menu"
+	read key
+done
+}
 
 # goodbye message
 goodbye(){
@@ -310,136 +367,6 @@ echo -e "\n-------------------------------------------------\n"
 exit
 }
 
-# Configuration Management
-config_mgmt_func(){
-
-# User creation
-echo -e "\nCreating "$app_username" user ...\n"
-adduser --disabled-password --gecos "$app_displayname" $app_servicename
-
-# Create a directory structure
-mkdir -p $path
-mkdir -p $path/web
-mkdir -p $path/model
-mkdir -p $path/data
-mkdir -p $path/data/database
-mkdir -p $path/data/files
-mkdir -p $path/data/model-upload
-mkdir -p $path/data/runtime
-mkdir -p $path/data/tmp
-
-# Fixing permissions
-echo -e "\nFixing permissions\n"
-chown $app_servicename:$app_servicename -R $path
-chown 700 -R $path/data/
-chown 700 -R $path/model/
-
-# m2ee.yaml contents
-# move contents to: 
-# /usr/share/doc/m2ee-tools/examples/auto-mx-template.m2ee.yaml
-# Eventually put this template as file
-# in auto-mx deb package.
-yaml_content='# Full m2ee.yaml documentation available on:
-# https://github.com/mendix/m2ee-tools/blob/develop/examples/full-documented-m2ee.yaml
-#
-# ~/.m2ee/m2ee.yaml
-# user/application specific configuration
-#
-# All non-essential configuration settings have been omitted in this example
-# file. Refer to the full-documented-m2ee.yaml in the examples directory for a
-# full list of available options and explanation about them.
-#
-mxnode:
- # myjar (https://github.com/mendix/m2ee-tools/blob/develop/examples/full-documented-m2ee.yaml)
- # mxjar_repo: /usr/local/share/mendix/
- mxjar_repo: /srv/mendix/${2}/data/runtime
-
-m2ee:
- app_name: ${1}
- app_base: /srv/mendix/${2}
- # m2ee http admin interface and password
- admin_port: 9000
- admin_listen_addresses: "*"
- admin_pass: ${3}
- # mxruntime web interface port
- runtime_port: 8000
-
- # set to * if you want to have the public runtime port accessible from other
- # hosts than localhost (Mendix >= 4.3.0)
- runtime_listen_addresses: "*"
- # custom java options, like -Xmx256m or -Djava.foo=bar
-javaopts: [
-   "-Dfile.encoding=UTF-8", "-XX:MaxPermSize=128M", "-Xmx512M", "-Xms512M",
-   "-Djava.io.tmpdir=/path/to/project/directory/data/tmp",
- ]
- # file which will be read back by the m2ee log command to provide live logging
- # info this is *not* a file m2ee-tools is going to write to, it is a hint
- # about where to find the log which is written by the mendix application
- # logfile: /var/log/mendix/log
-logging:
- - # example of file logging by the platform itself
-   name: FileSubscriber
-   type: file
-   autosubscribe: INFO
-   filename: /var/log/mendix/${2}/log
-   max_size: 10485760 # bytes(!!)
-   max_rotation: 7
-mxruntime:
- # Database login credentials
- DatabaseType: ${4}
- # The DatabaseHost contains the database hostname and optionally, also the TCP
- # port number.  It\s possible to use a plain IPv6 address by enclosing it in
- # brackets, like: "[::1]:5432"
- DatabaseHost: ${5}
- DatabaseName: ${6}
- DatabaseUserName: ${7}
- DatabasePassword: ${8}
-
- MicroflowConstants:
-  # put microflow constants in here
-  Module.Constant: text
-  AnotherModule.AnotherConstant: bla
-
- # ScheduledEventExecution can be set to ALL, NONE (default) or SPECIFIED
- ScheduledEventExecution: NONE
- # When using ScheduledEventExecution SPECIFIED, provide a list of actions to
- # enable:
- MyScheduledEvents:
-  - Module1.Event1
-  - Module2.Event2
-  - Module3.Event3'
-
-yaml=/home/$app_servicename/.m2ee/m2ee.yaml
-
-# .m2ee creation
-echo -e "\nm2ee creation\n"
-mkdir -p /home/$app_servicename/.m2ee
-#touch $yaml
-
-# create log file
-mkdir -p /var/log/mendix/$app_servicename
-touch /var/log/mendix/$app_servicename/log
-
-# todo
-# make a loop if the $yaml already exists
-# ask user what to do
-echo -n "$yaml_content" > "$yaml"
-
-# todo
-# make a phraser
-# Yaml Interpreter
-sed -i "s/\${1}/$app_displayname/g" $yaml
-sed -i "s/\${2}/$app_servicename/g" $yaml
-sed -i "s/\${3}/$app_password/g" $yaml
-sed -i "s/\${4}/$db_type/g" $yaml
-sed -i "s/\${5}/$db_host/g" $yaml
-sed -i "s/\${6}/$db_name/g" $yaml
-sed -i "s/\${7}/$db_user/g" $yaml
-sed -i "s/\${8}/$db_pass/g" $yaml
-
-# Make sure permissions are still correct
-chown $app_servicename:$app_servicename -R /home/$app_servicename
-}
 
 # Database configuration
 db_config(){
@@ -497,7 +424,7 @@ echo -e "Configure database?"
 echo -e "\n------------------------------------------------\n"
 echo -e "[Y]es"
 echo -e "[D]efault/Local install"
-echo -e "[Q]uit"
+#echo -e "[Q]uit"
 
 read -p ": " db_init
 	case $db_init in
@@ -516,13 +443,12 @@ read -p ": " db_init
 		db_pass_func
 
 		db_spec
-		break
+		
+		db_config_confirm_func
 	;;
 
 	D|d)
-		# postgres setup
-		#su -u postgres psql -c "ALTER USER postgres PASSWORD 'postgres';"
-		#su - postgres -c "psql -d template1 -U postgres -c \"CREATE USER mxpgusr WITH PASSWORD' \''mx7gdb_p5w'\'' \" "
+		# postgres local setup
 		su - postgres -c "psql -d template1 -U postgres -c \"CREATE USER mxpgusr WITH PASSWORD 'mx7gdb_p5w' \" "
 		su - postgres -c "psql -d template1 -U postgres -c \"CREATE DATABASE mxpgdb \" "
 		su - postgres -c "psql -d template1 -U postgres -c \"GRANT ALL PRIVILEGES ON DATABASE mxpgdb to mxpgusr \" "
@@ -530,7 +456,9 @@ read -p ": " db_init
 		echo -e "\nFinished with PostgresSQL local setup\n"
 		echo -e "\nEnter any key to continue"
 		read key
-		goodbye
+		
+		java_config
+		java_config_confirm
 	;;
 	
 	S|s)
@@ -561,9 +489,6 @@ echo -e "Database username: $db_user"
 echo -e "Database pasword: $db_password\n"
 }
 
-# db_config call
-db_config
-
 db_config_confirm_func(){
 
 #db_config_confirm
@@ -573,7 +498,7 @@ clear
 
 db_spec
 
-echo "[N]ext Step, [E]dit Existing, [F]inish: "
+echo "[N]ext Step, [E]dit Existing: "
 
 read -p ": " db_config_confirm
 	case $db_config_confirm in
@@ -585,9 +510,7 @@ read -p ": " db_config_confirm
 
 	N|n)
 		echo "Moving to next step"
-		# Jump to yaml interpreter
-		echo -e "\njumping to yaml interpreter part ...\n"
-		break
+		java_config
 	;;
 
 	E|e)
@@ -630,10 +553,10 @@ read -p ": " db_config_confirm
 	
 		db_spec
 	
-	elif [[ "$letter" == [Ff] ]];
-	then
-		echo "finishing up"
-		break
+	#elif [[ "$letter" == [Ff] ]];
+	#then
+	#	echo "finishing up"
+	#	break
 
 	else 
 		echo "Seriously?"
@@ -658,6 +581,351 @@ echo "press Enter for menu"
 read key
 done
 }
+
+# Configuration Management
+config_mgmt_func(){
+
+# User creation
+echo -e "\nCreating "$app_username" user ...\n"
+adduser --disabled-password --gecos "$app_displayname" $app_servicename
+
+# Create a directory structure
+mkdir -p $path
+mkdir -p $path/web
+mkdir -p $path/model
+mkdir -p $path/data
+mkdir -p $path/data/database
+mkdir -p $path/data/files
+mkdir -p $path/data/model-upload
+mkdir -p $path/data/runtime
+mkdir -p $path/data/tmp
+
+# Fixing permissions
+echo -e "\nFixing permissions\n"
+chown $app_servicename:$app_servicename -R $path
+chown 700 -R $path/data/
+chown 700 -R $path/model/
+
+# m2ee.yaml contents
+# move contents to: 
+# /usr/share/doc/m2ee-tools/examples/auto-mx-template.m2ee.yaml
+# Eventually put this template as file
+# in auto-mx deb package.
+yaml_content='# Full m2ee.yaml documentation available on:
+# https://github.com/mendix/m2ee-tools/blob/develop/examples/full-documented-m2ee.yaml
+#
+# ~/.m2ee/m2ee.yaml
+# user/application specific configuration
+#
+# All non-essential configuration settings have been omitted in this example
+# file. Refer to the full-documented-m2ee.yaml in the examples directory for a
+# full list of available options and explanation about them.
+#
+mxnode:
+ # myjar (https://github.com/mendix/m2ee-tools/blob/develop/examples/full-documented-m2ee.yaml)
+ # mxjar_repo: /usr/local/share/mendix/
+ mxjar_repo: ${path}/data/runtime
+
+m2ee:
+ app_name: ${app_displayname}
+ app_base: ${path}
+ # m2ee http admin interface and password
+ admin_port: 9000
+ admin_listen_addresses: "*"
+ admin_pass: ${app_password}
+ # mxruntime web interface port
+ runtime_port: 8000
+
+ # set to * if you want to have the public runtime port accessible from other
+ # hosts than localhost (Mendix >= 4.3.0)
+ runtime_listen_addresses: "*"
+ # custom java options, like -Xmx256m or -Djava.foo=bar
+javaopts: [
+   "-Dfile.encoding=UTF-8", "-XX:MaxPermSize=${java_permgen}", "-Xmx${java_heap_max}", "-Xms${java_heap_min}",
+   "-Djava.io.tmpdir=/path/to/project/directory/data/tmp",
+ ]
+ # file which will be read back by the m2ee log command to provide live logging
+ # info this is *not* a file m2ee-tools is going to write to, it is a hint
+ # about where to find the log which is written by the mendix application
+ # logf (i.e ile: /var/log/mendix/log
+logging:
+ - # example of file logging by the platform itself
+   name: FileSubscriber
+   type: file
+   autosubscribe: INFO
+   filename: /var/log/mendix/${app_servicename}/log
+   max_size: 10485760 # bytes(!!)
+   max_rotation: 7
+mxruntime:
+ # Database login credentials
+ DatabaseType: ${db_type}
+ # The DatabaseHost contains the database hostname and optionally, also the TCP
+ # port number.  It\s possible to use a plain IPv6 address by enclosing it in
+ # brackets, like: "[::1]:5432"
+ DatabaseHost: ${db_host}
+ DatabaseName: ${db_name}
+ DatabaseUserName: ${db_user}
+ DatabasePassword: ${db_pass}
+
+ MicroflowConstants:
+  # put microflow constants in here
+  Module.Constant: text
+  AnotherModule.AnotherConstant: bla
+
+ # ScheduledEventExecution can be set to ALL, NONE (default) or SPECIFIED
+ ScheduledEventExecution: NONE
+ # When using ScheduledEventExecution SPECIFIED, provide a list of actions to
+ # enable:
+ MyScheduledEvents:
+  - Module1.Event1
+  - Module2.Event2
+  - Module3.Event3'
+
+yaml=/home/$app_servicename/.m2ee/m2ee.yaml
+
+# .m2ee creation
+echo -e "\nm2ee creation\n"
+mkdir -p /home/$app_servicename/.m2ee
+#touch $yaml
+
+# create log file
+mkdir -p /var/log/mendix/$app_servicename
+touch /var/log/mendix/$app_servicename/log
+
+# todo
+# make a loop if the $yaml already exists
+# ask user what to do
+echo -n "$yaml_content" > "$yaml"
+
+# todo
+# make a phraser
+# Yaml Interpreter
+sed -i "s/\${app_displayname}/$app_displayname/g" $yaml
+sed -i "s/\${app_servicename}/$app_servicename/g" $yaml
+sed -i "s/\${app_password}/$app_password/g" $yaml
+sed -i "s/\${db_type}/$db_type/g" $yaml
+sed -i "s/\${db_host}/$db_host/g" $yaml
+sed -i "s/\${db_name}/$db_name/g" $yaml
+sed -i "s/\${db_user}/$db_user/g" $yaml
+sed -i "s/\${db_pass}/$db_pass/g" $yaml
+sed -i "s/\${java_heap_max}/$java_heap_max/g" $yaml
+sed -i "s/\${java_heap_min}/$java_heap_min/g" $yaml
+sed -i "s/\${java_permgen}/$java_permgen/g" $yaml
+sed -i "s+\${path}+$path+g" $yaml
+
+
+# Make sure permissions are still correct
+chown $app_servicename:$app_servicename -R /home/$app_servicename
+goodbye
+}
+
+
+# Java configuration
+java_config(){
+
+# Java Heap (Max Size)
+java_heap_max_func(){
+echo -e "\n----------------------------------------------------------\n"
+read -p "Specify \"Java Heap Max Size\", i.e (512M): " java_heap_max
+} 
+
+# Java Heap (Min Size)
+java_heap_min_func(){
+echo -e "\n----------------------------------------------------------\n"
+read -p "Specify \"Java Heap Min Size\", i.e (512M): " java_heap_min
+}
+
+# Max PermGen Size
+java_permgen_func(){
+echo -e "\n----------------------------------------------------------\n"
+read -p "Specify \"Max PermGen Size\", i.e (128M): " java_permgen
+}
+
+java_spec(){
+echo -e "\n----------------------------------------------------------\n"
+echo -e "You've specified following values:"
+echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
+echo -e "Java Heap Max Size: $java_heap_max"
+echo -e "Java Heap Min Size: $java_heap_min"
+echo -e "Max PermGen Size: $java_permgen"
+echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
+}
+
+# Java Config Start
+while [ java_init != "Q" ]
+do
+clear
+
+# Display menu
+echo -e "\n------------------------------------------------\n"
+echo -e "Configure Java?"
+echo -e "\n------------------------------------------------\n"
+echo -e "[Y]es"
+echo -e "[N]o, use default Mendix settings"
+#echo -e "[Q]uit"
+
+read -p ": " java_init
+	case $java_init in
+
+	Q|q)
+		echo "Goodbye!"
+		exit 1
+	;;
+
+	Y|y)
+		# calling db functions
+		java_heap_max_func
+		java_heap_min_func
+		java_permgen_func
+
+		java_spec
+		#break
+
+		java_config_confirm_func
+	;;
+
+	N|n)
+		java_heap_max="512M"
+		java_heap_min="512M"
+		java_permgen="128M"
+
+		echo -e "\nFinished with Java configuration\n"
+		echo -e "Enter any key to continue"
+		read key
+		# make a different func jump?
+	
+		echo -e "\nRunning config_mgmt_func\n"
+        config_mgmt_func
+        echo -e "\nrunning goodbye\n"
+        goodbye	
+
+	;;
+	
+	#S|s)
+	#	echo "\nSkipping database configuration/install ....\n"
+	#	#exit 1
+	#	break
+	#;;
+
+	*)
+		echo "Non existing value"
+	;;
+
+	esac
+	
+	echo "press Enter for menu"
+	read key
+done
+}
+
+# java_config confirm
+java_config_confirm_func(){
+
+#java_config_confirm
+while [ java_config_confirm != "Q" ]
+do
+clear
+
+java_spec
+
+echo "[N]ext Step, [E]dit Existing: "
+
+read -p ": " java_config_confirm
+	case $java_config_confirm in
+
+	Q|q)
+		echo "Goodbye!"
+		exit
+	;;
+
+	N|n)
+		config_mgmt_func	
+	;;
+
+	E|e)
+		java_spec
+
+		echo -e "\nWhat would you like to edit\n"
+		echo "[1] Java Heap Max Size"
+		echo "[2] Java Heap Min Size"
+		echo "[3] Max PermGen Size"
+
+	read -p "Enter option number: " java_config_edit
+
+	for letter in "$java_config_edit"; do
+
+	if [[ "$letter" == [1] ]];
+	then
+		java_heap_max_func
+		java_spec
+
+	elif [[ "$letter" == [2] ]];
+	then
+		java_heap_min_func
+		java_spec
+
+	elif [[ "$letter" == [3] ]];
+	then
+		java_permgen_func
+		java_spec
+	
+	else 
+		echo "Seriously?"
+		# exit | exit 1
+
+fi
+done
+;;
+
+F|f)
+	echo "my work is done here"
+	break
+;;
+
+*)
+	echo "non existing value"
+;;
+
+esac
+
+echo "press Enter for menu"
+read key
+done
+}
+
+# Calls
+# ToDo
+# Clear out unused
+
+# root check 
+root_check
+
+# call service settings
+service_settings
+
+# install start
+install_start_func
+
+# service settings confirm
+service_settings_confirm
+
+# destination path
+destination_path_func
+#destination_path_confirm_func
+
+# post db_config/confirm?
+
+# call service_settings/confirm
+#service_settings
+#service_settings_confirm
+
+# call db_config/confirm
+db_config
+db_config_confirm_func
+
+# call java_config/confirm
+java_config
+java_config_confirm_func
 
 # nuff said
 config_mgmt_func
