@@ -19,7 +19,7 @@ service_settings(){
 # System User Account
 app_system_user_func(){
 echo -e "---------------------------------------------------\n"
-read -p "Specify \"System User Account\": " app_system_user
+read -p "Specify \"System User Account\": i.e: (mediapp) " app_system_user
 }
 
 # Service Name
@@ -28,10 +28,10 @@ read -p "Specify \"System User Account\": " app_system_user
 #read -p "Specify \"Service Name\", i.e (NewApp): " app_servicename
 # }
 
-# Display Name 
+# Application Name 
 app_displayname_func(){
 echo -e "\n---------------------------------------------------\n"
-read -p "Specify \"Display Name\", i.e (NewApp): " app_displayname
+read -p "Specify \"Application Name\", i.e (Media App): " app_displayname
 }
 
 # Description:  
@@ -100,7 +100,7 @@ echo -e "You've specified following values:"
 echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++\n"
 #echo -e "Service name: $app_servicename"
 echo -e "System User Account: $app_system_user"
-echo -e "Display name: $app_displayname"
+echo -e "Application name: $app_displayname"
 echo -e "Description: $app_description"
 echo -e "Start at boot: $boot"
 #echo -e "App. username: $app_username"
@@ -219,14 +219,14 @@ destination_path_func(){
 
 # Define custom path
 custom_appdest_func(){
-echo -e "-----------------------------------------\n"
-read -p "Specify custom app. destination: " path
+echo -e "------------------------------------------------------------\n"
+read -p "Specify custom app. destination, i.e (/opt/mxapp): " path
 }
 
 custom_path_spec(){
 echo -e "\n----------------------------------------------------------\n"
 echo -e "You've specified following location as your custom"
-echo -e "\napp. path (i.e /opt/app-03): $path"
+echo -e "\napp. path: \"$path\""
 echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
 }
 
@@ -713,8 +713,8 @@ echo -n "$yaml_content" > "$yaml"
 # todo
 # make a phraser
 # Yaml Interpreter
-sed -i "s/\${app_displayname}/$app_displayname/g" $yaml
 sed -i "s/\${app_system_user}/$app_system_user/g" $yaml
+sed -i "s/\${app_displayname}/$app_displayname/g" $yaml
 sed -i "s/\${app_password}/$app_password/g" $yaml
 sed -i "s/\${db_type}/$db_type/g" $yaml
 sed -i "s/\${db_host}/$db_host/g" $yaml
