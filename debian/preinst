@@ -28,11 +28,12 @@ case "$1" in
 	# update repos?
 	# apt-get update
 	
-	/usr/bin/auto-mx
+	#/usr/bin/auto-mx
     ;;
 
     abort-upgrade)
-        invoke-rc.d tomcat6 stop
+    
+	# invoke-rc.d tomcat6 stop
 	# invoke-rc.d tomcat stop 2>&1 || true
     ;;
 

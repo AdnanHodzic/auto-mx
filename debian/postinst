@@ -31,8 +31,11 @@ case "$1" in
 	# update repos?
 	# apt-get update
 
-	# add "install successfull" message
-    # ask user if he wants to start auto-mx
+    echo "\n-----------------------------------------\n"
+	echo "Installation complete!\n"
+	echo "Please run \"auto-mx\" to start the install"	
+	echo "\n-----------------------------------------\n"
+	# ask user if he wants to start auto-mx
 	;;
 
     *)
