@@ -35,10 +35,10 @@ read -p "Specify \"Application Name\", i.e (Media App): " app_displayname
 }
 
 # Description:  
-app_description_func(){
-echo -e "\n---------------------------------------------------\n"
-read -p "Specify \"Description\": " app_description
-}
+#app_description_func(){
+#echo -e "\n---------------------------------------------------\n"
+#read -p "Specify \"Description\": " app_description
+#}
 
 # Startup Type
 app_startup_func(){
@@ -101,7 +101,7 @@ echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++\n"
 #echo -e "Service name: $app_servicename"
 echo -e "System User Account: $app_system_user"
 echo -e "Application name: $app_displayname"
-echo -e "Description: $app_description"
+# echo -e "Description: $app_description"
 echo -e "Start at boot: $boot"
 #echo -e "App. username: $app_username"
 echo -e "App. password: $app_password"
@@ -166,10 +166,10 @@ read -p ": " service_settings_confrim
 		app_displayname_func
 		spec
 
-	elif [[ "$letter" == [3] ]]; 
-	then
-		app_description_func
-		spec
+	#elif [[ "$letter" == [3] ]]; 
+	#then
+	#	app_description_func
+	#spec
 
 	elif [[ "$letter" == [4] ]]; 
 	then
@@ -345,7 +345,7 @@ read -p ": " install_start
 	#app_servicename_func
 	app_system_user_func
 	app_displayname_func
-	app_description_func
+	#app_description_func
 	app_startup_func
 	#app_username_func
 	app_password_func
