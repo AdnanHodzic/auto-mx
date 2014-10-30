@@ -103,8 +103,11 @@ done
 
 # Password 
 app_password_func(){
-echo -e "\n-------------------------------------------------------\n"
-read -p "Specify \"User password\": " app_password
+#echo -e "\n-------------------------------------------------------\n"
+#read -p "Specify \"User password\": " app_password
+
+# Automagically generate "admin_pass/app_password"
+app_password="$(cat /dev/urandom| tr -cd "A-z1-9\!@#&" | head -c16)"
 }
 
 spec(){
@@ -117,7 +120,7 @@ echo -e "Application name: $app_displayname"
 # echo -e "Description: $app_description"
 echo -e "Start at boot: $boot"
 #echo -e "App. username: $app_username"
-echo -e "App. password: $app_password"
+#echo -e "App. password: $app_password"
 echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++\n"
 }
 }
@@ -194,10 +197,10 @@ read -p ": " service_settings_confrim
 	#	app_username_func
 	#	spec
 	
-	elif [[ "$letter" == [6] ]]; 
-	then
-		app_password_func
-		spec
+	#elif [[ "$letter" == [6] ]]; 
+	#then
+	#	app_password_func
+	#	spec
 	#elif [[ "$letter" == [Ff] ]]; 
 	#then
 	#	echo "finishing"
