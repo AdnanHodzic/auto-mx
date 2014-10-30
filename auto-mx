@@ -5,7 +5,7 @@
 # Mendix, as well rest of utility's which
 # are needed to run Mendix applications.
 
-# Root checker
+# Root Checker
 root_check(){
 if [[ $EUID -ne 0 ]]; then
    echo "Please run \"auto-mx\" as root user" 1>&2
@@ -18,8 +18,21 @@ service_settings(){
 
 # System User Account
 app_system_user_func(){
-echo -e "---------------------------------------------------\n"
-read -p "Specify \"System User Account\": i.e: (mediapp) " app_system_user
+echo -e "--------------------------------------------------------\n"
+read -p "Specify \"System User Account\" i.e (mediapp): " app_system_user
+}
+
+# $app_system_user Checker
+app_system_user_checker(){
+if id $app_system_user > /dev/null 2>&1
+then
+	echo -e "\n+++++++++++++++++++++++++++\n"
+	echo -e "User exists!\n"
+	echo "Try with different username" 
+	echo -e "\n+++++++++++++++++++++++++++\n"	
+	read key
+	app_system_user_func
+fi
 }
 
 # Service Name
@@ -30,7 +43,7 @@ read -p "Specify \"System User Account\": i.e: (mediapp) " app_system_user
 
 # Application Name 
 app_displayname_func(){
-echo -e "\n---------------------------------------------------\n"
+echo -e "\n--------------------------------------------------------\n"
 read -p "Specify \"Application Name\", i.e (Media App): " app_displayname
 }
 
@@ -42,7 +55,7 @@ read -p "Specify \"Application Name\", i.e (Media App): " app_displayname
 
 # Startup Type
 app_startup_func(){
-echo -e "\n---------------------------------------------------\n"
+echo -e "\n--------------------------------------------------------\n"
 echo -e "Start Mendix at boot?"
 read -p "[Y]es, [N]o, [S]kip: " app_startup
 
@@ -73,9 +86,9 @@ then
 	continue
 
 else 
-	echo -e "\n------------------------------------\n"
+	echo -e "\n-----------------------------------------\n"
 	echo    "Non existing value: exiting ..."
-	echo -e "\n------------------------------------\n"
+	echo -e "\n-----------------------------------------\n"
 	
 	exit 1
 fi
@@ -90,7 +103,7 @@ done
 
 # Password 
 app_password_func(){
-echo -e "\n--------------------------------------------------\n"
+echo -e "\n-------------------------------------------------------\n"
 read -p "Specify \"User password\": " app_password
 }
 
@@ -344,6 +357,7 @@ read -p ": " install_start
 	# calling service_settings functions
 	#app_servicename_func
 	app_system_user_func
+	app_system_user_checker
 	app_displayname_func
 	#app_description_func
 	app_startup_func
