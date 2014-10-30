@@ -669,6 +669,12 @@ m2ee:
  # set to * if you want to have the public runtime port accessible from other
  # hosts than localhost (Mendix >= 4.3.0)
  runtime_listen_addresses: "*"
+
+ # From Mendix 5 onwards, the JVM needs to support Java 7. Here you can specifiy
+ # the location of the java binary if you want to override the system default.
+ # javabin: /usr/bin/java
+ ${java_binary_path}
+
  # custom java options, like -Xmx256m or -Djava.foo=bar
 javaopts: [
    "-Dfile.encoding=UTF-8", "-XX:MaxPermSize=${java_permgen}", "-Xmx${java_heap_max}", "-Xms${java_heap_min}",
@@ -738,6 +744,7 @@ sed -i "s/\${db_host}/$db_host/g" $yaml
 sed -i "s/\${db_name}/$db_name/g" $yaml
 sed -i "s/\${db_user}/$db_user/g" $yaml
 sed -i "s/\${db_pass}/$db_pass/g" $yaml
+sed -i "s+\${java_binary_path}+javabin: $java_binary_path+g" $yaml
 sed -i "s/\${java_heap_max}/$java_heap_max/g" $yaml
 sed -i "s/\${java_heap_min}/$java_heap_min/g" $yaml
 sed -i "s/\${java_permgen}/$java_permgen/g" $yaml
@@ -750,7 +757,7 @@ goodbye
 }
 
 
-# Java configuration
+# Java Configuration
 java_config(){
 
 # Java Heap (Max Size)
@@ -771,6 +778,35 @@ echo -e "\n----------------------------------------------------------\n"
 read -p "Specify \"Max PermGen Size\", i.e (128M): " java_permgen
 }
 
+# Java Binary Path
+java_binary_path_func(){
+echo -e "\n----------------------------------------------------------\n"
+echo -e "Configure \"Java Binary Path\"? i.e: (/usr/bin/java)"
+echo -e "\nThis step is optional, so you may as well skip it"
+
+read -p "[Y]es, [S]kip: " java_bin
+
+for letter in "$java_bin"; do
+
+if [[ "$letter" == [Yy] ]];
+then
+	echo -e "\n----------------------------------------------------------\n"
+	read -p ": " java_binary_path
+
+elif [[ "$letter" == [Ss] ]];
+then
+	echo -e "\nSkipping ...\n"
+	continue
+
+else
+	echo -e "\nCome on ...\n"
+	read key
+	# exit1
+fi
+done
+}
+
+
 java_spec(){
 echo -e "\n----------------------------------------------------------\n"
 echo -e "You've specified following values:"
@@ -778,6 +814,7 @@ echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
 echo -e "Java Heap Max Size: $java_heap_max"
 echo -e "Java Heap Min Size: $java_heap_min"
 echo -e "Max PermGen Size: $java_permgen"
+echo -e "Java Binary Path: $java_binary_path"
 echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
 }
 
@@ -807,6 +844,7 @@ read -p ": " java_init
 		java_heap_max_func
 		java_heap_min_func
 		java_permgen_func
+		java_binary_path_func
 
 		java_spec
 		#break
