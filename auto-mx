@@ -714,7 +714,7 @@ echo -n "$yaml_content" > "$yaml"
 # make a phraser
 # Yaml Interpreter
 sed -i "s/\${app_system_user}/$app_system_user/g" $yaml
-sed -i "s/\${app_displayname}/$app_displayname/g" $yaml
+sed -i "s/\${app_displayname}/\"$app_displayname\"/g" $yaml
 sed -i "s/\${app_password}/$app_password/g" $yaml
 sed -i "s/\${db_type}/$db_type/g" $yaml
 sed -i "s/\${db_host}/$db_host/g" $yaml
