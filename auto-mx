@@ -369,7 +369,35 @@ db_config(){
 # db_type
 db_type_func(){
 echo -e "\n----------------------------------------------------------\n"
-read -p "Specify \"Database Type\", i.e (PostgreSQL): " db_type
+#read -p "Specify \"Database Type\", i.e (PostgreSQL): " db_type
+read -p "Specify \"Database Type\":
+
+[1] PostgreSQL
+[2] Oracle
+[3] MS SQL
+
+Enter option number: " db_type_select
+
+for letter in "$db_type_select"; do
+
+	if [[ "$letter" == [1] ]];
+	then
+		db_type="PostgreSQL"
+
+	elif [[ "$letter" == [2] ]];
+	then
+		db_type="Oracle"
+
+	elif [[ "$letter" == [3] ]];
+	then
+		db_type="MS SQL"
+	
+	else
+		echo "Seriously?"
+		# exit | exit 1
+	fi
+done
+
 } 
 
 # db_host
@@ -500,6 +528,7 @@ while [ db_config_confirm != "Q" ]
 do
 clear
 
+# No need for this call?
 db_spec
 
 echo "[N]ext Step, [E]dit Existing: "
