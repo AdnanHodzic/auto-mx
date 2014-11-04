@@ -177,21 +177,13 @@ read -p ": " service_settings_confrim
 		spec
 	
 		echo -e "\nWhat would you like to edit?\n"
-	#	echo "[1] Service Name"
-		echo "[2] Display "
-		echo "[3] Description"
-		echo "[4] Start at boot"
-		echo "[5] App. username"
-		echo "[6] App. password"
+		echo "[1] System User Account"
+		echo "[2] Application Name"
+		echo "[3] Start at boot"
 	
 	read -p "Enter option number: " service_settings_edit
 
 	for letter in "$service_settings_edit"; do
-
-	#if [[ "$letter" == [1] ]]; 
-	#then
-	#	app_servicename_func
-	#	spec
 
 	if [[ "$letter" == [1] ]]; 
 	then
@@ -208,7 +200,7 @@ read -p ": " service_settings_confrim
 	#	app_description_func
 	#spec
 
-	elif [[ "$letter" == [4] ]]; 
+	elif [[ "$letter" == [3] ]]; 
 	then
 		app_startup_func
 		spec
