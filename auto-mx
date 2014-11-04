@@ -56,23 +56,11 @@ then
 fi
 }
 
-# Service Name
-#app_servicename_func(){
-#echo -e "\n---------------------------------------------------\n"
-#read -p "Specify \"Service Name\", i.e (NewApp): " app_servicename
-# }
-
 # Application Name 
 app_displayname_func(){
 echo -e "\n--------------------------------------------------------\n"
 read -p "Specify \"Application Name\", i.e (Media App): " app_displayname
 }
-
-# Description:  
-#app_description_func(){
-#echo -e "\n---------------------------------------------------\n"
-#read -p "Specify \"Description\": " app_description
-#}
 
 # Startup Type
 app_startup_func(){
@@ -116,18 +104,8 @@ fi
 done
 }
 
-## Username 
-#app_username_func(){
-#echo -e "---------------------------------------------------\n"
-#read -p "Specify \"User Name\": " app_username
-#}
-
-# Password 
+# Automagically generate "admin_pass/app_password" 
 app_password_func(){
-#echo -e "\n-------------------------------------------------------\n"
-#read -p "Specify \"User password\": " app_password
-
-# Automagically generate "admin_pass/app_password"
 app_password="$(cat /dev/urandom| tr -cd "A-z1-9\!@#&" | head -c16)"
 }
 
@@ -135,13 +113,9 @@ spec(){
 echo -e "\n--------------------------------------------------\n"
 echo -e "You've specified following values:"
 echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++\n"
-#echo -e "Service name: $app_servicename"
 echo -e "System User Account: $app_system_user"
 echo -e "Application name: $app_displayname"
-# echo -e "Description: $app_description"
 echo -e "Start at boot: $boot"
-#echo -e "App. username: $app_username"
-#echo -e "App. password: $app_password"
 echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++\n"
 }
 }
@@ -167,9 +141,6 @@ read -p ": " service_settings_confrim
 
 	N|n)
 		echo "Moving to next step"
-		# Jump to the next step
-		# destination_path
-		# destination_path_func
 		break
 	;;
 	
@@ -195,29 +166,10 @@ read -p ": " service_settings_confrim
 		app_displayname_func
 		spec
 
-	#elif [[ "$letter" == [3] ]]; 
-	#then
-	#	app_description_func
-	#spec
-
 	elif [[ "$letter" == [3] ]]; 
 	then
 		app_startup_func
 		spec
-
-	#elif [[ "$letter" == [5] ]]; 
-	#then
-	#	app_username_func
-	#	spec
-	
-	#elif [[ "$letter" == [6] ]]; 
-	#then
-	#	app_password_func
-	#	spec
-	#elif [[ "$letter" == [Ff] ]]; 
-	#then
-	#	echo "finishing"
-	#	break
 
 	else
 		echo "Seriously?"
