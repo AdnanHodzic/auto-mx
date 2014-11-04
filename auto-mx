@@ -827,6 +827,12 @@ fi
 done
 }
 
+# Java Binary Path Edit
+java_binary_path_edit_func(){
+echo -e "\n----------------------------------------------------------\n"
+echo -e "Configure \"Java Binary Path\"? i.e: (/usr/bin/java)"
+read -p ": " java_binary_path
+}
 
 java_spec(){
 echo -e "\n----------------------------------------------------------\n"
@@ -938,6 +944,7 @@ read -p ": " java_config_confirm
 		echo "[1] Java Heap Max Size"
 		echo "[2] Java Heap Min Size"
 		echo "[3] Max PermGen Size"
+		echo "[4] Java Binary Path"
 
 	read -p "Enter option number: " java_config_edit
 
@@ -956,6 +963,12 @@ read -p ": " java_config_confirm
 	elif [[ "$letter" == [3] ]];
 	then
 		java_permgen_func
+		java_spec
+	
+	elif [[ "$letter" == [4] ]];
+	then
+		java_binary_path_edit_func
+		#java_binary_path_func
 		java_spec
 	
 	else 
