@@ -431,7 +431,13 @@ read -p "Specify \"Database Type\", i.e (PostgreSQL): " db_type
 # db_host
 db_host_func(){
 echo -e "\n----------------------------------------------------------\n"
-read -p "Specify \"Database Host\", i.e (127.0.0.1:5432): " db_host
+read -p "Specify \"Database Host\", i.e (127.0.0.1): " db_host
+}
+
+# db_port
+db_port_func(){
+echo -e "\n----------------------------------------------------------\n"
+read -p "Specify \"Database Port\", i.e (5432): " db_port
 }
 
 # db_name
@@ -458,6 +464,7 @@ echo -e "You've specified following values:"
 echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
 echo -e "Database type: $db_type"
 echo -e "Database host: $db_host"
+echo -e "Database port: $db_port"
 echo -e "Database name: $db_name"
 echo -e "Database username: $db_user"
 echo -e "Database password: $db_pass"
@@ -489,6 +496,7 @@ read -p ": " db_init
 		# calling db functions
 		db_type_func
 		db_host_func
+		db_port_func
 		db_name_func
 		db_user_func
 		db_pass_func
@@ -535,6 +543,7 @@ echo -e "\nYou've specified following values:\n"
 echo -e "\n++++++++++++++++++++++++++++++++++++++++\n"
 echo -e "Database type: $db_type"
 echo -e "Database host: $db_host"
+echo -e "Database port: $db_port"
 echo -e "Database name: $db_name"
 echo -e "Database username: $db_user"
 echo -e "Database pasword: $db_password\n"
@@ -570,9 +579,10 @@ read -p ": " db_config_confirm
 		echo -e "\nWhat would you like to edit\n"
 		echo "[1] Database type"
 		echo "[2] Database host"
-		echo "[3] Database name"
-		echo "[4] Database username"
-		echo "[5] Database password"
+		echo "[3] Database port"
+		echo "[4] Database name"
+		echo "[5] Database username"
+		echo "[6] Database password"
 
 	read -p "Enter option number: " db_config_edit
 
@@ -590,18 +600,22 @@ read -p ": " db_config_confirm
 
 	elif [[ "$letter" == [3] ]];
 	then
+		db_port_func
+		db_spec
+	
+	elif [[ "$letter" == [4] ]];
+	then
 		db_name_func
 		db_spec
 
-	elif [[ "$letter" == [4] ]];
+	elif [[ "$letter" == [5] ]];
 	then
 		db_user_func
 		db_spec
 	
-	elif [[ "$letter" == [5] ]];
+	elif [[ "$letter" == [6] ]];
 	then
-		db_pass_func
-	
+		db_pass_func	
 		db_spec
 	
 	#elif [[ "$letter" == [Ff] ]];
@@ -719,7 +733,7 @@ mxruntime:
  # The DatabaseHost contains the database hostname and optionally, also the TCP
  # port number.  It\s possible to use a plain IPv6 address by enclosing it in
  # brackets, like: "[::1]:5432"
- DatabaseHost: ${db_host}
+ DatabaseHost: ${db_host}${db_port}
  DatabaseName: ${db_name}
  DatabaseUserName: ${db_user}
  DatabasePassword: ${db_pass}
@@ -762,6 +776,7 @@ sed -i "s/\${app_displayname}/\"$app_displayname\"/g" $yaml
 sed -i "s/\${app_password}/$app_password/g" $yaml
 sed -i "s/\${db_type}/$db_type/g" $yaml
 sed -i "s/\${db_host}/$db_host/g" $yaml
+sed -i "s/\${db_port}/:$db_port/g" $yaml
 sed -i "s/\${db_name}/$db_name/g" $yaml
 sed -i "s/\${db_user}/$db_user/g" $yaml
 sed -i "s/\${db_pass}/$db_pass/g" $yaml
