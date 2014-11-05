@@ -644,9 +644,9 @@ mkdir -p $path/data/tmp
 
 # Fixing permissions
 echo -e "\nFixing permissions\n"
-chown $app_system_user:$app_system_user -R $path
-chown 700 -R $path/data/
-chown 700 -R $path/model/
+chown $app_system_user:$app_system_user $path* -R
+chmod 700 -R $path/data/
+chmod 700 -R $path/model/
 
 # m2ee.yaml contents
 # move contents to: 
