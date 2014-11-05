@@ -4,8 +4,29 @@
 # Utility to interactively install and setup
 # Mendix, as well rest of utility's which
 # are needed to run Mendix applications.
+#
+# Files *
+# Licence: Mendix (proprietary)
+# Copyright: 2014 © Mendix
+#
+# Files: auto-mx, debian/*
+# Copyright: 2014 Adnan Hodzic <adnan.hodzic@mendix.com>
+# Licence: GPL-3.0+
+#·
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#·
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#·
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# Root checker
+# Root Checker
 root_check(){
 if [[ $EUID -ne 0 ]]; then
    echo "Please run \"auto-mx\" as root user" 1>&2
@@ -16,27 +37,34 @@ fi
 # Service Settings
 service_settings(){
 
-# Service Name
-app_servicename_func(){
-echo -e "\n---------------------------------------------------\n"
-read -p "Specify \"Service Name\", i.e (NewApp): " app_servicename
+# System User Account
+app_system_user_func(){
+echo -e "--------------------------------------------------------\n"
+read -p "Specify \"System User Account\" i.e (mediapp): " app_system_user
 }
 
-# Display Name 
+# $app_system_user Checker
+app_system_user_checker(){
+if id $app_system_user > /dev/null 2>&1
+then
+	echo -e "\n+++++++++++++++++++++++++++\n"
+	echo -e "User exists!\n"
+	echo "Try with different username" 
+	echo -e "\n+++++++++++++++++++++++++++\n"	
+	read key
+	app_system_user_func
+fi
+}
+
+# Application Name 
 app_displayname_func(){
-echo -e "\n---------------------------------------------------\n"
-read -p "Specify \"Display Name\", i.e (NewApp): " app_displayname
-}
-
-# Description:  
-app_description_func(){
-echo -e "\n---------------------------------------------------\n"
-read -p "Specify \"Description\": " app_description
+echo -e "\n--------------------------------------------------------\n"
+read -p "Specify \"Application Name\", i.e (Media App): " app_displayname
 }
 
 # Startup Type
 app_startup_func(){
-echo -e "\n---------------------------------------------------\n"
+echo -e "\n--------------------------------------------------------\n"
 echo -e "Start Mendix at boot?"
 read -p "[Y]es, [N]o, [S]kip: " app_startup
 
@@ -67,37 +95,27 @@ then
 	continue
 
 else 
-	echo -e "\n------------------------------------\n"
+	echo -e "\n-----------------------------------------\n"
 	echo    "Non existing value: exiting ..."
-	echo -e "\n------------------------------------\n"
+	echo -e "\n-----------------------------------------\n"
 	
 	exit 1
 fi
 done
 }
 
-# Username 
-app_username_func(){
-echo -e "---------------------------------------------------\n"
-read -p "Specify \"User Name\": " app_username
-}
-
-# Password 
+# Automagically generate "admin_pass/app_password" 
 app_password_func(){
-echo -e "\n--------------------------------------------------\n"
-read -p "Specify \"User password\": " app_password
+app_password="$(cat /dev/urandom| tr -cd "A-z1-9\!@#&" | head -c16)"
 }
 
 spec(){
 echo -e "\n--------------------------------------------------\n"
 echo -e "You've specified following values:"
 echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++\n"
-echo -e "Service name: $app_servicename"
-echo -e "Display name: $app_displayname"
-echo -e "Description: $app_description"
+echo -e "System User Account: $app_system_user"
+echo -e "Application name: $app_displayname"
 echo -e "Start at boot: $boot"
-echo -e "App. username: $app_username"
-echo -e "App. password: $app_password"
 echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++\n"
 }
 }
@@ -123,9 +141,6 @@ read -p ": " service_settings_confrim
 
 	N|n)
 		echo "Moving to next step"
-		# Jump to the next step
-		# destination_path
-		# destination_path_func
 		break
 	;;
 	
@@ -133,12 +148,9 @@ read -p ": " service_settings_confrim
 		spec
 	
 		echo -e "\nWhat would you like to edit?\n"
-		echo "[1] Service Name"
-		echo "[2] Display "
-		echo "[3] Description"
-		echo "[4] Start at boot"
-		echo "[5] App. username"
-		echo "[6] App. password"
+		echo "[1] System User Account"
+		echo "[2] Application Name"
+		echo "[3] Start at boot"
 	
 	read -p "Enter option number: " service_settings_edit
 
@@ -146,7 +158,7 @@ read -p ": " service_settings_confrim
 
 	if [[ "$letter" == [1] ]]; 
 	then
-		app_servicename_func
+		app_system_user_func
 		spec
 
 	elif [[ "$letter" == [2] ]]; 
@@ -156,27 +168,8 @@ read -p ": " service_settings_confrim
 
 	elif [[ "$letter" == [3] ]]; 
 	then
-		app_description_func
-		spec
-
-	elif [[ "$letter" == [4] ]]; 
-	then
 		app_startup_func
 		spec
-
-	elif [[ "$letter" == [5] ]]; 
-	then
-		app_username_func
-		spec
-	
-	elif [[ "$letter" == [6] ]]; 
-	then
-		app_password_func
-		spec
-	#elif [[ "$letter" == [Ff] ]]; 
-	#then
-	#	echo "finishing"
-	#	break
 
 	else
 		echo "Seriously?"
@@ -207,14 +200,14 @@ destination_path_func(){
 
 # Define custom path
 custom_appdest_func(){
-echo -e "-----------------------------------------\n"
-read -p "Specify custom app. destination: " path
+echo -e "------------------------------------------------------------\n"
+read -p "Specify custom app. destination, i.e (/opt/mxapp): " path
 }
 
 custom_path_spec(){
 echo -e "\n----------------------------------------------------------\n"
 echo -e "You've specified following location as your custom"
-echo -e "\napp. path (i.e /opt/app-03): $path"
+echo -e "\napp. path: \"$path\""
 echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
 }
 
@@ -226,7 +219,7 @@ clear
 echo -e "\n------------------------------------------\n"
 echo -e "Specify location of apps and server files "
 echo -e "\n++++++++++++++++++++++++++++++++++++++++++\n"
-echo -e "We recommend: /srv/mendix/$app_servicename"
+echo -e "We recommend: /srv/mendix/$app_system_user"
 echo -e "to be your path."
 echo -e "\n++++++++++++++++++++++++++++++++++++++++++\n"
 
@@ -240,7 +233,7 @@ read -p ": " destination_path_init
     case $destination_path_init in
 
     A|a )
-    	path="/srv/mendix/$app_username"
+    	path="/srv/mendix/$app_system_user"
 		
 		# Jump to Database Configuration
 		db_config
@@ -320,7 +313,11 @@ echo "[Y]es"
 echo "[N]o"
 #echo "[Q]uit"
 
-read -p ": " install_start
+default="y"
+
+read -e -i "$default " -p ": " install_start
+default="${input:-$default}"
+
 	case $install_start in
 	
 	Q|q)
@@ -330,11 +327,13 @@ read -p ": " install_start
 
 	Y|y)
 	# calling service_settings functions
-	app_servicename_func
+	#app_servicename_func
+	app_system_user_func
+	app_system_user_checker
 	app_displayname_func
-	app_description_func
+	#app_description_func
 	app_startup_func
-	app_username_func
+	#app_username_func
 	app_password_func
 
 	spec
@@ -362,7 +361,7 @@ goodbye(){
 echo -e "\n-------------------------------------------------\n"
 echo -e "Installation complete!\n"
 echo -e "For any additional customization please take"
-echo -e "take a look in: /home/$app_servicename/.m2ee/m2ee.yaml"
+echo -e "take a look in: /home/$app_system_user/.m2ee/m2ee.yaml"
 echo -e "\n-------------------------------------------------\n" 
 exit
 }
@@ -374,13 +373,47 @@ db_config(){
 # db_type
 db_type_func(){
 echo -e "\n----------------------------------------------------------\n"
-read -p "Specify \"Database Type\", i.e (PostgreSQL): " db_type
+#read -p "Specify \"Database Type\", i.e (PostgreSQL): " db_type
+read -p "Specify \"Database Type\":
+
+[1] PostgreSQL
+[2] Oracle
+[3] MS SQL
+
+Enter option number: " db_type_select
+
+for letter in "$db_type_select"; do
+
+	if [[ "$letter" == [1] ]];
+	then
+		db_type="PostgreSQL"
+
+	elif [[ "$letter" == [2] ]];
+	then
+		db_type="Oracle"
+
+	elif [[ "$letter" == [3] ]];
+	then
+		db_type="MS SQL"
+	
+	else
+		echo "Seriously?"
+		# exit | exit 1
+	fi
+done
+
 } 
 
 # db_host
 db_host_func(){
 echo -e "\n----------------------------------------------------------\n"
-read -p "Specify \"Database Host\", i.e (127.0.0.1:5432): " db_host
+read -p "Specify \"Database Host\", i.e (127.0.0.1): " db_host
+}
+
+# db_port
+db_port_func(){
+echo -e "\n----------------------------------------------------------\n"
+read -p "Specify \"Database Port\", i.e (5432): " db_port
 }
 
 # db_name
@@ -407,6 +440,7 @@ echo -e "You've specified following values:"
 echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
 echo -e "Database type: $db_type"
 echo -e "Database host: $db_host"
+echo -e "Database port: $db_port"
 echo -e "Database name: $db_name"
 echo -e "Database username: $db_user"
 echo -e "Database password: $db_pass"
@@ -420,10 +454,10 @@ clear
 
 # Display menu
 echo -e "\n------------------------------------------------\n"
-echo -e "Configure database?"
+echo -e "Set up Database?"
 echo -e "\n------------------------------------------------\n"
 echo -e "[Y]es"
-echo -e "[D]efault/Local install"
+echo -e "[D]efault/Local install (Not endorsed by Mendix)"
 #echo -e "[Q]uit"
 
 read -p ": " db_init
@@ -438,6 +472,7 @@ read -p ": " db_init
 		# calling db functions
 		db_type_func
 		db_host_func
+		db_port_func
 		db_name_func
 		db_user_func
 		db_pass_func
@@ -484,6 +519,7 @@ echo -e "\nYou've specified following values:\n"
 echo -e "\n++++++++++++++++++++++++++++++++++++++++\n"
 echo -e "Database type: $db_type"
 echo -e "Database host: $db_host"
+echo -e "Database port: $db_port"
 echo -e "Database name: $db_name"
 echo -e "Database username: $db_user"
 echo -e "Database pasword: $db_password\n"
@@ -496,6 +532,7 @@ while [ db_config_confirm != "Q" ]
 do
 clear
 
+# No need for this call?
 db_spec
 
 echo "[N]ext Step, [E]dit Existing: "
@@ -519,9 +556,10 @@ read -p ": " db_config_confirm
 		echo -e "\nWhat would you like to edit\n"
 		echo "[1] Database type"
 		echo "[2] Database host"
-		echo "[3] Database name"
-		echo "[4] Database username"
-		echo "[5] Database password"
+		echo "[3] Database port"
+		echo "[4] Database name"
+		echo "[5] Database username"
+		echo "[6] Database password"
 
 	read -p "Enter option number: " db_config_edit
 
@@ -539,18 +577,22 @@ read -p ": " db_config_confirm
 
 	elif [[ "$letter" == [3] ]];
 	then
+		db_port_func
+		db_spec
+	
+	elif [[ "$letter" == [4] ]];
+	then
 		db_name_func
 		db_spec
 
-	elif [[ "$letter" == [4] ]];
+	elif [[ "$letter" == [5] ]];
 	then
 		db_user_func
 		db_spec
 	
-	elif [[ "$letter" == [5] ]];
+	elif [[ "$letter" == [6] ]];
 	then
-		db_pass_func
-	
+		db_pass_func	
 		db_spec
 	
 	#elif [[ "$letter" == [Ff] ]];
@@ -586,8 +628,8 @@ done
 config_mgmt_func(){
 
 # User creation
-echo -e "\nCreating "$app_username" user ...\n"
-adduser --disabled-password --gecos "$app_displayname" $app_servicename
+echo -e "\nCreating "$app_system_user" user ...\n"
+adduser --disabled-password --gecos "$app_displayname" $app_system_user
 
 # Create a directory structure
 mkdir -p $path
@@ -602,9 +644,9 @@ mkdir -p $path/data/tmp
 
 # Fixing permissions
 echo -e "\nFixing permissions\n"
-chown $app_servicename:$app_servicename -R $path
-chown 700 -R $path/data/
-chown 700 -R $path/model/
+chown $app_system_user:$app_system_user $path* -R
+chmod 700 -R $path/data/
+chmod 700 -R $path/model/
 
 # m2ee.yaml contents
 # move contents to: 
@@ -639,6 +681,12 @@ m2ee:
  # set to * if you want to have the public runtime port accessible from other
  # hosts than localhost (Mendix >= 4.3.0)
  runtime_listen_addresses: "*"
+
+ # From Mendix 5 onwards, the JVM needs to support Java 7. Here you can specifiy
+ # the location of the java binary if you want to override the system default.
+ # javabin: /usr/bin/java
+ ${java_binary_path}
+
  # custom java options, like -Xmx256m or -Djava.foo=bar
 javaopts: [
    "-Dfile.encoding=UTF-8", "-XX:MaxPermSize=${java_permgen}", "-Xmx${java_heap_max}", "-Xms${java_heap_min}",
@@ -653,7 +701,7 @@ logging:
    name: FileSubscriber
    type: file
    autosubscribe: INFO
-   filename: /var/log/mendix/${app_servicename}/log
+   filename: /var/log/mendix/${app_system_user}/log
    max_size: 10485760 # bytes(!!)
    max_rotation: 7
 mxruntime:
@@ -662,7 +710,7 @@ mxruntime:
  # The DatabaseHost contains the database hostname and optionally, also the TCP
  # port number.  It\s possible to use a plain IPv6 address by enclosing it in
  # brackets, like: "[::1]:5432"
- DatabaseHost: ${db_host}
+ DatabaseHost: ${db_host}${db_port}
  DatabaseName: ${db_name}
  DatabaseUserName: ${db_user}
  DatabasePassword: ${db_pass}
@@ -681,16 +729,16 @@ mxruntime:
   - Module2.Event2
   - Module3.Event3'
 
-yaml=/home/$app_servicename/.m2ee/m2ee.yaml
+yaml=/home/$app_system_user/.m2ee/m2ee.yaml
 
 # .m2ee creation
 echo -e "\nm2ee creation\n"
-mkdir -p /home/$app_servicename/.m2ee
+mkdir -p /home/$app_system_user/.m2ee
 #touch $yaml
 
 # create log file
-mkdir -p /var/log/mendix/$app_servicename
-touch /var/log/mendix/$app_servicename/log
+mkdir -p /var/log/mendix/$app_system_user
+touch /var/log/mendix/$app_system_user/log
 
 # todo
 # make a loop if the $yaml already exists
@@ -700,14 +748,16 @@ echo -n "$yaml_content" > "$yaml"
 # todo
 # make a phraser
 # Yaml Interpreter
-sed -i "s/\${app_displayname}/$app_displayname/g" $yaml
-sed -i "s/\${app_servicename}/$app_servicename/g" $yaml
+sed -i "s/\${app_system_user}/$app_system_user/g" $yaml
+sed -i "s/\${app_displayname}/\"$app_displayname\"/g" $yaml
 sed -i "s/\${app_password}/$app_password/g" $yaml
 sed -i "s/\${db_type}/$db_type/g" $yaml
 sed -i "s/\${db_host}/$db_host/g" $yaml
+sed -i "s/\${db_port}/:$db_port/g" $yaml
 sed -i "s/\${db_name}/$db_name/g" $yaml
 sed -i "s/\${db_user}/$db_user/g" $yaml
 sed -i "s/\${db_pass}/$db_pass/g" $yaml
+sed -i "s+\${java_binary_path}+javabin: $java_binary_path+g" $yaml
 sed -i "s/\${java_heap_max}/$java_heap_max/g" $yaml
 sed -i "s/\${java_heap_min}/$java_heap_min/g" $yaml
 sed -i "s/\${java_permgen}/$java_permgen/g" $yaml
@@ -715,12 +765,12 @@ sed -i "s+\${path}+$path+g" $yaml
 
 
 # Make sure permissions are still correct
-chown $app_servicename:$app_servicename -R /home/$app_servicename
+chown $app_system_user:$app_system_user -R /home/$app_system_user
 goodbye
 }
 
 
-# Java configuration
+# Java Configuration
 java_config(){
 
 # Java Heap (Max Size)
@@ -741,6 +791,41 @@ echo -e "\n----------------------------------------------------------\n"
 read -p "Specify \"Max PermGen Size\", i.e (128M): " java_permgen
 }
 
+# Java Binary Path
+java_binary_path_func(){
+echo -e "\n----------------------------------------------------------\n"
+echo -e "Configure \"Java Binary Path\"? i.e: (/usr/bin/java)"
+echo -e "\nThis step is optional, so you may as well skip it"
+
+read -p "[Y]es, [S]kip: " java_bin
+
+for letter in "$java_bin"; do
+
+if [[ "$letter" == [Yy] ]];
+then
+	echo -e "\n----------------------------------------------------------\n"
+	read -p ": " java_binary_path
+
+elif [[ "$letter" == [Ss] ]];
+then
+	echo -e "\nSkipping ...\n"
+	continue
+
+else
+	echo -e "\nCome on ...\n"
+	read key
+	# exit1
+fi
+done
+}
+
+# Java Binary Path Edit
+java_binary_path_edit_func(){
+echo -e "\n----------------------------------------------------------\n"
+echo -e "Configure \"Java Binary Path\"? i.e: (/usr/bin/java)"
+read -p ": " java_binary_path
+}
+
 java_spec(){
 echo -e "\n----------------------------------------------------------\n"
 echo -e "You've specified following values:"
@@ -748,6 +833,7 @@ echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
 echo -e "Java Heap Max Size: $java_heap_max"
 echo -e "Java Heap Min Size: $java_heap_min"
 echo -e "Max PermGen Size: $java_permgen"
+echo -e "Java Binary Path: $java_binary_path"
 echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
 }
 
@@ -758,7 +844,7 @@ clear
 
 # Display menu
 echo -e "\n------------------------------------------------\n"
-echo -e "Configure Java?"
+echo -e "Configure JVM Settings?"
 echo -e "\n------------------------------------------------\n"
 echo -e "[Y]es"
 echo -e "[N]o, use default Mendix settings"
@@ -777,6 +863,7 @@ read -p ": " java_init
 		java_heap_max_func
 		java_heap_min_func
 		java_permgen_func
+		java_binary_path_func
 
 		java_spec
 		#break
@@ -849,6 +936,7 @@ read -p ": " java_config_confirm
 		echo "[1] Java Heap Max Size"
 		echo "[2] Java Heap Min Size"
 		echo "[3] Max PermGen Size"
+		echo "[4] Java Binary Path"
 
 	read -p "Enter option number: " java_config_edit
 
@@ -867,6 +955,12 @@ read -p ": " java_config_confirm
 	elif [[ "$letter" == [3] ]];
 	then
 		java_permgen_func
+		java_spec
+	
+	elif [[ "$letter" == [4] ]];
+	then
+		java_binary_path_edit_func
+		#java_binary_path_func
 		java_spec
 	
 	else 
