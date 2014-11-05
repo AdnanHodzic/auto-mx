@@ -313,7 +313,11 @@ echo "[Y]es"
 echo "[N]o"
 #echo "[Q]uit"
 
-read -p ": " install_start
+default="y"
+
+read -e -i "$default " -p ": " install_start
+default="${input:-$default}"
+
 	case $install_start in
 	
 	Q|q)
