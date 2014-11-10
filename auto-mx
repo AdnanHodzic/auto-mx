@@ -236,7 +236,8 @@ read -p ": " destination_path_init
     	path="/srv/mendix/$app_system_user"
 		
 		# Jump to Database Configuration
-		db_config
+		# db_config | step made obsolete
+		java_config
 	;;
 
     C|c )
@@ -283,7 +284,8 @@ read -p ": " destination_path_confirm
     ;;
 
     N|n)
-        db_config 
+        #db_config | step made obsolete
+		java_config
 		#break
     ;;
 
