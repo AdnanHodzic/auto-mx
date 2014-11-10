@@ -757,10 +757,10 @@ sed -i "s/\${db_port}/:$db_port/g" $yaml
 sed -i "s/\${db_name}/$db_name/g" $yaml
 sed -i "s/\${db_user}/$db_user/g" $yaml
 sed -i "s/\${db_pass}/$db_pass/g" $yaml
-sed -i "s+\${java_binary_path}+javabin: $java_binary_path+g" $yaml
-sed -i "s/\${java_heap_max}/$java_heap_max/g" $yaml
-sed -i "s/\${java_heap_min}/$java_heap_min/g" $yaml
-sed -i "s/\${java_permgen}/$java_permgen/g" $yaml
+sed -i "s+\${java_binary_path}+$javabin$java_binary_path+g" $yaml
+sed -i "s/\${java_heap_max}/$java_heap_max$mb/g" $yaml
+sed -i "s/\${java_heap_min}/$java_heap_min$mb/g" $yaml
+sed -i "s/\${java_permgen}/$java_permgen$mb/g" $yaml
 sed -i "s+\${path}+$path+g" $yaml
 
 
@@ -773,16 +773,18 @@ goodbye
 # Java Configuration
 java_config(){
 
+mb="M"
+
 # Java Heap (Max Size)
 java_heap_max_func(){
 echo -e "\n----------------------------------------------------------\n"
-read -p "Specify \"Java Heap Max Size\", i.e (512M): " java_heap_max
+read -p "Specify \"Java Heap Max Size\", i.e (512): " java_heap_max
 } 
 
 # Java Heap (Min Size)
 java_heap_min_func(){
 echo -e "\n----------------------------------------------------------\n"
-read -p "Specify \"Java Heap Min Size\", i.e (512M): " java_heap_min
+read -p "Specify \"Java Heap Min Size\", i.e (512): " java_heap_min
 }
 
 # Max PermGen Size
@@ -821,6 +823,8 @@ done
 
 # Java Binary Path Edit
 java_binary_path_edit_func(){
+javabin="javabin: "
+
 echo -e "\n----------------------------------------------------------\n"
 echo -e "Configure \"Java Binary Path\"? i.e: (/usr/bin/java)"
 read -p ": " java_binary_path
@@ -830,9 +834,9 @@ java_spec(){
 echo -e "\n----------------------------------------------------------\n"
 echo -e "You've specified following values:"
 echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
-echo -e "Java Heap Max Size: $java_heap_max"
-echo -e "Java Heap Min Size: $java_heap_min"
-echo -e "Max PermGen Size: $java_permgen"
+echo -e "Java Heap Max Size: $java_heap_max$mb"
+echo -e "Java Heap Min Size: $java_heap_min$mb"
+echo -e "Max PermGen Size: $java_permgen$mb"
 echo -e "Java Binary Path: $java_binary_path"
 echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
 }
@@ -872,9 +876,9 @@ read -p ": " java_init
 	;;
 
 	N|n)
-		java_heap_max="512M"
-		java_heap_min="512M"
-		java_permgen="128M"
+		java_heap_max="512"
+		java_heap_min="512"
+		java_permgen="128"
 
 		echo -e "\nFinished with Java configuration\n"
 		echo -e "Enter any key to continue"
