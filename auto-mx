@@ -236,8 +236,7 @@ read -p ": " destination_path_init
     	path="/srv/mendix/$app_system_user"
 		
 		# Jump to Database Configuration
-		# db_config | step made obsolete
-		java_config
+		db_config
 	;;
 
     C|c )
@@ -284,8 +283,7 @@ read -p ": " destination_path_confirm
     ;;
 
     N|n)
-        #db_config | step made obsolete
-		java_config
+        db_config
 		#break
     ;;
 
@@ -448,6 +446,24 @@ echo -e "Database username: $db_user"
 echo -e "Database password: $db_pass"
 echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
 }
+
+# direct func | making local pg install obsolete
+db_config_direct_call(){
+
+		db_type_func
+		db_host_func
+		db_port_func
+		db_name_func
+		db_user_func
+		db_pass_func
+
+		db_spec
+		
+		db_config_confirm_func
+}
+
+# direct db_config call
+db_config_direct_call
 
 # DB Init start
 while [ db_init != "Q" ]
