@@ -784,8 +784,6 @@ echo -e "\n----------------------------------------------------------\n"
 read -p "Specify \"Max PermGen Size\", i.e (128M): " java_permgen
 }
 
-javabin="javabin: "
-
 # Java Binary Path
 java_binary_path_func(){
 echo -e "\n----------------------------------------------------------\n"
@@ -798,6 +796,7 @@ for letter in "$java_bin"; do
 
 if [[ "$letter" == [Yy] ]];
 then
+	javabin="javabin: "
 	echo -e "\n----------------------------------------------------------\n"
 	read -p ": " java_binary_path
 
