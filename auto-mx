@@ -687,7 +687,7 @@ m2ee:
 
  runtime_listen_addresses: "*"
 
- ${java_binary_path}
+ ${javabin}
 
 javaopts: [
    "-Dfile.encoding=UTF-8", "-XX:MaxPermSize=${java_permgen}", "-Xmx${java_heap_max}", "-Xms${java_heap_min}",
@@ -748,10 +748,10 @@ sed -i "s/\${db_port}/:$db_port/g" $yaml
 sed -i "s/\${db_name}/$db_name/g" $yaml
 sed -i "s/\${db_user}/$db_user/g" $yaml
 sed -i "s/\${db_pass}/$db_pass/g" $yaml
-sed -i "s+\${java_binary_path}+$javabin$java_binary_path+g" $yaml
 sed -i "s/\${java_heap_max}/$java_heap_max$mb/g" $yaml
 sed -i "s/\${java_heap_min}/$java_heap_min$mb/g" $yaml
 sed -i "s/\${java_permgen}/$java_permgen$mb/g" $yaml
+sed -i "s+\${javabin}+$javabin+g" $yaml
 sed -i "s+\${path}+$path+g" $yaml
 
 
@@ -796,9 +796,11 @@ for letter in "$java_bin"; do
 
 if [[ "$letter" == [Yy] ]];
 then
-	javabin="javabin: "
 	echo -e "\n----------------------------------------------------------\n"
 	read -p ": " java_binary_path
+
+	javabin="javabin: $java_binary_path"
+
 
 elif [[ "$letter" == [Ss] ]];
 then
