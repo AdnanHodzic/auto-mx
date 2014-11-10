@@ -217,7 +217,7 @@ clear
 
 # Specify destination path
 echo -e "\n------------------------------------------\n"
-echo -e "Specify location of apps and server files "
+echo -e "Specify location for \"$app_displayname\""
 echo -e "\n++++++++++++++++++++++++++++++++++++++++++\n"
 echo -e "We recommend: /srv/mendix/$app_system_user"
 echo -e "to be your path."
@@ -315,7 +315,7 @@ echo "[N]o"
 
 default="y"
 
-read -e -i "$default " -p ": " install_start
+read -e -i "$default" -p ": " install_start
 default="${input:-$default}"
 
 	case $install_start in
@@ -655,6 +655,7 @@ chmod 700 -R $path/model/
 # in auto-mx deb package.
 yaml_content='# Full m2ee.yaml documentation available on:
 # https://github.com/mendix/m2ee-tools/blob/develop/examples/full-documented-m2ee.yaml
+
 mxnode:
  mxjar_repo: ${path}/data/runtime
 
