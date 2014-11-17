@@ -34,6 +34,47 @@ if [[ $EUID -ne 0 ]]; then
 fi
 }
 
+distro_checker(){
+
+# if redhat skipp ... fix skip hack!
+if [ -f /etc/redhat-release ];
+then
+	echo "Skipping "
+else
+
+lsb="$(lsb_release -is)"
+codename="$(lsb_release -cs)"
+platform="$(lsb_release -ics)"
+message(){
+echo -e "\n----------------------------------------\n"
+echo -e "Your platform is not supported by Mendix"
+echo -e "Please contact cloudops@mendix.com\n"
+echo -e "You're using: $platform\n"
+echo -e "----------------------------------------\n"
+}
+
+if [ $lsb == "Debian" ];
+then
+	if [ $codename == "squeezee" ] || [ $codename == "wheezy" ] || [ $codename == "jessie" ] || [ $codename == "sid" ];
+	then
+		echo -e "\nPlatform requirements satisfied, proceeding ...\n"
+		#exit 1
+	else
+	message	
+	exit 1
+	fi
+elif [ $lsb == "Ubuntu" ];
+then
+		message
+│┈┈┈│┈┈┈exit 1
+else
+	message
+	exit 1
+fi
+fi
+
+}
+
 # Service Settings
 service_settings(){
 
@@ -366,7 +407,6 @@ echo -e "take a look in: /home/$app_system_user/.m2ee/m2ee.yaml"
 echo -e "\n-------------------------------------------------\n" 
 exit
 }
-
 
 # Database configuration
 db_config(){
@@ -1001,6 +1041,9 @@ done
 
 # root check 
 root_check
+
+# distro checker
+distro_checker
 
 # call service settings
 service_settings
