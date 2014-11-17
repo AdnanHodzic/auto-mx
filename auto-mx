@@ -647,8 +647,19 @@ done
 config_mgmt_func(){
 
 # User creation
-echo -e "\nCreating "$app_system_user" user ...\n"
-adduser --disabled-password --gecos "$app_displayname" $app_system_user
+if [ -f /etc/debian_version ]; 
+then
+	# Create use Debian way ...
+	echo -e "\nCreating "$app_system_user" user ...\n"
+	adduser --disabled-password --gecos "$app_displayname" $app_system_user
+
+elif [ -f /etc/redhat-release ];
+then
+	# Create user Redhat way ...
+	echo -e "\nCreating "$app_system_user" user ...\n"
+	useradd $app_system_user	
+fi
+
 
 # Create a directory structure
 mkdir -p $path
