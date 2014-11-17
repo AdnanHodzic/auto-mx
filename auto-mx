@@ -451,7 +451,12 @@ done
 #postgres local setup (hidden feature)
 db_pg_local(){
 
+
 # package/process status check
+
+# debian postgres setup
+deb_postgres(){
+
 package=postgresql
 
 package_check=$(dpkg-query -W --showformat='${Status}\n' $package |grep "install ok installed")
@@ -472,6 +477,45 @@ else
 		echo -e "Enter any key to continue"
 		read key
 	fi
+fi
+}
+
+# redhat postgres setup
+redhat_postgres(){
+
+package=postgresql-server
+
+if rpm -qa | grep $package 2>&1 > /dev/null;
+then
+	echo "$package is installed"
+	ps cax | grep postgres &> /dev/null
+	if [ $? -eq 0 ]; then
+		echo -e "$package is up and running. Moving on\n"
+	fi
+	read key 
+else
+	echo -e "Installing ... $package\n"
+	yum -y install postgresql-server postgresql-contrib
+	# database initialization
+	postgresql-setup initdb
+	# postgres start
+	systemctl start postgresql
+	echo -e "\nInstall complete, press any key to continue\n"
+	read key 
+fi
+}
+
+# magic
+if [ -f /etc/debian_version ];
+then
+	# deb_postgres func call
+	deb_postgres
+elif [ -f /etc/redhat-release ];
+then
+	# redhat_postgres func call
+	redhat_postgres
+else
+	distro_checker
 fi
 
 # action
