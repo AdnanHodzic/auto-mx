@@ -305,8 +305,8 @@ clear
 # Display menu
 echo -e "\n----------------------------------------------------\n"
 echo -e "Welcome to Mendix installer (auto-mx)\n"
-echo -e "This installer will setup your initial\n"
-echo -e "application environment or add additional\n"
+echo -e "\nThis installer will setup your initial"
+echo -e "application environment and/or add additional"
 echo -e "application environments to your Mendix setup.\n"
 echo -e "\nPlease follow on-screen instructions"
 echo -e "\n----------------------------------------------------\n"
