@@ -690,7 +690,7 @@ m2ee:
 
  ${javabin}
 
-javaopts: [
+ javaopts: [
    "-Dfile.encoding=UTF-8", "-XX:MaxPermSize=${java_permgen}", "-Xmx${java_heap_max}", "-Xms${java_heap_min}",
    "-Djava.io.tmpdir=/path/to/project/directory/data/tmp",
  ]
