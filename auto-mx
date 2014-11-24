@@ -44,7 +44,7 @@ else
 
 lsb="$(lsb_release -is)"
 codename="$(lsb_release -cs)"
-platform="$(lsb_release -ics)"
+platform="$(lsb_release -ics | sed '$!s/$/ /' | tr -d '\n')"
 message(){
 echo -e "\n----------------------------------------\n"
 echo -e "Your platform is not supported by Mendix"
@@ -53,7 +53,11 @@ echo -e "You're using: $platform\n"
 echo -e "----------------------------------------\n"
 }
 
-if [ $lsb == "Debian" ];
+if [ $lsb == "Ubuntu" ];
+then
+		message
+		exit 1
+elif [ $lsb == "Debian" ];
 then
 	if [ $codename == "squeezee" ] || [ $codename == "wheezy" ] || [ $codename == "jessie" ] || [ $codename == "sid" ];
 	then
@@ -63,10 +67,6 @@ then
 	message	
 	exit 1
 	fi
-elif [ $lsb == "Ubuntu" ];
-then
-		message
-│┈┈┈│┈┈┈exit 1
 else
 	message
 	exit 1
