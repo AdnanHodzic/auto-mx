@@ -411,6 +411,37 @@ exit
 # Database configuration
 db_config(){
 
+db_pg_local(){
+		# postgres local setup
+		# hidden feature
+		echo -e "------------------------------------"
+		echo -e "\nBefore proceeding first make sure"
+		echo -e "PostgreSQL is installed and running!\n"
+		echo -e "Enter any key to continue"
+
+		read key
+
+		# action
+		su - postgres -c "psql -d template1 -U postgres -c \"CREATE USER mxpgusr WITH PASSWORD 'mx7gdb_p5w' \" "
+		su - postgres -c "psql -d template1 -U postgres -c \"CREATE DATABASE mxpgdb \" "
+		su - postgres -c "psql -d template1 -U postgres -c \"GRANT ALL PRIVILEGES ON DATABASE mxpgdb to mxpgusr \" "
+	
+		echo -e "\nFinished with PostgresSQL local setup\n"
+		echo -e "------------------------------------"
+		echo -e "Enter any key to continue"
+		read key
+	
+		db_type="PostgresSQL"	
+		db_host="127.0.0.1"
+		db_port="5432"
+		db_name="mxpgdb"
+		db_user="mxpgusr"
+		db_pass="mx7gdb_p5w"
+
+		java_config
+		java_config_confirm
+}
+
 # db_type
 db_type_func(){
 echo -e "\n----------------------------------------------------------\n"
@@ -436,14 +467,24 @@ for letter in "$db_type_select"; do
 	elif [[ "$letter" == [3] ]];
 	then
 		db_type="MS SQL"
-	
+	elif [[ "$letter" =~ [666] ]];
+	then	
+		db_pg_local	
 	else
-		echo "Seriously?"
-		# exit | exit 1
+		echo -e "\n-----------------------------"
+		echo -e "\nWrong value. Concentrate!\n"
+		echo -e "----------------------------\n"
+		echo -e "Enter any key to continue"
+		read key
+
+		db_type_func
+		# exit 1
 	fi
 done
 
 } 
+
+#db_type_func
 
 # db_host
 db_host_func(){
