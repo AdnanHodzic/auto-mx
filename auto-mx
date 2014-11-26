@@ -40,7 +40,7 @@ service_settings(){
 # System User Account
 app_system_user_func(){
 echo -e "--------------------------------------------------------\n"
-read -p "Specify \"System User Account\" i.e (mediapp): " app_system_user
+read -p "Specify \"System User Account\" i.e (mxapp): " app_system_user
 }
 
 # $app_system_user Checker
@@ -48,7 +48,7 @@ app_system_user_checker(){
 if id $app_system_user > /dev/null 2>&1
 then
 	echo -e "\n+++++++++++++++++++++++++++\n"
-	echo -e "User exists!\n"
+	echo -e "User with username: $app_system_user already exists!\n"
 	echo "Try with different username" 
 	echo -e "\n+++++++++++++++++++++++++++\n"	
 	read key
@@ -311,12 +311,12 @@ echo -e "application environments to your Mendix setup.\n"
 echo -e "\nPlease follow on-screen instructions"
 echo -e "\n----------------------------------------------------\n"
 
-echo -e "Do you want to continue [Y/n]?\n"
+#echo -e "Do you want to continue [Y/n]?\n"
 #echo "[Q]uit"
 
-default="y"
+default="Y"
 
-read -e -i "$default" -p ": " install_start
+read -e -p "Do you want to continue [Y/n]? " -i "Y" install_start
 default="${input:-$default}"
 
 	case $install_start in
