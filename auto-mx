@@ -34,6 +34,47 @@ if [[ $EUID -ne 0 ]]; then
 fi
 }
 
+distro_checker(){
+
+# if redhat skipp ... fix skip hack!
+if [ -f /etc/redhat-release ];
+then
+	echo "Skipping "
+else
+
+lsb="$(lsb_release -is)"
+codename="$(lsb_release -cs)"
+platform="$(lsb_release -ics | sed '$!s/$/ /' | tr -d '\n')"
+message(){
+echo -e "\n----------------------------------------\n"
+echo -e "Your platform is not supported by Mendix"
+echo -e "Please contact cloudops@mendix.com\n"
+echo -e "You're using: $platform\n"
+echo -e "----------------------------------------\n"
+}
+
+if [ $lsb == "Ubuntu" ];
+then
+		message
+		exit 1
+elif [ $lsb == "Debian" ];
+then
+	if [ $codename == "squeezee" ] || [ $codename == "wheezy" ] || [ $codename == "jessie" ] || [ $codename == "sid" ];
+	then
+		echo -e "\nPlatform requirements satisfied, proceeding ...\n"
+		#exit 1
+	else
+	message	
+	exit 1
+	fi
+else
+	message
+	exit 1
+fi
+fi
+
+}
+
 # Service Settings
 service_settings(){
 
@@ -367,9 +408,39 @@ echo -e "\n-------------------------------------------------\n"
 exit
 }
 
-
 # Database configuration
 db_config(){
+
+db_pg_local(){
+		# postgres local setup
+		# hidden feature
+		echo -e "------------------------------------"
+		echo -e "\nBefore proceeding first make sure"
+		echo -e "PostgreSQL is installed and running!\n"
+		echo -e "Enter any key to continue"
+
+		read key
+
+		# action
+		su - postgres -c "psql -d template1 -U postgres -c \"CREATE USER mxpgusr WITH PASSWORD 'mx7gdb_p5w' \" "
+		su - postgres -c "psql -d template1 -U postgres -c \"CREATE DATABASE mxpgdb \" "
+		su - postgres -c "psql -d template1 -U postgres -c \"GRANT ALL PRIVILEGES ON DATABASE mxpgdb to mxpgusr \" "
+	
+		echo -e "\nFinished with PostgresSQL local setup\n"
+		echo -e "------------------------------------"
+		echo -e "Enter any key to continue"
+		read key
+	
+		db_type="PostgresSQL"	
+		db_host="127.0.0.1"
+		db_port="5432"
+		db_name="mxpgdb"
+		db_user="mxpgusr"
+		db_pass="mx7gdb_p5w"
+
+		java_config
+		java_config_confirm
+}
 
 # db_type
 db_type_func(){
@@ -396,14 +467,24 @@ for letter in "$db_type_select"; do
 	elif [[ "$letter" == [3] ]];
 	then
 		db_type="MS SQL"
-	
+	elif [[ "$letter" =~ [666] ]];
+	then	
+		db_pg_local	
 	else
-		echo "Seriously?"
-		# exit | exit 1
+		echo -e "\n-----------------------------"
+		echo -e "\nWrong value. Concentrate!\n"
+		echo -e "----------------------------\n"
+		echo -e "Enter any key to continue"
+		read key
+
+		db_type_func
+		# exit 1
 	fi
 done
 
 } 
+
+#db_type_func
 
 # db_host
 db_host_func(){
@@ -1001,6 +1082,9 @@ done
 
 # root check 
 root_check
+
+# distro checker
+distro_checker
 
 # call service settings
 service_settings
