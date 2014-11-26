@@ -81,7 +81,7 @@ service_settings(){
 # System User Account
 app_system_user_func(){
 echo -e "--------------------------------------------------------\n"
-read -p "Specify \"System User Account\" i.e (mxapp): " app_system_user
+read -p "Specify \"System User Account\": " -i mxapp -e app_system_user
 }
 
 # $app_system_user Checker
@@ -100,14 +100,15 @@ fi
 # Application Name 
 app_displayname_func(){
 echo -e "\n--------------------------------------------------------\n"
-read -p "Specify \"Application Name\", i.e (Media App): " app_displayname
+read -p "Specify \"Application Name\": " -i "Mendix Application" -e app_displayname
 }
 
 # Startup Type
 app_startup_func(){
 echo -e "\n--------------------------------------------------------\n"
-echo -e "Start Mendix at boot?"
-read -p "[Y]es, [N]o, [S]kip: " app_startup
+default=Y
+read -p "Do you want to start Mendix at boot [Y/n]? " app_startup
+app_startup=${app_startup:-$default}
 
 for letter in "$app_startup"; do
 
@@ -169,10 +170,9 @@ do
 clear
 
 spec
-
-echo "[N]ext Step, [E]edit Existing: "
-
-read -p ": " service_settings_confrim
+default=Y
+read -p "Are these settings correct [Y/n]? " service_settings_confrim
+service_settings_confrim=${service_settings_confrim:-$default}
 	case $service_settings_confrim in 
 
 	Q|q)
@@ -180,12 +180,12 @@ read -p ": " service_settings_confrim
 		exit
 	;;
 
-	N|n)
+	Y|y)
 		echo "Moving to next step"
 		break
 	;;
 	
-	E|e)
+	N|n)
 		spec
 	
 		echo -e "\nWhat would you like to edit?\n"
@@ -264,23 +264,19 @@ echo -e "We recommend: /srv/mendix/$app_system_user"
 echo -e "to be your path."
 echo -e "\n++++++++++++++++++++++++++++++++++++++++++\n"
 
-echo -e "[A]ccept and proceed"
-echo -e "[C]ustomize your own path"
-#echo -e "[Q]uit"
-
-# Destination Path Start
-read -p ": " destination_path_init
-
+default=Y
+read -p "Are these settings correct [Y/n]? " destination_path_init
+destination_path_init=${destination_path_init:-$default}
     case $destination_path_init in
 
-    A|a )
+    Y|y )
     	path="/srv/mendix/$app_system_user"
 		
 		# Jump to Database Configuration
 		db_config
 	;;
 
-    C|c )
+    N|n )
 		# calling custom destination func
 		custom_appdest_func	
 		custom_path_spec
@@ -313,9 +309,9 @@ clear
 
 custom_path_spec
 
-echo "[N]ext Step, [E]dit Existing: "
-
-read -p ": " destination_path_confirm
+default=Y
+read -p "Are these settings correct [Y/n]? " destination_path_confirm
+destination_path_confirm=${destination_path_confirm:-$default}
     case $destination_path_confirm in
 
     Q|q)
@@ -323,12 +319,12 @@ read -p ": " destination_path_confirm
         exit
     ;;
 
-    N|n)
+    Y|y)
         db_config
 		#break
     ;;
 
-	E|e)
+	N|n)
 		custom_path_spec
 		custom_appdest_func
 	;;
@@ -352,13 +348,9 @@ echo -e "application environments to your Mendix setup.\n"
 echo -e "\nPlease follow on-screen instructions"
 echo -e "\n----------------------------------------------------\n"
 
-#echo -e "Do you want to continue [Y/n]?\n"
-#echo "[Q]uit"
-
 default="Y"
-
-read -e -p "Do you want to continue [Y/n]? " -i "Y" install_start
-default="${input:-$default}"
+read -p "Do you want to continue [Y/n]? " install_start
+install_start=${install_start:-$default}
 
 	case $install_start in
 	
@@ -452,7 +444,7 @@ read -p "Specify \"Database Type\":
 [2] Oracle
 [3] MS SQL
 
-Enter option number: " db_type_select
+Enter option number: " -i 1 -e db_type_select
 
 for letter in "$db_type_select"; do
 
@@ -489,31 +481,31 @@ done
 # db_host
 db_host_func(){
 echo -e "\n----------------------------------------------------------\n"
-read -p "Specify \"Database Host\", i.e (127.0.0.1): " db_host
+read -p "Specify \"Database Host\": " -i "127.0.0.1" -e db_host
 }
 
 # db_port
 db_port_func(){
 echo -e "\n----------------------------------------------------------\n"
-read -p "Specify \"Database Port\", i.e (5432): " db_port
+read -p "Specify \"Database Port\": " -i 5432 -e db_port
 }
 
 # db_name
 db_name_func(){
 echo -e "\n----------------------------------------------------------\n"
-read -p "Specify \"Database Name\", i.e (mxpgdb): " db_name
+read -p "Specify \"Database Name\": " -i mxdb -e db_name
 }
 
 # db_username
 db_user_func(){
 echo -e "\n----------------------------------------------------------\n"
-read -p "Specify \"Database Username\", i.e (mxpgusr): " db_user
+read -p "Specify \"Database Username\": " -i mxdbuser -e db_user
 }
 
 # db_password
 db_pass_func(){
 echo -e "\n----------------------------------------------------------\n"
-read -p "Specify \"Database Password\", i.e (mx7gdb_p5w): " db_pass
+read -p "Specify \"Database Password\": " -i mxdbpass -e db_pass
 }
 
 db_spec(){
@@ -634,10 +626,9 @@ clear
 
 # No need for this call?
 db_spec
-
-echo "[N]ext Step, [E]dit Existing: "
-
-read -p ": " db_config_confirm
+default=Y
+read -p "Are these settings correct [Y/n]? " db_config_confirm
+db_config_confirm=${db_config_confirm:-$default}
 	case $db_config_confirm in
 
 	Q|q)
@@ -645,12 +636,12 @@ read -p ": " db_config_confirm
 		exit
 	;;
 
-	N|n)
+	Y|y)
 		echo "Moving to next step"
 		java_config
 	;;
 
-	E|e)
+	N|n)
 		db_spec
 
 		echo -e "\nWhat would you like to edit\n"
@@ -933,13 +924,18 @@ clear
 
 # Display menu
 echo -e "\n------------------------------------------------\n"
-echo -e "Configure JVM Settings?"
-echo -e "\n------------------------------------------------\n"
-echo -e "[Y]es"
-echo -e "[N]o, use default Mendix settings"
+
+default="Y"
+read -p "Do you want to use the default JVM settings [Y/n]? " java_init
+java_init=${java_init:-$default}
+
+#echo -e "Configure JVM Settings?"
+#echo -e "\n------------------------------------------------\n"
+#echo -e "[Y]es"
+#echo -e "[N]o, use default Mendix settings"
 #echo -e "[Q]uit"
 
-read -p ": " java_init
+#read -p ": " java_init
 	case $java_init in
 
 	Q|q)
@@ -947,7 +943,7 @@ read -p ": " java_init
 		exit 1
 	;;
 
-	Y|y)
+	N|n)
 		# calling db functions
 		java_heap_max_func
 		java_heap_min_func
@@ -960,14 +956,14 @@ read -p ": " java_init
 		java_config_confirm_func
 	;;
 
-	N|n)
+	Y|y)
 		java_heap_max="512"
 		java_heap_min="512"
 		java_permgen="128"
 
-		echo -e "\nFinished with Java configuration\n"
-		echo -e "Enter any key to continue"
-		read key
+		#echo -e "\nFinished with Java configuration\n"
+		#echo -e "Enter any key to continue"
+		#read key
 		# make a different func jump?
 	
 		echo -e "\nRunning config_mgmt_func\n"
