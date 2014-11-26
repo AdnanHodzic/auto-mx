@@ -411,9 +411,51 @@ exit
 # Database configuration
 db_config(){
 
+# db_type
+db_type_func(){
+echo -e "\n----------------------------------------------------------\n"
+#read -p "Specify \"Database Type\", i.e (PostgreSQL): " db_type
+read -p "Specify \"Database Type\":
+
+[1] PostgreSQL
+[2] Oracle
+[3] MS SQL
+
+Enter option number: " db_type_select
+
+for letter in "$db_type_select"; do
+
+	if [[ "$letter" == [1] ]];
+	then
+		db_type="PostgreSQL"
+
+	elif [[ "$letter" == [2] ]];
+	then
+		db_type="Oracle"
+#		db_oracleservice_func
+
+	elif [[ "$letter" == [3] ]];
+	then
+		db_type="MS SQL"
+	elif [[ "$letter" =~ [666] ]];
+	then	
+		db_pg_local	
+	else
+		echo -e "\n-----------------------------"
+		echo -e "\nWrong value. Concentrate!\n"
+		echo -e "----------------------------\n"
+		echo -e "Enter any key to continue"
+		read key
+
+		db_type_func
+		# exit 1
+	fi
+done
+
+} 
+
+#postgres local setup (hidden feature)
 db_pg_local(){
-		# postgres local setup
-		# hidden feature
 		echo -e "------------------------------------"
 		echo -e "\nBefore proceeding first make sure"
 		echo -e "PostgreSQL is installed and running!\n"
@@ -442,49 +484,13 @@ db_pg_local(){
 		java_config_confirm
 }
 
-# db_type
-db_type_func(){
+db_oracleservice_func(){
 echo -e "\n----------------------------------------------------------\n"
-#read -p "Specify \"Database Type\", i.e (PostgreSQL): " db_type
-read -p "Specify \"Database Type\":
+read -p "Specify \"Oracle Service Name\", i.e (MyService): " db_oracleservice
 
-[1] PostgreSQL
-[2] Oracle
-[3] MS SQL
+oracleservice="OracleServiceName: $db_oracleservice"
 
-Enter option number: " db_type_select
-
-for letter in "$db_type_select"; do
-
-	if [[ "$letter" == [1] ]];
-	then
-		db_type="PostgreSQL"
-
-	elif [[ "$letter" == [2] ]];
-	then
-		db_type="Oracle"
-
-	elif [[ "$letter" == [3] ]];
-	then
-		db_type="MS SQL"
-	elif [[ "$letter" =~ [666] ]];
-	then	
-		db_pg_local	
-	else
-		echo -e "\n-----------------------------"
-		echo -e "\nWrong value. Concentrate!\n"
-		echo -e "----------------------------\n"
-		echo -e "Enter any key to continue"
-		read key
-
-		db_type_func
-		# exit 1
-	fi
-done
-
-} 
-
-#db_type_func
+}
 
 # db_host
 db_host_func(){
@@ -521,6 +527,10 @@ echo -e "\n----------------------------------------------------------\n"
 echo -e "You've specified following values:"
 echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
 echo -e "Database type: $db_type"
+if [[ $db_type == "Oracle" ]]
+then
+echo -e "Oracle Service Name: $db_oracleservice"
+fi
 echo -e "Database host: $db_host"
 echo -e "Database port: $db_port"
 echo -e "Database name: $db_name"
@@ -533,6 +543,10 @@ echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
 db_config_direct_call(){
 
 		db_type_func
+		if [[ $db_type == "Oracle" ]]
+		then
+			db_oracleservice_func
+		fi
 		db_host_func
 		db_port_func
 		db_name_func
@@ -660,6 +674,11 @@ read -p ": " db_config_confirm
 		echo "[4] Database name"
 		echo "[5] Database username"
 		echo "[6] Database password"
+		if [[ $db_type == "Oracle" ]]
+		then
+			echo "[7] Oracle Service Name"
+		fi
+
 
 	read -p "Enter option number: " db_config_edit
 
@@ -693,6 +712,11 @@ read -p ": " db_config_confirm
 	elif [[ "$letter" == [6] ]];
 	then
 		db_pass_func	
+		db_spec
+	
+	elif [[ "$letter" == [7] ]];
+	then
+		db_oracleservice_func	
 		db_spec
 	
 	#elif [[ "$letter" == [Ff] ]];
@@ -802,7 +826,7 @@ mxruntime:
  DatabaseName: ${db_name}
  DatabaseUserName: ${db_user}
  DatabasePassword: ${db_pass}
-
+ ${db_oracleservice}
  MicroflowConstants:
   Module.Constant: text
   AnotherModule.AnotherConstant: bla
@@ -829,13 +853,13 @@ touch /var/log/mendix/$app_system_user/log
 # ask user what to do
 echo -n "$yaml_content" > "$yaml"
 
-# todo
-# make a phraser
+# ToDo: make a phraser
 # Yaml Interpreter
 sed -i "s/\${app_system_user}/$app_system_user/g" $yaml
 sed -i "s/\${app_displayname}/\"$app_displayname\"/g" $yaml
 sed -i "s/\${app_password}/$app_password/g" $yaml
 sed -i "s/\${db_type}/$db_type/g" $yaml
+sed -i "s/\${db_oracleservice}/$oracleservice/g" $yaml
 sed -i "s/\${db_host}/$db_host/g" $yaml
 sed -i "s/\${db_port}/:$db_port/g" $yaml
 sed -i "s/\${db_name}/$db_name/g" $yaml
