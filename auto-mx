@@ -859,7 +859,7 @@ sed -i "s/\${app_system_user}/$app_system_user/g" $yaml
 sed -i "s/\${app_displayname}/\"$app_displayname\"/g" $yaml
 sed -i "s/\${app_password}/$app_password/g" $yaml
 sed -i "s/\${db_type}/$db_type/g" $yaml
-sed -i "s/\${db_oracleservice}/$oracleservice/g" $yaml
+sed -i "s/\${db_oracleservice}/$oracleservice\n/g" $yaml
 sed -i "s/\${db_host}/$db_host/g" $yaml
 sed -i "s/\${db_port}/:$db_port/g" $yaml
 sed -i "s/\${db_name}/$db_name/g" $yaml
@@ -870,7 +870,6 @@ sed -i "s/\${java_heap_min}/$java_heap_min$mb/g" $yaml
 sed -i "s/\${java_permgen}/$java_permgen$mb/g" $yaml
 sed -i "s+\${javabin}+$javabin+g" $yaml
 sed -i "s+\${path}+$path+g" $yaml
-
 
 # Make sure permissions are still correct
 chown $app_system_user:$app_system_user -R /home/$app_system_user
