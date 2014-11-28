@@ -774,6 +774,7 @@ chown $app_system_user:$app_system_user -R $path*
 chmod 700 -R $path/data/
 chmod 700 -R $path/model/
 
+
 # m2ee.yaml contents
 # move contents to: 
 # /usr/share/doc/m2ee-tools/examples/auto-mx-template.m2ee.yaml
@@ -840,6 +841,7 @@ logdir="/var/log/mendix/$app_system_user"
 mkdir -p $logdir
 touch $logdir/log
 chown $app_system_user:$app_system_user -R $logdir*
+
 
 # todo
 # make a loop if the $yaml already exists
