@@ -770,7 +770,7 @@ mkdir -p $path/data/tmp
 
 # Fixing permissions
 echo -e "\nFixing permissions\n"
-chown $app_system_user:$app_system_user $path* -R
+chown $app_system_user:$app_system_user -R $path*
 chmod 700 -R $path/data/
 chmod 700 -R $path/model/
 
@@ -836,8 +836,10 @@ mkdir -p /home/$app_system_user/.m2ee
 #touch $yaml
 
 # create log file
-mkdir -p /var/log/mendix/$app_system_user
-touch /var/log/mendix/$app_system_user/log
+logdir="/var/log/mendix/$app_system_user"
+mkdir -p $logdir
+touch $logdir/log
+chown $app_system_user:$app_system_user -R $logdir*
 
 # todo
 # make a loop if the $yaml already exists
