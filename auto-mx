@@ -513,7 +513,7 @@ read -p "Specify \"Database Username\": " -i mxdbuser -e db_user
 # db_password
 db_pass_func(){
 echo -e "\n----------------------------------------------------------\n"
-read -p "Specify \"Database Password\": " -i mxdbpass -e db_pass
+read -p "Specify \"Database Password\": " -i mx7gdb_p5w -e db_pass
 }
 
 db_spec(){
