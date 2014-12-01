@@ -467,7 +467,7 @@ db_pg_local(){
 		echo -e "Enter any key to continue"
 		read key
 	
-		db_type="PostgresSQL"	
+		db_type="PostgreSQL"	
 		db_host="127.0.0.1"
 		db_port="5432"
 		db_name="mxpgdb"
