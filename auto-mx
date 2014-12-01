@@ -29,8 +29,10 @@
 # Root Checker
 root_check(){
 if [[ $EUID -ne 0 ]]; then
-   echo "Please run \"auto-mx\" as root user" 1>&2
-   exit 1
+	echo -e "\n--------------------------------------\n"
+	echo "Please run \"auto-mx\" as root user" 1>&2
+	echo -e "\n--------------------------------------\n" 
+	exit 1
 fi
 }
 
