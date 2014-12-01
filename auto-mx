@@ -150,7 +150,7 @@ done
 
 # Automagically generate "admin_pass/app_password" 
 app_password_func(){
-app_password="$(cat /dev/urandom| tr -cd "A-z1-9\!@#&" | head -c16)"
+app_password="$(cat /dev/urandom| tr -cd "A-z1-9" | head -c16)"
 }
 
 spec(){
