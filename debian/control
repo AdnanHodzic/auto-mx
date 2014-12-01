@@ -9,8 +9,8 @@ Homepage: https://mendix.com
 # Vcs-Browser: http://git.debian.org/?p=collab-maint/auto-mx.git;a=summary
 
 Package: auto-mx
-Architecture: all
-Depends: m2ee-tools, postgresql, oracle-java7-jre | openjdk-6-jre | openjdk-7-jre, ${shlibs:Depends}, ${misc:Depends}
+Architecture: amd64 i386
+Depends: m2ee-tools, oracle-java7-jdk | openjdk-7-jdk, ${shlibs:Depends}, ${misc:Depends}
 Description: Mendix Auto Utility (auto-mx) 
   Utility which aims to automatically install and
   setup Mendix runtime, and rest of utility's
