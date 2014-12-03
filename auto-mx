@@ -450,32 +450,49 @@ done
 
 #postgres local setup (hidden feature)
 db_pg_local(){
-		echo -e "------------------------------------"
-		echo -e "\nBefore proceeding first make sure"
-		echo -e "PostgreSQL is installed and running!\n"
+
+# package/process status check
+package=postgresql
+
+package_check=$(dpkg-query -W --showformat='${Status}\n' $package |grep "install ok installed")
+echo -e "\nChecking for PostgreSQL package $package_check ...\n"
+if [ "" == "$package_check" ];
+then
+	echo -e "Installing ... $package\n"
+	sudo apt-get --force-yes --yes install $package
+	echo -e "\nInstall complete, press any key to continue\n"
+	read key
+else
+	ps cax | grep postgres &> /dev/null
+	if [ $? -eq 0 ]; then
+  		echo -e "$package is up and running. Moving on\n"
+	else
+		echo -e "\nPostgreSQL seems to be installed but is not running"
+		echo -e "Before proceeding first make sure it's running!\n"
 		echo -e "Enter any key to continue"
-
 		read key
+	fi
+fi
 
-		# action
-		su - postgres -c "psql -d template1 -U postgres -c \"CREATE USER mxpgusr WITH PASSWORD 'mx7gdb_p5w' \" "
-		su - postgres -c "psql -d template1 -U postgres -c \"CREATE DATABASE mxpgdb \" "
-		su - postgres -c "psql -d template1 -U postgres -c \"GRANT ALL PRIVILEGES ON DATABASE mxpgdb to mxpgusr \" "
+# action
+su - postgres -c "psql -d template1 -U postgres -c \"CREATE USER mxpgusr WITH PASSWORD 'mx7gdb_p5w' \" "
+su - postgres -c "psql -d template1 -U postgres -c \"CREATE DATABASE mxpgdb \" "
+su - postgres -c "psql -d template1 -U postgres -c \"GRANT ALL PRIVILEGES ON DATABASE mxpgdb to mxpgusr \" "
 	
-		echo -e "\nFinished with PostgresSQL local setup\n"
-		echo -e "------------------------------------"
-		echo -e "Enter any key to continue"
-		read key
+echo -e "\nFinished with PostgresSQL local setup\n"
+echo -e "------------------------------------"
+echo -e "Enter any key to continue"
+read key
 	
-		db_type="PostgreSQL"	
-		db_host="127.0.0.1"
-		db_port="5432"
-		db_name="mxpgdb"
-		db_user="mxpgusr"
-		db_pass="mx7gdb_p5w"
+db_type="PostgreSQL"	
+db_host="127.0.0.1"
+db_port="5432"
+db_name="mxpgdb"
+db_pass="mx7gdb_p5w"
 
-		java_config
-		java_config_confirm
+java_config
+java_config_confirm
+
 }
 
 db_oracleservice_func(){
