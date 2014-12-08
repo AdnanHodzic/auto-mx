@@ -29,8 +29,10 @@
 # Root Checker
 root_check(){
 if [[ $EUID -ne 0 ]]; then
-   echo "Please run \"auto-mx\" as root user" 1>&2
-   exit 1
+	echo -e "\n--------------------------------------\n"
+	echo "Please run \"auto-mx\" as root user" 1>&2
+	echo -e "\n--------------------------------------\n" 
+	exit 1
 fi
 }
 
@@ -81,7 +83,7 @@ service_settings(){
 # System User Account
 app_system_user_func(){
 echo -e "--------------------------------------------------------\n"
-read -p "Specify \"System User Account\" i.e (mediapp): " app_system_user
+read -p "Specify \"System User Account\": " -i mxapp -e app_system_user
 }
 
 # $app_system_user Checker
@@ -89,7 +91,7 @@ app_system_user_checker(){
 if id $app_system_user > /dev/null 2>&1
 then
 	echo -e "\n+++++++++++++++++++++++++++\n"
-	echo -e "User exists!\n"
+	echo -e "User with username: $app_system_user already exists!\n"
 	echo "Try with different username" 
 	echo -e "\n+++++++++++++++++++++++++++\n"	
 	read key
@@ -100,14 +102,15 @@ fi
 # Application Name 
 app_displayname_func(){
 echo -e "\n--------------------------------------------------------\n"
-read -p "Specify \"Application Name\", i.e (Media App): " app_displayname
+read -p "Specify \"Application Name\": " -i "Mendix Application" -e app_displayname
 }
 
 # Startup Type
 app_startup_func(){
 echo -e "\n--------------------------------------------------------\n"
-echo -e "Start Mendix at boot?"
-read -p "[Y]es, [N]o, [S]kip: " app_startup
+default=Y
+read -p "Do you want to start Mendix at boot [Y/n]? " app_startup
+app_startup=${app_startup:-$default}
 
 for letter in "$app_startup"; do
 
@@ -147,7 +150,7 @@ done
 
 # Automagically generate "admin_pass/app_password" 
 app_password_func(){
-app_password="$(cat /dev/urandom| tr -cd "A-z1-9\!@#&" | head -c16)"
+app_password="$(cat /dev/urandom| tr -cd "A-z1-9" | head -c16)"
 }
 
 spec(){
@@ -169,10 +172,9 @@ do
 clear
 
 spec
-
-echo "[N]ext Step, [E]edit Existing: "
-
-read -p ": " service_settings_confrim
+default=Y
+read -p "Are these settings correct [Y/n]? " service_settings_confrim
+service_settings_confrim=${service_settings_confrim:-$default}
 	case $service_settings_confrim in 
 
 	Q|q)
@@ -180,12 +182,12 @@ read -p ": " service_settings_confrim
 		exit
 	;;
 
-	N|n)
+	Y|y)
 		echo "Moving to next step"
 		break
 	;;
 	
-	E|e)
+	N|n)
 		spec
 	
 		echo -e "\nWhat would you like to edit?\n"
@@ -264,23 +266,19 @@ echo -e "We recommend: /srv/mendix/$app_system_user"
 echo -e "to be your path."
 echo -e "\n++++++++++++++++++++++++++++++++++++++++++\n"
 
-echo -e "[A]ccept and proceed"
-echo -e "[C]ustomize your own path"
-#echo -e "[Q]uit"
-
-# Destination Path Start
-read -p ": " destination_path_init
-
+default=Y
+read -p "Are these settings correct [Y/n]? " destination_path_init
+destination_path_init=${destination_path_init:-$default}
     case $destination_path_init in
 
-    A|a )
+    Y|y )
     	path="/srv/mendix/$app_system_user"
 		
 		# Jump to Database Configuration
 		db_config
 	;;
 
-    C|c )
+    N|n )
 		# calling custom destination func
 		custom_appdest_func	
 		custom_path_spec
@@ -313,9 +311,9 @@ clear
 
 custom_path_spec
 
-echo "[N]ext Step, [E]dit Existing: "
-
-read -p ": " destination_path_confirm
+default=Y
+read -p "Are these settings correct [Y/n]? " destination_path_confirm
+destination_path_confirm=${destination_path_confirm:-$default}
     case $destination_path_confirm in
 
     Q|q)
@@ -323,12 +321,12 @@ read -p ": " destination_path_confirm
         exit
     ;;
 
-    N|n)
+    Y|y)
         db_config
 		#break
     ;;
 
-	E|e)
+	N|n)
 		custom_path_spec
 		custom_appdest_func
 	;;
@@ -352,13 +350,9 @@ echo -e "application environments to your Mendix setup.\n"
 echo -e "\nPlease follow on-screen instructions"
 echo -e "\n----------------------------------------------------\n"
 
-echo -e "Do you want to continue [Y/n]?\n"
-#echo "[Q]uit"
-
-default="y"
-
-read -e -i "$default" -p ": " install_start
-default="${input:-$default}"
+default="Y"
+read -p "Do you want to continue [Y/n]? " install_start
+install_start=${install_start:-$default}
 
 	case $install_start in
 	
@@ -421,7 +415,7 @@ read -p "Specify \"Database Type\":
 [2] Oracle
 [3] MS SQL
 
-Enter option number: " db_type_select
+Enter option number: " -i 1 -e db_type_select
 
 for letter in "$db_type_select"; do
 
@@ -456,32 +450,93 @@ done
 
 #postgres local setup (hidden feature)
 db_pg_local(){
-		echo -e "------------------------------------"
-		echo -e "\nBefore proceeding first make sure"
-		echo -e "PostgreSQL is installed and running!\n"
+
+
+# package/process status check
+
+# debian postgres setup
+deb_postgres(){
+
+package=postgresql
+
+package_check=$(dpkg-query -W --showformat='${Status}\n' $package |grep "install ok installed")
+echo -e "\nChecking for PostgreSQL package $package_check ...\n"
+if [ "" == "$package_check" ];
+then
+	echo -e "Installing ... $package\n"
+	sudo apt-get --force-yes --yes install $package
+	echo -e "\nInstall complete, press any key to continue\n"
+	read key
+else
+	ps cax | grep postgres &> /dev/null
+	if [ $? -eq 0 ]; then
+  		echo -e "$package is up and running. Moving on\n"
+	else
+		echo -e "\nPostgreSQL seems to be installed but is not running"
+		echo -e "Before proceeding first make sure it's running!\n"
 		echo -e "Enter any key to continue"
-
 		read key
+	fi
+fi
+}
 
-		# action
-		su - postgres -c "psql -d template1 -U postgres -c \"CREATE USER mxpgusr WITH PASSWORD 'mx7gdb_p5w' \" "
-		su - postgres -c "psql -d template1 -U postgres -c \"CREATE DATABASE mxpgdb \" "
-		su - postgres -c "psql -d template1 -U postgres -c \"GRANT ALL PRIVILEGES ON DATABASE mxpgdb to mxpgusr \" "
-	
-		echo -e "\nFinished with PostgresSQL local setup\n"
-		echo -e "------------------------------------"
-		echo -e "Enter any key to continue"
-		read key
-	
-		db_type="PostgresSQL"	
-		db_host="127.0.0.1"
-		db_port="5432"
-		db_name="mxpgdb"
-		db_user="mxpgusr"
-		db_pass="mx7gdb_p5w"
+# redhat postgres setup
+redhat_postgres(){
 
-		java_config
-		java_config_confirm
+package=postgresql-server
+
+if rpm -qa | grep $package 2>&1 > /dev/null;
+then
+	echo "$package is installed"
+	ps cax | grep postgres &> /dev/null
+	if [ $? -eq 0 ]; then
+		echo -e "$package is up and running. Moving on\n"
+	fi
+	read key 
+else
+	echo -e "Installing ... $package\n"
+	yum -y install postgresql-server postgresql-contrib
+	# database initialization
+	postgresql-setup initdb
+	# postgres start
+	systemctl start postgresql
+	echo -e "\nInstall complete, press any key to continue\n"
+	read key 
+fi
+}
+
+# magic
+if [ -f /etc/debian_version ];
+then
+	# deb_postgres func call
+	deb_postgres
+elif [ -f /etc/redhat-release ];
+then
+	# redhat_postgres func call
+	redhat_postgres
+else
+	distro_checker
+fi
+
+# action
+su - postgres -c "psql -d template1 -U postgres -c \"CREATE USER mxpgusr WITH PASSWORD 'mx7gdb_p5w' \" "
+su - postgres -c "psql -d template1 -U postgres -c \"CREATE DATABASE mxpgdb \" "
+su - postgres -c "psql -d template1 -U postgres -c \"GRANT ALL PRIVILEGES ON DATABASE mxpgdb to mxpgusr \" "
+	
+echo -e "\nFinished with PostgresSQL local setup\n"
+echo -e "------------------------------------"
+echo -e "Enter any key to continue"
+read key
+	
+db_type="PostgreSQL"	
+db_host="127.0.0.1"
+db_port="5432"
+db_name="mxpgdb"
+db_pass="mx7gdb_p5w"
+
+java_config
+java_config_confirm
+
 }
 
 db_oracleservice_func(){
@@ -495,31 +550,31 @@ oracleservice="OracleServiceName: $db_oracleservice"
 # db_host
 db_host_func(){
 echo -e "\n----------------------------------------------------------\n"
-read -p "Specify \"Database Host\", i.e (127.0.0.1): " db_host
+read -p "Specify \"Database Host\": " -i "127.0.0.1" -e db_host
 }
 
 # db_port
 db_port_func(){
 echo -e "\n----------------------------------------------------------\n"
-read -p "Specify \"Database Port\", i.e (5432): " db_port
+read -p "Specify \"Database Port\": " -i 5432 -e db_port
 }
 
 # db_name
 db_name_func(){
 echo -e "\n----------------------------------------------------------\n"
-read -p "Specify \"Database Name\", i.e (mxpgdb): " db_name
+read -p "Specify \"Database Name\": " -i mxdb -e db_name
 }
 
 # db_username
 db_user_func(){
 echo -e "\n----------------------------------------------------------\n"
-read -p "Specify \"Database Username\", i.e (mxpgusr): " db_user
+read -p "Specify \"Database Username\": " -i mxdbuser -e db_user
 }
 
 # db_password
 db_pass_func(){
 echo -e "\n----------------------------------------------------------\n"
-read -p "Specify \"Database Password\", i.e (mx7gdb_p5w): " db_pass
+read -p "Specify \"Database Password\": " -i mx7gdb_p5w -e db_pass
 }
 
 db_spec(){
@@ -648,10 +703,9 @@ clear
 
 # No need for this call?
 db_spec
-
-echo "[N]ext Step, [E]dit Existing: "
-
-read -p ": " db_config_confirm
+default=Y
+read -p "Are these settings correct [Y/n]? " db_config_confirm
+db_config_confirm=${db_config_confirm:-$default}
 	case $db_config_confirm in
 
 	Q|q)
@@ -659,12 +713,12 @@ read -p ": " db_config_confirm
 		exit
 	;;
 
-	N|n)
+	Y|y)
 		echo "Moving to next step"
 		java_config
 	;;
 
-	E|e)
+	N|n)
 		db_spec
 
 		echo -e "\nWhat would you like to edit\n"
@@ -779,9 +833,10 @@ mkdir -p $path/data/tmp
 
 # Fixing permissions
 echo -e "\nFixing permissions\n"
-chown $app_system_user:$app_system_user $path* -R
+chown $app_system_user:$app_system_user -R $path*
 chmod 700 -R $path/data/
 chmod 700 -R $path/model/
+
 
 # m2ee.yaml contents
 # move contents to: 
@@ -845,8 +900,11 @@ mkdir -p /home/$app_system_user/.m2ee
 #touch $yaml
 
 # create log file
-mkdir -p /var/log/mendix/$app_system_user
-touch /var/log/mendix/$app_system_user/log
+logdir="/var/log/mendix/$app_system_user"
+mkdir -p $logdir
+touch $logdir/log
+chown $app_system_user:$app_system_user -R $logdir*
+
 
 # todo
 # make a loop if the $yaml already exists
@@ -956,13 +1014,18 @@ clear
 
 # Display menu
 echo -e "\n------------------------------------------------\n"
-echo -e "Configure JVM Settings?"
-echo -e "\n------------------------------------------------\n"
-echo -e "[Y]es"
-echo -e "[N]o, use default Mendix settings"
+
+default="Y"
+read -p "Do you want to use the default JVM settings [Y/n]? " java_init
+java_init=${java_init:-$default}
+
+#echo -e "Configure JVM Settings?"
+#echo -e "\n------------------------------------------------\n"
+#echo -e "[Y]es"
+#echo -e "[N]o, use default Mendix settings"
 #echo -e "[Q]uit"
 
-read -p ": " java_init
+#read -p ": " java_init
 	case $java_init in
 
 	Q|q)
@@ -970,7 +1033,7 @@ read -p ": " java_init
 		exit 1
 	;;
 
-	Y|y)
+	N|n)
 		# calling db functions
 		java_heap_max_func
 		java_heap_min_func
@@ -983,14 +1046,14 @@ read -p ": " java_init
 		java_config_confirm_func
 	;;
 
-	N|n)
+	Y|y)
 		java_heap_max="512"
 		java_heap_min="512"
 		java_permgen="128"
 
-		echo -e "\nFinished with Java configuration\n"
-		echo -e "Enter any key to continue"
-		read key
+		#echo -e "\nFinished with Java configuration\n"
+		#echo -e "Enter any key to continue"
+		#read key
 		# make a different func jump?
 	
 		echo -e "\nRunning config_mgmt_func\n"
