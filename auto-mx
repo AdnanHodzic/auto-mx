@@ -101,8 +101,8 @@ if id $app_system_user > /dev/null 2>&1
 then
 	echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++\n"
 	echo -e "System user: \"$app_system_user\" already exists!\n"
-	echo "Specify different username or current"
-	echo "data for \"$app_system_user\" will be overwritten." 
+	echo "Specify different username or current data"
+	echo "for \"$app_system_user\" will be overwritten." 
 	echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++\n"
 	echo -e "Enter any key to continue"
 
