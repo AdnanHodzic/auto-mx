@@ -99,10 +99,13 @@ read -p "Specify \"System User Account\": " -i mxapp -e app_system_user
 app_system_user_checker(){
 if id $app_system_user > /dev/null 2>&1
 then
-	echo -e "\n+++++++++++++++++++++++++++\n"
-	echo -e "User with username: $app_system_user already exists!\n"
-	echo "Try with different username" 
-	echo -e "\n+++++++++++++++++++++++++++\n"
+	echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++\n"
+	echo -e "System user: \"$app_system_user\" already exists!\n"
+	echo "Specify different username or current"
+	echo "data for \"$app_system_user\" will be overwritten." 
+	echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++\n"
+	echo -e "Enter any key to continue"
+
 	read key
 	app_system_user_func
 fi
