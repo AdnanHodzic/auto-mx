@@ -36,6 +36,15 @@ if [[ $EUID -ne 0 ]]; then
 fi
 }
 
+# Wrong key error message
+wrong_key(){
+echo -e "\n-----------------------------"
+echo -e "\nWrong value. Concentrate!\n"
+echo -e "----------------------------\n"
+echo -e "Enter any key to continue"
+read key
+}
+
 distro_checker(){
 
 # if redhat skipp ... fix skip hack!
@@ -93,7 +102,7 @@ then
 	echo -e "\n+++++++++++++++++++++++++++\n"
 	echo -e "User with username: $app_system_user already exists!\n"
 	echo "Try with different username" 
-	echo -e "\n+++++++++++++++++++++++++++\n"	
+	echo -e "\n+++++++++++++++++++++++++++\n"
 	read key
 	app_system_user_func
 fi
@@ -139,11 +148,8 @@ then
 	continue
 
 else 
-	echo -e "\n-----------------------------------------\n"
-	echo    "Non existing value: exiting ..."
-	echo -e "\n-----------------------------------------\n"
-	
-	exit 1
+	wrong_key
+	app_startup_func
 fi
 done
 }
@@ -177,10 +183,10 @@ read -p "Are these settings correct [Y/n]? " service_settings_confrim
 service_settings_confrim=${service_settings_confrim:-$default}
 	case $service_settings_confrim in 
 
-	Q|q)
-		echo "Goodbye!"
-		exit
-	;;
+	#Q|q)
+	#	echo "Goodbye!"
+	#	exit
+	#;;
 
 	Y|y)
 		echo "Moving to next step"
@@ -190,7 +196,7 @@ service_settings_confrim=${service_settings_confrim:-$default}
 	N|n)
 		spec
 	
-		echo -e "\nWhat would you like to edit?\n"
+		echo -e "What would you like to edit?\n"
 		echo "[1] System User Account"
 		echo "[2] Application Name"
 		echo "[3] Start at boot"
@@ -215,28 +221,33 @@ service_settings_confrim=${service_settings_confrim:-$default}
 		spec
 
 	else
-		echo "Seriously?"
+		wrong_key
+		hack
+		
+		# echo "Seriously?"
 		# exit | exit 1			
 
 	fi
 	done
 	;;
 
-	F|f)
-		echo "my work is done here"
-		break
-	;;
+	#F|f)
+	#	echo "my work is done here"
+	#	break
+	#;;
 
 	*) 
-	echo "Non existing value"
+	wrong_key
+	#echo "Non existing value"
 	;;
 	
 	esac
 
-	echo "press Enter for menu"
-	read key
+	#echo "press Enter for menu"
+	#read key
 done
 }
+
 
 # Destination Path
 destination_path_func(){
@@ -287,18 +298,19 @@ destination_path_init=${destination_path_init:-$default}
 		destination_path_confirm_func
     ;;
 
-	Q|q)
-		echo "Aborting installation"
-		exit 1
-	;;
+	#Q|q)
+	#	echo "Aborting installation"
+	#	exit 1
+	#;;
 
 	*) 
-	echo "Non existing value"
+	#echo "Non existing value"
+	wrong_key
 	;;
 
     esac
-    echo "press Enter for menu"
-	read key
+    #echo "press Enter for menu"
+	#read key
 done
 }
 
@@ -316,10 +328,10 @@ read -p "Are these settings correct [Y/n]? " destination_path_confirm
 destination_path_confirm=${destination_path_confirm:-$default}
     case $destination_path_confirm in
 
-    Q|q)
-        echo "Goodbye!"
-        exit
-    ;;
+    #Q|q)
+    #    echo "Goodbye!"
+    #    exit
+    #;;
 
     Y|y)
         db_config
@@ -330,6 +342,11 @@ destination_path_confirm=${destination_path_confirm:-$default}
 		custom_path_spec
 		custom_appdest_func
 	;;
+
+	*)
+		wrong_key
+	;;
+
 	esac
 done
 }
@@ -356,10 +373,10 @@ install_start=${install_start:-$default}
 
 	case $install_start in
 	
-	Q|q)
-		echo "Goodbye!"
-		exit 1
-	;;
+	#Q|q)
+	#	echo "Goodbye!"
+	#	exit 1
+	#;;
 
 	Y|y)
 	# calling service_settings functions
@@ -377,18 +394,21 @@ install_start=${install_start:-$default}
 	;;
 
 	N|n)
-		echo "Aborting installation"
+		echo -e "\n-----------------------------------------\n"
+		echo -e "Aborting \"auto-mx\" installation"
+		echo -e "\n-----------------------------------------\n"
 		exit 1
 	;;
 
-	*) 
-	echo "Non existing value"
+	*)
+	wrong_key 
+	#echo "Non existing value"
 	;;
 	
 	esac
 
-	echo "press Enter for menu"
-	read key
+	#echo "press Enter for menu"
+	#read key
 done
 }
 
@@ -435,11 +455,12 @@ for letter in "$db_type_select"; do
 	then	
 		db_pg_local	
 	else
-		echo -e "\n-----------------------------"
-		echo -e "\nWrong value. Concentrate!\n"
-		echo -e "----------------------------\n"
-		echo -e "Enter any key to continue"
-		read key
+#		echo -e "\n-----------------------------"
+#		echo -e "\nWrong value. Concentrate!\n"
+#		echo -e "----------------------------\n"
+#		echo -e "Enter any key to continue"
+#		read key
+wrong_key
 
 		db_type_func
 		# exit 1
@@ -708,10 +729,10 @@ read -p "Are these settings correct [Y/n]? " db_config_confirm
 db_config_confirm=${db_config_confirm:-$default}
 	case $db_config_confirm in
 
-	Q|q)
-		echo "Goodbye!"
-		exit
-	;;
+	#Q|q)
+	#	echo "Goodbye!"
+	#	exit
+	#;;
 
 	Y|y)
 		echo "Moving to next step"
@@ -779,26 +800,28 @@ db_config_confirm=${db_config_confirm:-$default}
 	#	break
 
 	else 
-		echo "Seriously?"
-		# exit | exit 1
+		#echo "Seriously?"
+		#exit 1
+		wrong_key
 
 fi
 done
 ;;
 
-F|f)
-	echo "my work is done here"
-	break
-;;
+#F|f)
+#	echo "my work is done here"
+#	break
+#;;
 
 *)
-	echo "non existing value"
+	#echo "non existing value"
+	wrong_key
 ;;
 
 esac
 
-echo "press Enter for menu"
-read key
+#echo "press Enter for menu"
+#read key
 done
 }
 
@@ -982,9 +1005,11 @@ then
 	continue
 
 else
-	echo -e "\nCome on ...\n"
-	read key
+	#echo -e "\nCome on ...\n"
+	#read key
 	# exit1
+	wrong_key
+	continue
 fi
 done
 }
@@ -1013,7 +1038,7 @@ do
 clear
 
 # Display menu
-echo -e "\n------------------------------------------------\n"
+echo -e "\n-------------------------------------------------------\n"
 
 default="Y"
 read -p "Do you want to use the default JVM settings [Y/n]? " java_init
@@ -1028,10 +1053,10 @@ java_init=${java_init:-$default}
 #read -p ": " java_init
 	case $java_init in
 
-	Q|q)
-		echo "Goodbye!"
-		exit 1
-	;;
+	#Q|q)
+	#	echo "Goodbye!"
+	#	exit 1
+	#;;
 
 	N|n)
 		# calling db functions
@@ -1070,13 +1095,14 @@ java_init=${java_init:-$default}
 	#;;
 
 	*)
-		echo "Non existing value"
+	#	echo "Non existing value"
+	wrong_key
 	;;
 
 	esac
 	
-	echo "press Enter for menu"
-	read key
+	#echo "press Enter for menu"
+	#read key
 done
 }
 
@@ -1095,10 +1121,10 @@ echo "[N]ext Step, [E]dit Existing: "
 read -p ": " java_config_confirm
 	case $java_config_confirm in
 
-	Q|q)
-		echo "Goodbye!"
-		exit
-	;;
+#	Q|q)
+#		echo "Goodbye!"
+#		exit
+#	;;
 
 	N|n)
 		config_mgmt_func	
@@ -1139,26 +1165,28 @@ read -p ": " java_config_confirm
 		java_spec
 	
 	else 
-		echo "Seriously?"
+		wrong_key
+		#echo "Seriously?"
 		# exit | exit 1
 
 fi
 done
 ;;
 
-F|f)
-	echo "my work is done here"
-	break
-;;
+#F|f)
+#	echo "my work is done here"
+#	break
+#;;
 
 *)
-	echo "non existing value"
+	wrong_key
+	#echo "non existing value"
 ;;
 
 esac
 
-echo "press Enter for menu"
-read key
+#echo "press Enter for menu"
+#read key
 done
 }
 
