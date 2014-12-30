@@ -35,6 +35,18 @@ if [[ $EUID -ne 0 ]]; then
 	exit 1
 fi
 }
+<<<<<<< HEAD
+=======
+
+# Wrong key error message
+wrong_key(){
+echo -e "\n-----------------------------"
+echo -e "\nWrong value. Concentrate!\n"
+echo -e "----------------------------\n"
+echo -e "Enter any key to continue"
+read key
+}
+>>>>>>> staging
 
 distro_checker(){
 
@@ -90,10 +102,20 @@ read -p "Specify \"System User Account\": " -i mxapp -e app_system_user
 app_system_user_checker(){
 if id $app_system_user > /dev/null 2>&1
 then
+<<<<<<< HEAD
 	echo -e "\n+++++++++++++++++++++++++++\n"
 	echo -e "User with username: $app_system_user already exists!\n"
 	echo "Try with different username" 
 	echo -e "\n+++++++++++++++++++++++++++\n"	
+=======
+	echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++\n"
+	echo -e "System user: \"$app_system_user\" already exists!\n"
+	echo "Specify different username or current data"
+	echo "for \"$app_system_user\" will be overwritten." 
+	echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++\n"
+	echo -e "Enter any key to continue"
+
+>>>>>>> staging
 	read key
 	app_system_user_func
 fi
@@ -139,11 +161,16 @@ then
 	continue
 
 else 
+<<<<<<< HEAD
 	echo -e "\n-----------------------------------------\n"
 	echo    "Non existing value: exiting ..."
 	echo -e "\n-----------------------------------------\n"
 	
 	exit 1
+=======
+	wrong_key
+	app_startup_func
+>>>>>>> staging
 fi
 done
 }
@@ -176,12 +203,35 @@ default=Y
 read -p "Are these settings correct [Y/n]? " service_settings_confrim
 service_settings_confrim=${service_settings_confrim:-$default}
 	case $service_settings_confrim in 
+<<<<<<< HEAD
 
 	Q|q)
 		echo "Goodbye!"
 		exit
-	;;
+=======
 
+	#Q|q)
+	#	echo "Goodbye!"
+	#	exit
+	#;;
+
+	Y|y)
+		echo "Moving to next step"
+		break
+>>>>>>> staging
+	;;
+	
+	N|n)
+		spec
+	
+		echo -e "What would you like to edit?\n"
+		echo "[1] System User Account"
+		echo "[2] Application Name"
+		echo "[3] Start at boot"
+	
+	read -p "Enter option number: " service_settings_edit
+
+<<<<<<< HEAD
 	Y|y)
 		echo "Moving to next step"
 		break
@@ -199,10 +249,15 @@ service_settings_confrim=${service_settings_confrim:-$default}
 
 	for letter in "$service_settings_edit"; do
 
+=======
+	for letter in "$service_settings_edit"; do
+
+>>>>>>> staging
 	if [[ "$letter" == [1] ]]; 
 	then
 		app_system_user_func
 		spec
+<<<<<<< HEAD
 
 	elif [[ "$letter" == [2] ]]; 
 	then
@@ -225,19 +280,51 @@ service_settings_confrim=${service_settings_confrim:-$default}
 	F|f)
 		echo "my work is done here"
 		break
+=======
+
+	elif [[ "$letter" == [2] ]]; 
+	then
+		app_displayname_func
+		spec
+
+	elif [[ "$letter" == [3] ]]; 
+	then
+		app_startup_func
+		spec
+
+	else
+		wrong_key
+		hack
+		
+		# echo "Seriously?"
+		# exit | exit 1			
+
+	fi
+	done
+>>>>>>> staging
 	;;
 
+	#F|f)
+	#	echo "my work is done here"
+	#	break
+	#;;
+
 	*) 
-	echo "Non existing value"
+	wrong_key
+	#echo "Non existing value"
 	;;
 	
 	esac
 
-	echo "press Enter for menu"
-	read key
+	#echo "press Enter for menu"
+	#read key
 done
 }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> staging
 # Destination Path
 destination_path_func(){
 
@@ -287,18 +374,19 @@ destination_path_init=${destination_path_init:-$default}
 		destination_path_confirm_func
     ;;
 
-	Q|q)
-		echo "Aborting installation"
-		exit 1
-	;;
+	#Q|q)
+	#	echo "Aborting installation"
+	#	exit 1
+	#;;
 
 	*) 
-	echo "Non existing value"
+	#echo "Non existing value"
+	wrong_key
 	;;
 
     esac
-    echo "press Enter for menu"
-	read key
+    #echo "press Enter for menu"
+	#read key
 done
 }
 
@@ -316,10 +404,17 @@ read -p "Are these settings correct [Y/n]? " destination_path_confirm
 destination_path_confirm=${destination_path_confirm:-$default}
     case $destination_path_confirm in
 
+<<<<<<< HEAD
     Q|q)
         echo "Goodbye!"
         exit
     ;;
+=======
+    #Q|q)
+    #    echo "Goodbye!"
+    #    exit
+    #;;
+>>>>>>> staging
 
     Y|y)
         db_config
@@ -330,6 +425,7 @@ destination_path_confirm=${destination_path_confirm:-$default}
 		custom_path_spec
 		custom_appdest_func
 	;;
+<<<<<<< HEAD
 	esac
 done
 }
@@ -360,6 +456,43 @@ install_start=${install_start:-$default}
 		echo "Goodbye!"
 		exit 1
 	;;
+=======
+
+	*)
+		wrong_key
+	;;
+
+	esac
+done
+}
+
+
+# Installer started (install_start) 
+install_start_func(){
+while [ install_start != "Q" ]
+do 
+clear
+
+# Display menu
+echo -e "\n----------------------------------------------------\n"
+echo -e "Welcome to Mendix installer (auto-mx)\n"
+echo -e "\nThis installer will setup your initial"
+echo -e "application environment and/or add additional"
+echo -e "application environments to your Mendix setup.\n"
+echo -e "\nPlease follow on-screen instructions"
+echo -e "\n----------------------------------------------------\n"
+
+default="Y"
+read -p "Do you want to continue [Y/n]? " install_start
+install_start=${install_start:-$default}
+
+	case $install_start in
+	
+	#Q|q)
+	#	echo "Goodbye!"
+	#	exit 1
+	#;;
+>>>>>>> staging
 
 	Y|y)
 	# calling service_settings functions
@@ -377,18 +510,25 @@ install_start=${install_start:-$default}
 	;;
 
 	N|n)
+<<<<<<< HEAD
 		echo "Aborting installation"
+=======
+		echo -e "\n-----------------------------------------\n"
+		echo -e "Aborting \"auto-mx\" installation"
+		echo -e "\n-----------------------------------------\n"
+>>>>>>> staging
 		exit 1
 	;;
 
-	*) 
-	echo "Non existing value"
+	*)
+	wrong_key 
+	#echo "Non existing value"
 	;;
 	
 	esac
 
-	echo "press Enter for menu"
-	read key
+	#echo "press Enter for menu"
+	#read key
 done
 }
 
@@ -435,11 +575,20 @@ for letter in "$db_type_select"; do
 	then	
 		db_pg_local	
 	else
+<<<<<<< HEAD
 		echo -e "\n-----------------------------"
 		echo -e "\nWrong value. Concentrate!\n"
 		echo -e "----------------------------\n"
 		echo -e "Enter any key to continue"
 		read key
+=======
+#		echo -e "\n-----------------------------"
+#		echo -e "\nWrong value. Concentrate!\n"
+#		echo -e "----------------------------\n"
+#		echo -e "Enter any key to continue"
+#		read key
+wrong_key
+>>>>>>> staging
 
 		db_type_func
 		# exit 1
@@ -708,10 +857,10 @@ read -p "Are these settings correct [Y/n]? " db_config_confirm
 db_config_confirm=${db_config_confirm:-$default}
 	case $db_config_confirm in
 
-	Q|q)
-		echo "Goodbye!"
-		exit
-	;;
+	#Q|q)
+	#	echo "Goodbye!"
+	#	exit
+	#;;
 
 	Y|y)
 		echo "Moving to next step"
@@ -779,26 +928,28 @@ db_config_confirm=${db_config_confirm:-$default}
 	#	break
 
 	else 
-		echo "Seriously?"
-		# exit | exit 1
+		#echo "Seriously?"
+		#exit 1
+		wrong_key
 
 fi
 done
 ;;
 
-F|f)
-	echo "my work is done here"
-	break
-;;
+#F|f)
+#	echo "my work is done here"
+#	break
+#;;
 
 *)
-	echo "non existing value"
+	#echo "non existing value"
+	wrong_key
 ;;
 
 esac
 
-echo "press Enter for menu"
-read key
+#echo "press Enter for menu"
+#read key
 done
 }
 
@@ -943,23 +1094,36 @@ mb="M"
 # Java Heap (Max Size)
 java_heap_max_func(){
 echo -e "\n----------------------------------------------------------\n"
+<<<<<<< HEAD
 read -p "Specify \"Java Heap Max Size\", i.e (512): " java_heap_max
+=======
+read -p "Specify \"Java Heap Max Size\": " -i 512 -e java_heap_max
+>>>>>>> staging
 } 
 
 # Java Heap (Min Size)
 java_heap_min_func(){
 echo -e "\n----------------------------------------------------------\n"
+<<<<<<< HEAD
 read -p "Specify \"Java Heap Min Size\", i.e (512): " java_heap_min
+=======
+read -p "Specify \"Java Heap Min Size\": " -i 512 -e java_heap_min
+>>>>>>> staging
 }
 
 # Max PermGen Size
 java_permgen_func(){
 echo -e "\n----------------------------------------------------------\n"
+<<<<<<< HEAD
 read -p "Specify \"Max PermGen Size\", i.e (128M): " java_permgen
+=======
+read -p "Specify \"Max PermGen Size\": " -i 128 -e java_permgen
+>>>>>>> staging
 }
 
 # Java Binary Path
 java_binary_path_func(){
+<<<<<<< HEAD
 echo -e "\n----------------------------------------------------------\n"
 echo -e "Configure \"Java Binary Path\"? i.e: (/usr/bin/java)"
 echo -e "\nThis step is optional, so you may as well skip it"
@@ -969,22 +1133,47 @@ read -p "[Y]es, [S]kip: " java_bin
 for letter in "$java_bin"; do
 
 if [[ "$letter" == [Yy] ]];
+=======
+default=Y
+echo -e "\n----------------------------------------------------------\n"
+echo -e "Configure \"Java Binary Path\"? i.e: (/usr/bin/java)"
+echo -e "\nThis step is optional, do you want to skip it?"
+
+read -p "[Y/n]? " java_bin
+java_bin=${java_bin:-$default}
+
+for letter in "$java_bin"; do
+
+if [[ "$letter" == [Nn] ]];
+>>>>>>> staging
 then
 	echo -e "\n----------------------------------------------------------\n"
 	read -p ": " java_binary_path
 
 	javabin="javabin: $java_binary_path"
 
+<<<<<<< HEAD
 
 elif [[ "$letter" == [Ss] ]];
+=======
+elif [[ "$letter" == [Yy] ]];
+>>>>>>> staging
 then
 	echo -e "\nSkipping ...\n"
 	continue
 
 else
+<<<<<<< HEAD
 	echo -e "\nCome on ...\n"
 	read key
 	# exit1
+=======
+	#echo -e "\nCome on ...\n"
+	#read key
+	# exit1
+	wrong_key
+	continue
+>>>>>>> staging
 fi
 done
 }
@@ -1013,7 +1202,11 @@ do
 clear
 
 # Display menu
+<<<<<<< HEAD
 echo -e "\n------------------------------------------------\n"
+=======
+echo -e "\n-------------------------------------------------------\n"
+>>>>>>> staging
 
 default="Y"
 read -p "Do you want to use the default JVM settings [Y/n]? " java_init
@@ -1028,10 +1221,17 @@ java_init=${java_init:-$default}
 #read -p ": " java_init
 	case $java_init in
 
+<<<<<<< HEAD
 	Q|q)
 		echo "Goodbye!"
 		exit 1
 	;;
+=======
+	#Q|q)
+	#	echo "Goodbye!"
+	#	exit 1
+	#;;
+>>>>>>> staging
 
 	N|n)
 		# calling db functions
@@ -1070,13 +1270,23 @@ java_init=${java_init:-$default}
 	#;;
 
 	*)
+<<<<<<< HEAD
 		echo "Non existing value"
+=======
+	#	echo "Non existing value"
+	wrong_key
+>>>>>>> staging
 	;;
 
 	esac
 	
+<<<<<<< HEAD
 	echo "press Enter for menu"
 	read key
+=======
+	#echo "press Enter for menu"
+	#read key
+>>>>>>> staging
 done
 }
 
@@ -1090,6 +1300,7 @@ clear
 
 java_spec
 
+<<<<<<< HEAD
 echo "[N]ext Step, [E]dit Existing: "
 
 read -p ": " java_config_confirm
@@ -1105,6 +1316,27 @@ read -p ": " java_config_confirm
 	;;
 
 	E|e)
+=======
+echo "Are these settings correct [Y/n]? "
+
+default=Y
+
+read -p ": " java_config_confirm
+java_config_confirm=${java_config_confirm:-$default}
+
+	case $java_config_confirm in
+
+#	Q|q)
+#		echo "Goodbye!"
+#		exit
+#	;;
+
+	Y|y)
+		config_mgmt_func	
+	;;
+
+	N|n)
+>>>>>>> staging
 		java_spec
 
 		echo -e "\nWhat would you like to edit\n"
@@ -1139,13 +1371,19 @@ read -p ": " java_config_confirm
 		java_spec
 	
 	else 
+<<<<<<< HEAD
 		echo "Seriously?"
+=======
+		wrong_key
+		#echo "Seriously?"
+>>>>>>> staging
 		# exit | exit 1
 
 fi
 done
 ;;
 
+<<<<<<< HEAD
 F|f)
 	echo "my work is done here"
 	break
@@ -1153,12 +1391,27 @@ F|f)
 
 *)
 	echo "non existing value"
+=======
+#F|f)
+#	echo "my work is done here"
+#	break
+#;;
+
+*)
+	wrong_key
+	#echo "non existing value"
+>>>>>>> staging
 ;;
 
 esac
 
+<<<<<<< HEAD
 echo "press Enter for menu"
 read key
+=======
+#echo "press Enter for menu"
+#read key
+>>>>>>> staging
 done
 }
 
