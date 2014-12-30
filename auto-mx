@@ -99,10 +99,13 @@ read -p "Specify \"System User Account\": " -i mxapp -e app_system_user
 app_system_user_checker(){
 if id $app_system_user > /dev/null 2>&1
 then
-	echo -e "\n+++++++++++++++++++++++++++\n"
-	echo -e "User with username: $app_system_user already exists!\n"
-	echo "Try with different username" 
-	echo -e "\n+++++++++++++++++++++++++++\n"
+	echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++\n"
+	echo -e "System user: \"$app_system_user\" already exists!\n"
+	echo "Specify different username or current data"
+	echo "for \"$app_system_user\" will be overwritten." 
+	echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++\n"
+	echo -e "Enter any key to continue"
+
 	read key
 	app_system_user_func
 fi
@@ -966,40 +969,41 @@ mb="M"
 # Java Heap (Max Size)
 java_heap_max_func(){
 echo -e "\n----------------------------------------------------------\n"
-read -p "Specify \"Java Heap Max Size\", i.e (512): " java_heap_max
+read -p "Specify \"Java Heap Max Size\": " -i 512 -e java_heap_max
 } 
 
 # Java Heap (Min Size)
 java_heap_min_func(){
 echo -e "\n----------------------------------------------------------\n"
-read -p "Specify \"Java Heap Min Size\", i.e (512): " java_heap_min
+read -p "Specify \"Java Heap Min Size\": " -i 512 -e java_heap_min
 }
 
 # Max PermGen Size
 java_permgen_func(){
 echo -e "\n----------------------------------------------------------\n"
-read -p "Specify \"Max PermGen Size\", i.e (128M): " java_permgen
+read -p "Specify \"Max PermGen Size\": " -i 128 -e java_permgen
 }
 
 # Java Binary Path
 java_binary_path_func(){
+default=Y
 echo -e "\n----------------------------------------------------------\n"
 echo -e "Configure \"Java Binary Path\"? i.e: (/usr/bin/java)"
-echo -e "\nThis step is optional, so you may as well skip it"
+echo -e "\nThis step is optional, do you want to skip it?"
 
-read -p "[Y]es, [S]kip: " java_bin
+read -p "[Y/n]? " java_bin
+java_bin=${java_bin:-$default}
 
 for letter in "$java_bin"; do
 
-if [[ "$letter" == [Yy] ]];
+if [[ "$letter" == [Nn] ]];
 then
 	echo -e "\n----------------------------------------------------------\n"
 	read -p ": " java_binary_path
 
 	javabin="javabin: $java_binary_path"
 
-
-elif [[ "$letter" == [Ss] ]];
+elif [[ "$letter" == [Yy] ]];
 then
 	echo -e "\nSkipping ...\n"
 	continue
@@ -1116,9 +1120,13 @@ clear
 
 java_spec
 
-echo "[N]ext Step, [E]dit Existing: "
+echo "Are these settings correct [Y/n]? "
+
+default=Y
 
 read -p ": " java_config_confirm
+java_config_confirm=${java_config_confirm:-$default}
+
 	case $java_config_confirm in
 
 #	Q|q)
@@ -1126,11 +1134,11 @@ read -p ": " java_config_confirm
 #		exit
 #	;;
 
-	N|n)
+	Y|y)
 		config_mgmt_func	
 	;;
 
-	E|e)
+	N|n)
 		java_spec
 
 		echo -e "\nWhat would you like to edit\n"
