@@ -47,15 +47,19 @@ read key
 
 distro_checker(){
 
-# if redhat skipp ... fix skip hack!
+# RedHat
+# ToDo: Fix skip^ hack
 if [ -f /etc/redhat-release ];
 then
 	echo "Skipping "
 else
 
+# Checker parameters 
 lsb="$(lsb_release -is)"
 codename="$(lsb_release -cs)"
 platform="$(lsb_release -ics | sed '$!s/$/ /' | tr -d '\n')"
+
+# Unsupported platform message
 message(){
 echo -e "\n----------------------------------------\n"
 echo -e "Your platform is not supported by Mendix"
@@ -64,10 +68,12 @@ echo -e "You're using: $platform\n"
 echo -e "----------------------------------------\n"
 }
 
+# Ubuntu
 if [ $lsb == "Ubuntu" ];
 then
 		message
 		exit 1
+# Debian
 elif [ $lsb == "Debian" ];
 then
 	if [ $codename == "squeezee" ] || [ $codename == "wheezy" ] || [ $codename == "jessie" ] || [ $codename == "sid" ];
@@ -83,7 +89,6 @@ else
 	exit 1
 fi
 fi
-
 }
 
 # Service Settings
@@ -186,11 +191,6 @@ read -p "Are these settings correct [Y/n]? " service_settings_confrim
 service_settings_confrim=${service_settings_confrim:-$default}
 	case $service_settings_confrim in 
 
-	#Q|q)
-	#	echo "Goodbye!"
-	#	exit
-	#;;
-
 	Y|y)
 		echo "Moving to next step"
 		break
@@ -198,7 +198,7 @@ service_settings_confrim=${service_settings_confrim:-$default}
 	
 	N|n)
 		spec
-	
+
 		echo -e "What would you like to edit?\n"
 		echo "[1] System User Account"
 		echo "[2] Application Name"
@@ -225,32 +225,19 @@ service_settings_confrim=${service_settings_confrim:-$default}
 
 	else
 		wrong_key
-		hack
-		
-		# echo "Seriously?"
-		# exit | exit 1			
+		hack		
 
 	fi
 	done
 	;;
 
-	#F|f)
-	#	echo "my work is done here"
-	#	break
-	#;;
-
 	*) 
 	wrong_key
-	#echo "Non existing value"
 	;;
 	
 	esac
-
-	#echo "press Enter for menu"
-	#read key
 done
 }
-
 
 # Destination Path
 destination_path_func(){
@@ -286,7 +273,7 @@ destination_path_init=${destination_path_init:-$default}
     case $destination_path_init in
 
     Y|y )
-    	path="/srv/mendix/$app_system_user"
+		path="/srv/mendix/$app_system_user"
 		
 		# Jump to Database Configuration
 		db_config
@@ -301,23 +288,15 @@ destination_path_init=${destination_path_init:-$default}
 		destination_path_confirm_func
     ;;
 
-	#Q|q)
-	#	echo "Aborting installation"
-	#	exit 1
-	#;;
-
 	*) 
-	#echo "Non existing value"
-	wrong_key
+		wrong_key
 	;;
 
     esac
-    #echo "press Enter for menu"
-	#read key
 done
 }
 
-# destination_path_confirm function
+# Confirm Destination path
 destination_path_confirm_func(){
 
 while [ destination_path_confirm != "Q" ]
@@ -329,12 +308,8 @@ custom_path_spec
 default=Y
 read -p "Are these settings correct [Y/n]? " destination_path_confirm
 destination_path_confirm=${destination_path_confirm:-$default}
-    case $destination_path_confirm in
-
-    #Q|q)
-    #    echo "Goodbye!"
-    #    exit
-    #;;
+	
+	case $destination_path_confirm in
 
     Y|y)
         db_config
@@ -355,13 +330,13 @@ done
 }
 
 
-# Installer started (install_start) 
+# Installer started 
 install_start_func(){
 while [ install_start != "Q" ]
 do 
 clear
 
-# Display menu
+# Display main menu
 echo -e "\n----------------------------------------------------\n"
 echo -e "Welcome to Mendix installer (auto-mx)\n"
 echo -e "\nThis installer will setup your initial"
@@ -375,21 +350,13 @@ read -p "Do you want to continue [Y/n]? " install_start
 install_start=${install_start:-$default}
 
 	case $install_start in
-	
-	#Q|q)
-	#	echo "Goodbye!"
-	#	exit 1
-	#;;
 
 	Y|y)
 	# calling service_settings functions
-	#app_servicename_func
 	app_system_user_func
 	app_system_user_checker
 	app_displayname_func
-	#app_description_func
 	app_startup_func
-	#app_username_func
 	app_password_func
 
 	spec
@@ -404,14 +371,10 @@ install_start=${install_start:-$default}
 	;;
 
 	*)
-	wrong_key 
-	#echo "Non existing value"
+		wrong_key 
 	;;
 	
 	esac
-
-	#echo "press Enter for menu"
-	#read key
 done
 }
 
@@ -431,7 +394,6 @@ db_config(){
 # db_type
 db_type_func(){
 echo -e "\n----------------------------------------------------------\n"
-#read -p "Specify \"Database Type\", i.e (PostgreSQL): " db_type
 read -p "Specify \"Database Type\":
 
 [1] PostgreSQL
@@ -449,7 +411,6 @@ for letter in "$db_type_select"; do
 	elif [[ "$letter" == [2] ]];
 	then
 		db_type="Oracle"
-#		db_oracleservice_func
 
 	elif [[ "$letter" == [3] ]];
 	then
@@ -458,27 +419,18 @@ for letter in "$db_type_select"; do
 	then	
 		db_pg_local	
 	else
-#		echo -e "\n-----------------------------"
-#		echo -e "\nWrong value. Concentrate!\n"
-#		echo -e "----------------------------\n"
-#		echo -e "Enter any key to continue"
-#		read key
-wrong_key
-
+		wrong_key
 		db_type_func
-		# exit 1
 	fi
 done
-
 } 
 
-#postgres local setup (hidden feature)
+# PostgreSQL local install/setup (hidden feature)
 db_pg_local(){
 
+# PostgreSQL Package/Process status check
 
-# package/process status check
-
-# debian postgres setup
+# Debian local PostgreSQL Setup
 deb_postgres(){
 
 package=postgresql
@@ -494,7 +446,7 @@ then
 else
 	ps cax | grep postgres &> /dev/null
 	if [ $? -eq 0 ]; then
-  		echo -e "$package is up and running. Moving on\n"
+ 		echo -e "$package is up and running. Moving on\n"
 	else
 		echo -e "\nPostgreSQL seems to be installed but is not running"
 		echo -e "Before proceeding first make sure it's running!\n"
@@ -504,7 +456,7 @@ else
 fi
 }
 
-# redhat postgres setup
+# RedHat local PostgreSQL Setup
 redhat_postgres(){
 
 package=postgresql-server
@@ -529,7 +481,7 @@ else
 fi
 }
 
-# magic
+# Magic
 if [ -f /etc/debian_version ];
 then
 	# deb_postgres func call
@@ -542,7 +494,7 @@ else
 	distro_checker
 fi
 
-# action
+# Action
 su - postgres -c "psql -d template1 -U postgres -c \"CREATE USER mxpgusr WITH PASSWORD 'mx7gdb_p5w' \" "
 su - postgres -c "psql -d template1 -U postgres -c \"CREATE DATABASE mxpgdb \" "
 su - postgres -c "psql -d template1 -U postgres -c \"GRANT ALL PRIVILEGES ON DATABASE mxpgdb to mxpgusr \" "
@@ -560,7 +512,6 @@ db_pass="mx7gdb_p5w"
 
 java_config
 java_config_confirm
-
 }
 
 db_oracleservice_func(){
@@ -568,7 +519,6 @@ echo -e "\n----------------------------------------------------------\n"
 read -p "Specify \"Oracle Service Name\", i.e (MyService): " db_oracleservice
 
 oracleservice="OracleServiceName: $db_oracleservice"
-
 }
 
 # db_host
@@ -606,9 +556,10 @@ echo -e "\n----------------------------------------------------------\n"
 echo -e "You've specified following values:"
 echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
 echo -e "Database type: $db_type"
+# add oracle_service if Oracle database
 if [[ $db_type == "Oracle" ]]
 then
-echo -e "Oracle Service Name: $db_oracleservice"
+	echo -e "Oracle Service Name: $db_oracleservice"
 fi
 echo -e "Database host: $db_host"
 echo -e "Database port: $db_port"
@@ -618,7 +569,7 @@ echo -e "Database password: $db_pass"
 echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
 }
 
-# direct func | making local pg install obsolete
+# Compilation of Database Config Functions
 db_config_direct_call(){
 
 		db_type_func
@@ -637,7 +588,7 @@ db_config_direct_call(){
 		db_config_confirm_func
 }
 
-# direct db_config call
+# DB Config Compilation Call
 db_config_direct_call
 
 # DB Init start
@@ -651,7 +602,6 @@ echo -e "Set up Database?"
 echo -e "\n------------------------------------------------\n"
 echo -e "[Y]es"
 echo -e "[D]efault/Local install (Not endorsed by Mendix)"
-#echo -e "[Q]uit"
 
 read -p ": " db_init
 	case $db_init in
@@ -718,6 +668,7 @@ echo -e "Database username: $db_user"
 echo -e "Database pasword: $db_password\n"
 }
 
+# Database Config Confirmation Function
 db_config_confirm_func(){
 
 #db_config_confirm
@@ -725,17 +676,13 @@ while [ db_config_confirm != "Q" ]
 do
 clear
 
-# No need for this call?
 db_spec
+
 default=Y
 read -p "Are these settings correct [Y/n]? " db_config_confirm
 db_config_confirm=${db_config_confirm:-$default}
-	case $db_config_confirm in
 
-	#Q|q)
-	#	echo "Goodbye!"
-	#	exit
-	#;;
+	case $db_config_confirm in
 
 	Y|y)
 		echo "Moving to next step"
@@ -743,6 +690,8 @@ db_config_confirm=${db_config_confirm:-$default}
 	;;
 
 	N|n)
+
+		# What to edit menu
 		db_spec
 
 		echo -e "\nWhat would you like to edit\n"
@@ -757,7 +706,7 @@ db_config_confirm=${db_config_confirm:-$default}
 			echo "[7] Oracle Service Name"
 		fi
 
-
+	# Selection
 	read -p "Enter option number: " db_config_edit
 
 	for letter in "$db_config_edit"; do
@@ -796,57 +745,41 @@ db_config_confirm=${db_config_confirm:-$default}
 	then
 		db_oracleservice_func	
 		db_spec
-	
-	#elif [[ "$letter" == [Ff] ]];
-	#then
-	#	echo "finishing up"
-	#	break
 
 	else 
-		#echo "Seriously?"
-		#exit 1
 		wrong_key
+	fi
+	
+	done
+	;;
 
-fi
-done
-;;
-
-#F|f)
-#	echo "my work is done here"
-#	break
-#;;
-
-*)
-	#echo "non existing value"
+	*)
 	wrong_key
-;;
+	;;
 
-esac
+	esac
 
-#echo "press Enter for menu"
-#read key
 done
 }
 
-# Configuration Management
+# Configuration Management Func
 config_mgmt_func(){
 
 # User creation
 if [ -f /etc/debian_version ]; 
 then
-	# Create use Debian way ...
+	# Create user Debian way
 	echo -e "\nCreating "$app_system_user" user ...\n"
 	adduser --disabled-password --gecos "$app_displayname" $app_system_user
 
+# Create user RedHat way
 elif [ -f /etc/redhat-release ];
 then
-	# Create user Redhat way ...
 	echo -e "\nCreating "$app_system_user" user ...\n"
 	useradd $app_system_user	
 fi
 
-
-# Create a directory structure
+# Create Mendix Directory Structure
 mkdir -p $path
 mkdir -p $path/web
 mkdir -p $path/model
@@ -857,18 +790,19 @@ mkdir -p $path/data/model-upload
 mkdir -p $path/data/runtime
 mkdir -p $path/data/tmp
 
-# Fixing permissions
+# Fixing ^ Permissions
 echo -e "\nFixing permissions\n"
 chown $app_system_user:$app_system_user -R $path*
 chmod 700 -R $path/data/
 chmod 700 -R $path/model/
 
-
-# m2ee.yaml contents
+# ToDo (?):
 # move contents to: 
 # /usr/share/doc/m2ee-tools/examples/auto-mx-template.m2ee.yaml
 # Eventually put this template as file
 # in auto-mx deb package.
+
+# m2ee.yaml contents
 yaml_content='# Full m2ee.yaml documentation available on:
 # https://github.com/mendix/m2ee-tools/blob/develop/examples/full-documented-m2ee.yaml
 
@@ -919,10 +853,9 @@ mxruntime:
 
 yaml=/home/$app_system_user/.m2ee/m2ee.yaml
 
-# .m2ee creation
+# .m2ee directory creation
 echo -e "\nm2ee creation\n"
 mkdir -p /home/$app_system_user/.m2ee
-#touch $yaml
 
 # create log file
 logdir="/var/log/mendix/$app_system_user"
@@ -930,13 +863,13 @@ mkdir -p $logdir
 touch $logdir/log
 chown $app_system_user:$app_system_user -R $logdir*
 
-
-# todo
+# ToDo: (?)
 # make a loop if the $yaml already exists
 # ask user what to do
 echo -n "$yaml_content" > "$yaml"
 
-# ToDo: make a phraser
+# ToDo: make complex yaml file phraser
+
 # Yaml Interpreter
 sed -i "s/\${app_system_user}/$app_system_user/g" $yaml
 sed -i "s/\${app_displayname}/\"$app_displayname\"/g" $yaml
@@ -952,7 +885,6 @@ sed -i "s/\${java_heap_max}/$java_heap_max$mb/g" $yaml
 sed -i "s/\${java_heap_min}/$java_heap_min$mb/g" $yaml
 sed -i "s/\${java_permgen}/$java_permgen$mb/g" $yaml
 # Add/Removes empty spaces if $javabin !/= empty
-# sed -i 's+\($javabin\)+\n\$javabin\n+g' $yaml
 if [ -z "$java_binary_path" ]
 then
 	sed -i '/${javabin}/d' $yaml
@@ -966,7 +898,6 @@ sed -i "s+\${path}+$path+g" $yaml
 chown $app_system_user:$app_system_user -R /home/$app_system_user
 goodbye
 }
-
 
 # Java Configuration
 java_config(){
@@ -1016,9 +947,6 @@ then
 	continue
 
 else
-	#echo -e "\nCome on ...\n"
-	#read key
-	# exit1
 	wrong_key
 	continue
 fi
@@ -1055,19 +983,7 @@ default="Y"
 read -p "Do you want to use the default JVM settings [Y/n]? " java_init
 java_init=${java_init:-$default}
 
-#echo -e "Configure JVM Settings?"
-#echo -e "\n------------------------------------------------\n"
-#echo -e "[Y]es"
-#echo -e "[N]o, use default Mendix settings"
-#echo -e "[Q]uit"
-
-#read -p ": " java_init
 	case $java_init in
-
-	#Q|q)
-	#	echo "Goodbye!"
-	#	exit 1
-	#;;
 
 	N|n)
 		# calling db functions
@@ -1077,7 +993,6 @@ java_init=${java_init:-$default}
 		java_binary_path_func
 
 		java_spec
-		#break
 
 		java_config_confirm_func
 	;;
@@ -1087,33 +1002,18 @@ java_init=${java_init:-$default}
 		java_heap_min="512"
 		java_permgen="128"
 
-		#echo -e "\nFinished with Java configuration\n"
-		#echo -e "Enter any key to continue"
-		#read key
-		# make a different func jump?
-	
+		# ToDo: Make new dialog/Remove?
 		echo -e "\nRunning config_mgmt_func\n"
         config_mgmt_func
         echo -e "\nrunning goodbye\n"
-        goodbye	
-
+        goodbye
 	;;
 	
-	#S|s)
-	#	echo "\nSkipping database configuration/install ....\n"
-	#	#exit 1
-	#	break
-	#;;
-
 	*)
-	#	echo "Non existing value"
-	wrong_key
+		wrong_key
 	;;
 
 	esac
-	
-	#echo "press Enter for menu"
-	#read key
 done
 }
 
@@ -1135,11 +1035,6 @@ read -p ": " java_config_confirm
 java_config_confirm=${java_config_confirm:-$default}
 
 	case $java_config_confirm in
-
-#	Q|q)
-#		echo "Goodbye!"
-#		exit
-#	;;
 
 	Y|y)
 		config_mgmt_func	
@@ -1176,74 +1071,54 @@ java_config_confirm=${java_config_confirm:-$default}
 	elif [[ "$letter" == [4] ]];
 	then
 		java_binary_path_edit_func
-		#java_binary_path_func
 		java_spec
 	
 	else 
 		wrong_key
-		#echo "Seriously?"
-		# exit | exit 1
+	fi
+	
+	done
+	;;
 
-fi
-done
-;;
+	*)
+		wrong_key
+	;;
 
-#F|f)
-#	echo "my work is done here"
-#	break
-#;;
-
-*)
-	wrong_key
-	#echo "non existing value"
-;;
-
-esac
-
-#echo "press Enter for menu"
-#read key
+	esac
 done
 }
 
-# Calls
-# ToDo
-# Clear out unused
+# Function Calls (beginning of the end)
 
-# root check 
+# Root Check Call
 root_check
 
-# distro checker
+# Distro Checker
 distro_checker
 
-# call service settings
+# Call Service Settings
 service_settings
 
-# install start
+# Install Start
 install_start_func
 
-# service settings confirm
+# Service Settings Confirm
 service_settings_confirm
 
-# destination path
+# Destination Path
 destination_path_func
-#destination_path_confirm_func
 
-# post db_config/confirm?
-
-# call service_settings/confirm
-#service_settings
-#service_settings_confirm
-
-# call db_config/confirm
+# Call db_config/confirm
 db_config
 db_config_confirm_func
 
-# call java_config/confirm
+# Call java_config/confirm
 java_config
 java_config_confirm_func
 
-# nuff said
+# Nuff said
 config_mgmt_func
 goodbye
 
+# teh end
 exit 0
