@@ -189,6 +189,7 @@ spec
 default=Y
 read -p "Are these settings correct [Y/n]? " service_settings_confrim
 service_settings_confrim=${service_settings_confrim:-$default}
+	
 	case $service_settings_confrim in 
 
 	Y|y)
@@ -225,6 +226,7 @@ service_settings_confrim=${service_settings_confrim:-$default}
 
 	else
 		wrong_key
+		# ToDo
 		hack		
 
 	fi
@@ -270,7 +272,8 @@ echo -e "\n++++++++++++++++++++++++++++++++++++++++++\n"
 default=Y
 read -p "Are these settings correct [Y/n]? " destination_path_init
 destination_path_init=${destination_path_init:-$default}
-    case $destination_path_init in
+
+	case $destination_path_init in
 
     Y|y )
 		path="/srv/mendix/$app_system_user"
@@ -328,7 +331,6 @@ destination_path_confirm=${destination_path_confirm:-$default}
 	esac
 done
 }
-
 
 # Installer started 
 install_start_func(){
@@ -604,6 +606,7 @@ echo -e "[Y]es"
 echo -e "[D]efault/Local install (Not endorsed by Mendix)"
 
 read -p ": " db_init
+	
 	case $db_init in
 
 	Q|q)
