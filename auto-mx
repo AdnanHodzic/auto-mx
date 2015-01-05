@@ -226,8 +226,6 @@ service_settings_confrim=${service_settings_confrim:-$default}
 
 	else
 		wrong_key
-		# ToDo
-		hack		
 
 	fi
 	done
