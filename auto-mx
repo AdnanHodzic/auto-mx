@@ -718,7 +718,7 @@ config_mgmt_func(){
 if [ -f /etc/debian_version ]; 
 then
 	# Create user Debian way
-	echo -e "\nCreating "$app_system_user" user ...\n"
+	echo -e "Creating "$app_system_user" user ...\n"
 	adduser --disabled-password --gecos "$app_displayname" $app_system_user
 
 # Create user RedHat way
@@ -740,7 +740,7 @@ mkdir -p $path/data/runtime
 mkdir -p $path/data/tmp
 
 # Fixing ^ Permissions
-echo -e "\nFixing permissions\n"
+echo -e "\nCalibrating permissions ...\n"
 chown $app_system_user:$app_system_user -R $path*
 chmod 700 -R $path/data/
 chmod 700 -R $path/model/
@@ -803,7 +803,7 @@ mxruntime:
 yaml=/home/$app_system_user/.m2ee/m2ee.yaml
 
 # .m2ee directory creation
-echo -e "\nm2ee creation\n"
+echo -e "Finalizing m2ee creation"
 mkdir -p /home/$app_system_user/.m2ee
 
 # create log file
@@ -952,9 +952,9 @@ java_init=${java_init:-$default}
 		java_permgen="128"
 
 		# ToDo: Make new dialog/Remove?
-		echo -e "\nRunning config_mgmt_func\n"
+		echo -e "\n--------------------------------------"
+		echo -e "\nRunning Configuration Management ...\n"
         config_mgmt_func
-        echo -e "\nrunning goodbye\n"
         goodbye
 	;;
 	
