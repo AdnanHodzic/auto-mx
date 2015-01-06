@@ -1,9 +1,8 @@
 auto-mx (1.0) stable; urgency=low
 
   * First stable package release
-  * Removed abundant dependencies
 
- -- Adnan Hodzic <adnan.hodzic@mendix.com>  Mon, 1 Dec 2014 15:45:26 +0200
+ -- Adnan Hodzic <adnan.hodzic@mendix.com>  Tue, 6 Jan 2015 13:05:26 +0200
 
 auto-mx (0.1) stable; urgency=low
 
