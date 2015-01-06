@@ -591,71 +591,8 @@ db_config_direct_call(){
 # DB Config Compilation Call
 db_config_direct_call
 
-# DB Init start
-while [ db_init != "Q" ]
-do
-clear
-
-# Display menu
-echo -e "\n------------------------------------------------\n"
-echo -e "Set up Database?"
-echo -e "\n------------------------------------------------\n"
-echo -e "[Y]es"
-echo -e "[D]efault/Local install (Not endorsed by Mendix)"
-
-read -p ": " db_init
-	
-	case $db_init in
-
-	Q|q)
-		echo "Goodbye!"
-		exit 1
-	;;
-
-	Y|y)
-		# calling db functions
-		db_type_func
-		db_host_func
-		db_port_func
-		db_name_func
-		db_user_func
-		db_pass_func
-
-		db_spec
-		
-		db_config_confirm_func
-	;;
-
-	D|d)
-		# postgres local setup
-		su - postgres -c "psql -d template1 -U postgres -c \"CREATE USER mxpgusr WITH PASSWORD 'mx7gdb_p5w' \" "
-		su - postgres -c "psql -d template1 -U postgres -c \"CREATE DATABASE mxpgdb \" "
-		su - postgres -c "psql -d template1 -U postgres -c \"GRANT ALL PRIVILEGES ON DATABASE mxpgdb to mxpgusr \" "
-		
-		echo -e "\nFinished with PostgresSQL local setup\n"
-		echo -e "\nEnter any key to continue"
-		read key
-		
-		java_config
-		java_config_confirm
-	;;
-	
-	S|s)
-		echo "\nSkipping database configuration/install ....\n"
-		#exit 1
-		break
-	;;
-
-	*)
-		echo "Non existing value"
-	;;
-
-	esac
-	
-	echo "press Enter for menu"
-	read key
-done
 }
+# ^ db_config end
 
 db_spec(){
 echo -e "\n-----------------------------------------\n"
