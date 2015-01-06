@@ -441,6 +441,7 @@ echo -e "\nChecking for PostgreSQL package $package_check ...\n"
 if [ "" == "$package_check" ];
 then
 	echo -e "Installing ... $package\n"
+	echo -e "---------------------------\n"
 	sudo apt-get --force-yes --yes install $package
 	echo -e "-----------------------------------------------"
 	echo -e "\nPostgreSQL installed and configured\n"
