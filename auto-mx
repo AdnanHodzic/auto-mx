@@ -436,21 +436,27 @@ deb_postgres(){
 package=postgresql
 
 package_check=$(dpkg-query -W --showformat='${Status}\n' $package |grep "install ok installed")
+echo -e "----------------------------------------------------"
 echo -e "\nChecking for PostgreSQL package $package_check ...\n"
 if [ "" == "$package_check" ];
 then
 	echo -e "Installing ... $package\n"
 	sudo apt-get --force-yes --yes install $package
-	echo -e "\nInstall complete, press any key to continue\n"
+	echo -e "-----------------------------------------------"
+	echo -e "\nPostgreSQL installed and configured\n"
+	echo -e "-----------------------------------------------\n"
+	echo -e "Enter any key to continue"
 	read key
 else
 	ps cax | grep postgres &> /dev/null
 	if [ $? -eq 0 ]; then
  		echo -e "$package is up and running. Moving on\n"
 	else
+		echo -e "-----------------------------------------------------"
 		echo -e "\nPostgreSQL seems to be installed but is not running"
 		echo -e "Before proceeding first make sure it's running!\n"
 		echo -e "Enter any key to continue"
+		echo -e "-----------------------------------------------------"
 		read key
 	fi
 fi
@@ -466,7 +472,8 @@ then
 	echo "$package is installed"
 	ps cax | grep postgres &> /dev/null
 	if [ $? -eq 0 ]; then
-		echo -e "$package is up and running. Moving on\n"
+		echo -e "-------------------------------------------"
+		echo -e "$package is up and running. Moving on ...\n"
 	fi
 	read key 
 else
@@ -498,9 +505,9 @@ fi
 su - postgres -c "psql -d template1 -U postgres -c \"CREATE USER mxpgusr WITH PASSWORD 'mx7gdb_p5w' \" "
 su - postgres -c "psql -d template1 -U postgres -c \"CREATE DATABASE mxpgdb \" "
 su - postgres -c "psql -d template1 -U postgres -c \"GRANT ALL PRIVILEGES ON DATABASE mxpgdb to mxpgusr \" "
-	
-echo -e "\nFinished with PostgresSQL local setup\n"
-echo -e "------------------------------------"
+echo -e "\n----------------------------------------"
+echo -e "\nFinished with PostgreSQL local setup\n"
+echo -e "----------------------------------------\n"
 echo -e "Enter any key to continue"
 read key
 	
