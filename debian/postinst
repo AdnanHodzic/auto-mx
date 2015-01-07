@@ -20,16 +20,6 @@ set -e
 
 case "$1" in
     configure)
-	# get mendix key
-	# wget -q https://hodzic.org/debian-mendix-keyring.gpg -O- | sudo apt-key add -
-
-	# add repositories
-	# repo="deb http://packages.mendix.com/platform/debian/ wheezy main contrib non-free"
-	# sources=/etc/apt/sources.list	
-	# echo -n "$repo" >> "$sources" 
-
-	# update repos?
-	# apt-get update
 
     echo "\n-----------------------------------------\n"
 	echo "Installation complete!\n"
