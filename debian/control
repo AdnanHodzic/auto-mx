@@ -10,7 +10,7 @@ Homepage: https://mendix.com
 
 Package: auto-mx
 Architecture: all
-Depends: m2ee-tools, oracle-java7-jdk | openjdk-7-jdk, ${shlibs:Depends}, ${misc:Depends}
+Depends: m2ee-tools, debian-mendix-keyring, oracle-java7-jdk | openjdk-7-jdk, ${shlibs:Depends}, ${misc:Depends}
 Description: Mendix Auto Utility (auto-mx) 
   Utility which aims to automatically install and
   setup Mendix runtime, and rest of utility's

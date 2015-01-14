@@ -762,7 +762,6 @@ m2ee:
  app_name: ${app_displayname}
  app_base: ${path}
  admin_port: 9000
- admin_listen_addresses: "*"
  admin_pass: ${app_password}
  runtime_port: 8000
 
