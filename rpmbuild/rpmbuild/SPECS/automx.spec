@@ -1,6 +1,6 @@
 Name: automx
 Version: 1.0	
-Release: 1
+Release: 2
 Summary: Mendix Auto Utility (auto-mx)	
 
 License: GPL-3.0+
@@ -45,6 +45,8 @@ echo hallo
 
 
 %changelog
+* Wed Jan 15 2015 Marck Oemar <marck.oemar@mendix.com> 1.0-2
+- removed postgresql dep
 * Wed Jan 7 2015 Marck Oemar <marck.oemar@mendix.com> 1.0-1
 - initial version
 
