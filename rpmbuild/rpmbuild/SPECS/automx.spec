@@ -9,7 +9,7 @@ Source0: automx-1.0.tar.gz
 #BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildRoot: %{_tmppath}/%{name}-buildroot
 
-Requires(pre): jre >= 1.7, m2ee-tools, postgresql
+Requires(pre): jre >= 1.7, m2ee-tools
 
 %description
   Utility which aims to automatically install and
