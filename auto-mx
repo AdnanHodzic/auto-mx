@@ -789,9 +789,6 @@ mxruntime:
  DatabaseUserName: ${db_user}
  DatabasePassword: ${db_pass}
  ${db_oracleservice}
- MicroflowConstants:
-  Module.Constant: text
-  AnotherModule.AnotherConstant: bla
 
  ScheduledEventExecution: NONE
  MyScheduledEvents:
