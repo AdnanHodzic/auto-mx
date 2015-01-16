@@ -821,7 +821,13 @@ sed -i "s/\${app_system_user}/$app_system_user/g" $yaml
 sed -i "s/\${app_displayname}/\"$app_displayname\"/g" $yaml
 sed -i "s/\${app_password}/$app_password/g" $yaml
 sed -i "s/\${db_type}/$db_type/g" $yaml
-sed -i "s/\${db_oracleservice}/$oracleservice\n/g" $yaml
+# Add/Remove empty spaces if $db_oracleservice !/= empty
+if [ -z "$java_binary_path" ]
+then
+	sed -i '/${db_oracleservice}/d' $yaml
+else
+	sed -i "s+\${db_oracleservice}+$db_oracleservice\n+g" $yaml
+fi
 sed -i "s/\${db_host}/$db_host/g" $yaml
 sed -i "s/\${db_port}/:$db_port/g" $yaml
 sed -i "s/\${db_name}/$db_name/g" $yaml
