@@ -506,9 +506,9 @@ else
 fi
 
 # Action
-su - postgres -c "psql -d template1 -U postgres -c \"CREATE USER mxpgusr WITH PASSWORD 'mx7gdb_p5w' \" "
-su - postgres -c "psql -d template1 -U postgres -c \"CREATE DATABASE mxpgdb \" "
-su - postgres -c "psql -d template1 -U postgres -c \"GRANT ALL PRIVILEGES ON DATABASE mxpgdb to mxpgusr \" "
+su - postgres -c "psql -d template1 -U postgres -c \"CREATE USER mxdbuser WITH PASSWORD 'mx7gdb_p5w' \" "
+su - postgres -c "psql -d template1 -U postgres -c \"CREATE DATABASE mxdb \" "
+su - postgres -c "psql -d template1 -U postgres -c \"GRANT ALL PRIVILEGES ON DATABASE mxdb to mxdbuser \" "
 echo -e "\n----------------------------------------"
 echo -e "\nFinished with PostgreSQL local setup\n"
 echo -e "----------------------------------------\n"
@@ -518,7 +518,8 @@ read key
 db_type="PostgreSQL"	
 db_host="127.0.0.1"
 db_port="5432"
-db_name="mxpgdb"
+db_name="mxdb"
+db_user="mxdbuser"
 db_pass="mx7gdb_p5w"
 
 java_config
@@ -789,9 +790,6 @@ mxruntime:
  DatabaseUserName: ${db_user}
  DatabasePassword: ${db_pass}
  ${db_oracleservice}
- MicroflowConstants:
-  Module.Constant: text
-  AnotherModule.AnotherConstant: bla
 
  ScheduledEventExecution: NONE
  MyScheduledEvents:
@@ -823,7 +821,13 @@ sed -i "s/\${app_system_user}/$app_system_user/g" $yaml
 sed -i "s/\${app_displayname}/\"$app_displayname\"/g" $yaml
 sed -i "s/\${app_password}/$app_password/g" $yaml
 sed -i "s/\${db_type}/$db_type/g" $yaml
-sed -i "s/\${db_oracleservice}/$oracleservice\n/g" $yaml
+# Add/Remove empty spaces if $db_oracleservice !/= empty
+if [ -z "$java_binary_path" ]
+then
+	sed -i '/${db_oracleservice}/d' $yaml
+else
+	sed -i "s+\${db_oracleservice}+$db_oracleservice\n+g" $yaml
+fi
 sed -i "s/\${db_host}/$db_host/g" $yaml
 sed -i "s/\${db_port}/:$db_port/g" $yaml
 sed -i "s/\${db_name}/$db_name/g" $yaml

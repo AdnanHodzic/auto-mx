@@ -1,3 +1,19 @@
+auto-mx (1.0.2) stable; urgency=low
+
+  * Removed admin_list_port and added a new dependency
+  * Removed generation of MicroflowConstants in yaml
+  * Debugged 666 db vars. not being reflected in yaml
+  * Debugged if db_oracleservice !/= empty or not
+
+ -- Adnan Hodzic <adnan.hodzic@mendix.com>  Fri, 16 Jan 2015 10:56:56 +0100
+
+auto-mx (1.0.1) stable; urgency=low
+
+  * Removed preinst file
+  * Removed obsolete (commented) code from postinst
+
+ -- Adnan Hodzic <ahodzic.hodzic@mendix.com>  Wed, 07 Jan 2015 10:57:46 +0100
+
 auto-mx (1.0) stable; urgency=low
 
   * First stable package release
