@@ -17,10 +17,10 @@ Requires(pre): jre >= 1.7, m2ee-tools
   which are needed to run Mendix applications.
 
 %pre
-  echo "\n-----------------------------------------\n"
-  echo "Installation complete!\n"
-  echo "Please run \"auto-mx\" to start the install"
-  echo "\n-----------------------------------------\n"
+  echo -e "\n-----------------------------------------\n"
+  echo -e "Installation complete!\n"
+  echo -e "Please run \"auto-mx\" to start the install"
+  echo -e "\n-----------------------------------------\n"
 
 %prep
 %setup -q
