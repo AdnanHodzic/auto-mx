@@ -1,6 +1,6 @@
 Name: automx
-Version: 1.0	
-Release: 2
+Version: 1.0.2
+Release: 1
 Summary: Mendix Auto Utility (auto-mx)	
 
 License: GPL-3.0+
@@ -17,10 +17,10 @@ Requires(pre): jre >= 1.7, m2ee-tools
   which are needed to run Mendix applications.
 
 %pre
-  echo "\n-----------------------------------------\n"
-  echo "Installation complete!\n"
-  echo "Please run \"auto-mx\" to start the install"
-  echo "\n-----------------------------------------\n"
+  echo -e "\n-----------------------------------------\n"
+  echo -e "Installation complete!\n"
+  echo -e "Please run \"auto-mx\" to start the install"
+  echo -e "\n-----------------------------------------\n"
 
 %prep
 %setup -q
@@ -45,6 +45,9 @@ echo hallo
 
 
 %changelog
+* Tue Jan 20 2015 Adnan Hodzic <adnan.hodzic@mendix.com> 1.0.2
+- Added latest auto-mx source
+- Updated postinst dialog with -e paramater
 * Wed Jan 15 2015 Marck Oemar <marck.oemar@mendix.com> 1.0-2
 - removed postgresql dep
 * Wed Jan 7 2015 Marck Oemar <marck.oemar@mendix.com> 1.0-1
