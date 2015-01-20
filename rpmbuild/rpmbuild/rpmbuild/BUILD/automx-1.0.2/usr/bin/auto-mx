@@ -1,0 +1,1072 @@
+#!/bin/bash
+#
+# Mendix Installer (auto-mx)
+# Utility to interactively install and setup
+# Mendix, as well rest of utility's which
+# are needed to run Mendix applications.
+#
+# Files *
+# Licence: Mendix (proprietary)
+# Copyright: 2014 © Mendix
+#
+# Files: auto-mx, debian/*
+# Copyright: 2014 Adnan Hodzic <adnan.hodzic@mendix.com>
+# Licence: GPL-3.0+
+#·
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#·
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#·
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# Jan 6, 2015
+version="1.0"
+
+# Root Checker
+root_check(){
+if [[ $EUID -ne 0 ]]; then
+	echo -e "\n--------------------------------------\n"
+	echo "Please run \"auto-mx\" as root user" 1>&2
+	echo -e "\n--------------------------------------\n" 
+	exit 1
+fi
+}
+
+# Wrong key error message
+wrong_key(){
+echo -e "\n-----------------------------"
+echo -e "\nWrong value. Concentrate!\n"
+echo -e "----------------------------\n"
+echo -e "Enter any key to continue"
+read key
+}
+
+distro_checker(){
+
+# RedHat
+# ToDo: Fix skip^ hack
+if [ -f /etc/redhat-release ];
+then
+	echo "Skipping "
+else
+
+# Checker parameters 
+lsb="$(lsb_release -is)"
+codename="$(lsb_release -cs)"
+platform="$(lsb_release -ics | sed '$!s/$/ /' | tr -d '\n')"
+
+# Unsupported platform message
+message(){
+echo -e "\n----------------------------------------\n"
+echo -e "Your platform is not supported by Mendix"
+echo -e "Please contact cloudops@mendix.com\n"
+echo -e "You're using: $platform\n"
+echo -e "----------------------------------------\n"
+}
+
+# Ubuntu
+if [ $lsb == "Ubuntu" ];
+then
+		message
+		exit 1
+# Debian
+elif [ $lsb == "Debian" ];
+then
+	if [ $codename == "squeezee" ] || [ $codename == "wheezy" ] || [ $codename == "jessie" ] || [ $codename == "sid" ];
+	then
+		echo -e "\nPlatform requirements satisfied, proceeding ...\n"
+		#exit 1
+	else
+	message	
+	exit 1
+	fi
+else
+	message
+	exit 1
+fi
+fi
+}
+
+# Service Settings
+service_settings(){
+
+# System User Account
+app_system_user_func(){
+echo -e "--------------------------------------------------------\n"
+read -p "Specify \"System User Account\": " -i mxapp -e app_system_user
+}
+
+# $app_system_user Checker
+app_system_user_checker(){
+if id $app_system_user > /dev/null 2>&1
+then
+	echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++\n"
+	echo -e "System user: \"$app_system_user\" already exists!\n"
+	echo "Specify different username or current data"
+	echo "for \"$app_system_user\" will be overwritten." 
+	echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++\n"
+	echo -e "Enter any key to continue"
+
+	read key
+	app_system_user_func
+fi
+}
+
+# Application Name 
+app_displayname_func(){
+echo -e "\n--------------------------------------------------------\n"
+read -p "Specify \"Application Name\": " -i "Mendix Application" -e app_displayname
+}
+
+# Startup Type
+app_startup_func(){
+echo -e "\n--------------------------------------------------------\n"
+default=Y
+read -p "Do you want to start Mendix at boot [Y/n]? " app_startup
+app_startup=${app_startup:-$default}
+
+for letter in "$app_startup"; do
+
+if [[ "$letter" == [Yy] ]]; 
+then
+	# Start Mendix at boot
+	crontab -l > bootmx
+	echo -e "#Start Mendix at boot\n@reboot /usr/bin/m2ee start" >> bootmx
+	crontab bootmx
+	rm bootmx
+
+	boot="Yes"	
+	continue
+
+elif [[ "$letter" == [Nn]* ]]; 
+then
+	echo -e "\nMendix will not start at boot ...\n"
+	boot="No"
+	continue
+
+elif [[ "$letter" == [Ss]* ]]; 
+then
+	echo -e "\nSetting Mendix at boot, skipped ..."
+	boot="Option skip"
+	
+	continue
+
+else 
+	wrong_key
+	app_startup_func
+fi
+done
+}
+
+# Automagically generate "admin_pass/app_password" 
+app_password_func(){
+app_password="$(cat /dev/urandom| tr -cd "A-z1-9" | head -c16)"
+}
+
+spec(){
+echo -e "\n--------------------------------------------------\n"
+echo -e "You've specified following values:"
+echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++\n"
+echo -e "System User Account: $app_system_user"
+echo -e "Application name: $app_displayname"
+echo -e "Start at boot: $boot"
+echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++\n"
+}
+}
+
+# Confirm Service Settings
+service_settings_confirm(){
+
+while [ service_settings_confrim != "Q" ]
+do 
+clear
+
+spec
+default=Y
+read -p "Are these settings correct [Y/n]? " service_settings_confrim
+service_settings_confrim=${service_settings_confrim:-$default}
+	
+	case $service_settings_confrim in 
+
+	Y|y)
+		echo "Moving to next step"
+		break
+	;;
+	
+	N|n)
+		spec
+
+		echo -e "What would you like to edit?\n"
+		echo "[1] System User Account"
+		echo "[2] Application Name"
+		echo "[3] Start at boot"
+	
+	read -p "Enter option number: " service_settings_edit
+
+	for letter in "$service_settings_edit"; do
+
+	if [[ "$letter" == [1] ]]; 
+	then
+		app_system_user_func
+		spec
+
+	elif [[ "$letter" == [2] ]]; 
+	then
+		app_displayname_func
+		spec
+
+	elif [[ "$letter" == [3] ]]; 
+	then
+		app_startup_func
+		spec
+
+	else
+		wrong_key
+
+	fi
+	done
+	;;
+
+	*) 
+	wrong_key
+	;;
+	
+	esac
+done
+}
+
+# Destination Path
+destination_path_func(){
+
+# Define custom path
+custom_appdest_func(){
+echo -e "------------------------------------------------------------\n"
+read -p "Specify custom app. destination, i.e (/opt/mxapp): " path
+}
+
+custom_path_spec(){
+echo -e "\n----------------------------------------------------------\n"
+echo -e "You've specified following location as your custom"
+echo -e "\napp. path: \"$path\""
+echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
+}
+
+while [ destination_path != "Q" ]
+do
+clear
+
+# Specify destination path
+echo -e "\n------------------------------------------\n"
+echo -e "Specify location for \"$app_displayname\""
+echo -e "\n++++++++++++++++++++++++++++++++++++++++++\n"
+echo -e "We recommend: /srv/mendix/$app_system_user"
+echo -e "to be your path."
+echo -e "\n++++++++++++++++++++++++++++++++++++++++++\n"
+
+default=Y
+read -p "Are these settings correct [Y/n]? " destination_path_init
+destination_path_init=${destination_path_init:-$default}
+
+	case $destination_path_init in
+
+    Y|y )
+		path="/srv/mendix/$app_system_user"
+		
+		# Jump to Database Configuration
+		db_config
+	;;
+
+    N|n )
+		# calling custom destination func
+		custom_appdest_func	
+		custom_path_spec
+		
+		# confirm custom path
+		destination_path_confirm_func
+    ;;
+
+	*) 
+		wrong_key
+	;;
+
+    esac
+done
+}
+
+# Confirm Destination path
+destination_path_confirm_func(){
+
+while [ destination_path_confirm != "Q" ]
+do
+clear
+
+custom_path_spec
+
+default=Y
+read -p "Are these settings correct [Y/n]? " destination_path_confirm
+destination_path_confirm=${destination_path_confirm:-$default}
+	
+	case $destination_path_confirm in
+
+    Y|y)
+        db_config
+		#break
+    ;;
+
+	N|n)
+		custom_path_spec
+		custom_appdest_func
+	;;
+
+	*)
+		wrong_key
+	;;
+
+	esac
+done
+}
+
+# Installer started 
+install_start_func(){
+while [ install_start != "Q" ]
+do 
+clear
+
+# Display main menu
+echo -e "\n----------------------------------------------------\n"
+echo -e "Welcome to Mendix installer (auto-mx)\n"
+echo -e "\nThis installer will setup your initial"
+echo -e "application environment and/or add additional"
+echo -e "application environments to your Mendix setup.\n"
+echo -e "\nPlease follow on-screen instructions"
+echo -e "\n----------------------------------------------------\n"
+
+default="Y"
+read -p "Do you want to continue [Y/n]? " install_start
+install_start=${install_start:-$default}
+
+	case $install_start in
+
+	Y|y)
+	# calling service_settings functions
+	app_system_user_func
+	app_system_user_checker
+	app_displayname_func
+	app_startup_func
+	app_password_func
+
+	spec
+	break	
+	;;
+
+	N|n)
+		echo -e "\n-----------------------------------------\n"
+		echo -e "Aborting \"auto-mx\" installation"
+		echo -e "\n-----------------------------------------\n"
+		exit 1
+	;;
+
+	*)
+		wrong_key 
+	;;
+	
+	esac
+done
+}
+
+# goodbye message
+goodbye(){
+echo -e "\n-------------------------------------------------\n"
+echo -e "Installation complete!\n"
+echo -e "For any additional customization please take"
+echo -e "take a look in: /home/$app_system_user/.m2ee/m2ee.yaml"
+echo -e "\n-------------------------------------------------\n" 
+exit
+}
+
+# Database configuration
+db_config(){
+
+# db_type
+db_type_func(){
+echo -e "\n----------------------------------------------------------\n"
+read -p "Specify \"Database Type\":
+
+[1] PostgreSQL
+[2] Oracle
+[3] MS SQL
+
+Enter option number: " -i 1 -e db_type_select
+
+for letter in "$db_type_select"; do
+
+	if [[ "$letter" == [1] ]];
+	then
+		db_type="PostgreSQL"
+
+	elif [[ "$letter" == [2] ]];
+	then
+		db_type="Oracle"
+
+	elif [[ "$letter" == [3] ]];
+	then
+		db_type="MS SQL"
+	elif [[ "$letter" =~ [666] ]];
+	then	
+		db_pg_local	
+	else
+		wrong_key
+		db_type_func
+	fi
+done
+} 
+
+# PostgreSQL local install/setup (hidden feature)
+db_pg_local(){
+
+# PostgreSQL Package/Process status check
+
+# Debian local PostgreSQL Setup
+deb_postgres(){
+
+package=postgresql
+
+package_check=$(dpkg-query -W --showformat='${Status}\n' $package |grep "install ok installed")
+echo -e "----------------------------------------------------"
+echo -e "\nChecking for PostgreSQL package $package_check ...\n"
+if [ "" == "$package_check" ];
+then
+	echo -e "Installing ... $package\n"
+	echo -e "---------------------------\n"
+	sudo apt-get --force-yes --yes install $package
+	echo -e "-----------------------------------------------"
+	echo -e "\nPostgreSQL installed and configured\n"
+	echo -e "-----------------------------------------------\n"
+	echo -e "Enter any key to continue"
+	read key
+else
+	ps cax | grep postgres &> /dev/null
+	if [ $? -eq 0 ]; then
+ 		echo -e "$package is up and running. Moving on\n"
+	else
+		echo -e "-----------------------------------------------------"
+		echo -e "\nPostgreSQL seems to be installed but is not running"
+		echo -e "Before proceeding first make sure it's running!\n"
+		echo -e "Enter any key to continue"
+		echo -e "-----------------------------------------------------"
+		read key
+	fi
+fi
+}
+
+# RedHat local PostgreSQL Setup
+redhat_postgres(){
+
+package=postgresql-server
+
+if rpm -qa | grep $package 2>&1 > /dev/null;
+then
+	echo "$package is installed"
+	ps cax | grep postgres &> /dev/null
+	if [ $? -eq 0 ]; then
+		echo -e "-------------------------------------------"
+		echo -e "$package is up and running. Moving on ...\n"
+	fi
+	read key 
+else
+	echo -e "Installing ... $package\n"
+	yum -y install postgresql-server postgresql-contrib
+	# database initialization
+	postgresql-setup initdb
+	# postgres start
+	systemctl start postgresql
+	echo -e "\nInstall complete, press any key to continue\n"
+	read key 
+fi
+}
+
+# Magic
+if [ -f /etc/debian_version ];
+then
+	# deb_postgres func call
+	deb_postgres
+elif [ -f /etc/redhat-release ];
+then
+	# redhat_postgres func call
+	redhat_postgres
+else
+	distro_checker
+fi
+
+# Action
+su - postgres -c "psql -d template1 -U postgres -c \"CREATE USER mxpgusr WITH PASSWORD 'mx7gdb_p5w' \" "
+su - postgres -c "psql -d template1 -U postgres -c \"CREATE DATABASE mxpgdb \" "
+su - postgres -c "psql -d template1 -U postgres -c \"GRANT ALL PRIVILEGES ON DATABASE mxpgdb to mxpgusr \" "
+echo -e "\n----------------------------------------"
+echo -e "\nFinished with PostgreSQL local setup\n"
+echo -e "----------------------------------------\n"
+echo -e "Enter any key to continue"
+read key
+	
+db_type="PostgreSQL"	
+db_host="127.0.0.1"
+db_port="5432"
+db_name="mxpgdb"
+db_pass="mx7gdb_p5w"
+
+java_config
+java_config_confirm
+}
+
+db_oracleservice_func(){
+echo -e "\n----------------------------------------------------------\n"
+read -p "Specify \"Oracle Service Name\", i.e (MyService): " db_oracleservice
+
+oracleservice="OracleServiceName: $db_oracleservice"
+}
+
+# db_host
+db_host_func(){
+echo -e "\n----------------------------------------------------------\n"
+read -p "Specify \"Database Host\": " -i "127.0.0.1" -e db_host
+}
+
+# db_port
+db_port_func(){
+echo -e "\n----------------------------------------------------------\n"
+read -p "Specify \"Database Port\": " -i 5432 -e db_port
+}
+
+# db_name
+db_name_func(){
+echo -e "\n----------------------------------------------------------\n"
+read -p "Specify \"Database Name\": " -i mxdb -e db_name
+}
+
+# db_username
+db_user_func(){
+echo -e "\n----------------------------------------------------------\n"
+read -p "Specify \"Database Username\": " -i mxdbuser -e db_user
+}
+
+# db_password
+db_pass_func(){
+echo -e "\n----------------------------------------------------------\n"
+read -p "Specify \"Database Password\": " -i mx7gdb_p5w -e db_pass
+}
+
+db_spec(){
+echo -e "\n----------------------------------------------------------\n"
+echo -e "You've specified following values:"
+echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
+echo -e "Database type: $db_type"
+# add oracle_service if Oracle database
+if [[ $db_type == "Oracle" ]]
+then
+	echo -e "Oracle Service Name: $db_oracleservice"
+fi
+echo -e "Database host: $db_host"
+echo -e "Database port: $db_port"
+echo -e "Database name: $db_name"
+echo -e "Database username: $db_user"
+echo -e "Database password: $db_pass"
+echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
+}
+
+# Compilation of Database Config Functions
+db_config_direct_call(){
+
+		db_type_func
+		if [[ $db_type == "Oracle" ]]
+		then
+			db_oracleservice_func
+		fi
+		db_host_func
+		db_port_func
+		db_name_func
+		db_user_func
+		db_pass_func
+
+		db_spec
+		
+		db_config_confirm_func
+}
+
+# DB Config Compilation Call
+db_config_direct_call
+
+}
+# ^ db_config end
+
+db_spec(){
+echo -e "\n-----------------------------------------\n"
+echo -e "\nYou've specified following values:\n"
+echo -e "\n++++++++++++++++++++++++++++++++++++++++\n"
+echo -e "Database type: $db_type"
+echo -e "Database host: $db_host"
+echo -e "Database port: $db_port"
+echo -e "Database name: $db_name"
+echo -e "Database username: $db_user"
+echo -e "Database pasword: $db_password\n"
+}
+
+# Database Config Confirmation Function
+db_config_confirm_func(){
+
+#db_config_confirm
+while [ db_config_confirm != "Q" ]
+do
+clear
+
+db_spec
+
+default=Y
+read -p "Are these settings correct [Y/n]? " db_config_confirm
+db_config_confirm=${db_config_confirm:-$default}
+
+	case $db_config_confirm in
+
+	Y|y)
+		echo "Moving to next step"
+		java_config
+	;;
+
+	N|n)
+
+		# What to edit menu
+		db_spec
+
+		echo -e "\nWhat would you like to edit\n"
+		echo "[1] Database type"
+		echo "[2] Database host"
+		echo "[3] Database port"
+		echo "[4] Database name"
+		echo "[5] Database username"
+		echo "[6] Database password"
+		if [[ $db_type == "Oracle" ]]
+		then
+			echo "[7] Oracle Service Name"
+		fi
+
+	# Selection
+	read -p "Enter option number: " db_config_edit
+
+	for letter in "$db_config_edit"; do
+
+	if [[ "$letter" == [1] ]];
+	then
+		db_type_func
+		db_spec
+
+	elif [[ "$letter" == [2] ]];
+	then
+		db_host_func
+		db_spec
+
+	elif [[ "$letter" == [3] ]];
+	then
+		db_port_func
+		db_spec
+	
+	elif [[ "$letter" == [4] ]];
+	then
+		db_name_func
+		db_spec
+
+	elif [[ "$letter" == [5] ]];
+	then
+		db_user_func
+		db_spec
+	
+	elif [[ "$letter" == [6] ]];
+	then
+		db_pass_func	
+		db_spec
+	
+	elif [[ "$letter" == [7] ]];
+	then
+		db_oracleservice_func	
+		db_spec
+
+	else 
+		wrong_key
+	fi
+	
+	done
+	;;
+
+	*)
+	wrong_key
+	;;
+
+	esac
+
+done
+}
+
+# Configuration Management Func
+config_mgmt_func(){
+
+# User creation
+if [ -f /etc/debian_version ]; 
+then
+	# Create user Debian way
+	echo -e "Creating "$app_system_user" user ...\n"
+	adduser --disabled-password --gecos "$app_displayname" $app_system_user
+
+# Create user RedHat way
+elif [ -f /etc/redhat-release ];
+then
+	echo -e "\nCreating "$app_system_user" user ...\n"
+	useradd $app_system_user	
+fi
+
+# Create Mendix Directory Structure
+mkdir -p $path
+mkdir -p $path/web
+mkdir -p $path/model
+mkdir -p $path/data
+mkdir -p $path/data/database
+mkdir -p $path/data/files
+mkdir -p $path/data/model-upload
+mkdir -p $path/data/runtime
+mkdir -p $path/data/tmp
+
+# Fixing ^ Permissions
+echo -e "\nCalibrating permissions ...\n"
+chown $app_system_user:$app_system_user -R $path*
+chmod 700 -R $path/data/
+chmod 700 -R $path/model/
+
+# ToDo (?):
+# move contents to: 
+# /usr/share/doc/m2ee-tools/examples/auto-mx-template.m2ee.yaml
+# Eventually put this template as file
+# in auto-mx deb package.
+
+# m2ee.yaml contents
+yaml_content='# Full m2ee.yaml documentation available on:
+# https://github.com/mendix/m2ee-tools/blob/develop/examples/full-documented-m2ee.yaml
+
+mxnode:
+ mxjar_repo: ${path}/data/runtime
+
+m2ee:
+ app_name: ${app_displayname}
+ app_base: ${path}
+ admin_port: 9000
+ admin_pass: ${app_password}
+ runtime_port: 8000
+
+ runtime_listen_addresses: "*"
+
+ ${javabin}
+ javaopts: [
+   "-Dfile.encoding=UTF-8", "-XX:MaxPermSize=${java_permgen}", "-Xmx${java_heap_max}", "-Xms${java_heap_min}",
+   "-Djava.io.tmpdir=/path/to/project/directory/data/tmp",
+ ]
+
+logging:
+ - # example of file logging by the platform itself
+   name: FileSubscriber
+   type: file
+   autosubscribe: INFO
+   filename: /var/log/mendix/${app_system_user}/log
+   max_size: 10485760 # bytes(!!)
+   max_rotation: 7
+
+mxruntime:
+ DatabaseType: ${db_type}
+ DatabaseHost: ${db_host}${db_port}
+ DatabaseName: ${db_name}
+ DatabaseUserName: ${db_user}
+ DatabasePassword: ${db_pass}
+ ${db_oracleservice}
+ MicroflowConstants:
+  Module.Constant: text
+  AnotherModule.AnotherConstant: bla
+
+ ScheduledEventExecution: NONE
+ MyScheduledEvents:
+  - Module1.Event1
+  - Module2.Event2
+  - Module3.Event3'
+
+yaml=/home/$app_system_user/.m2ee/m2ee.yaml
+
+# .m2ee directory creation
+echo -e "Finalizing m2ee creation"
+mkdir -p /home/$app_system_user/.m2ee
+
+# create log file
+logdir="/var/log/mendix/$app_system_user"
+mkdir -p $logdir
+touch $logdir/log
+chown $app_system_user:$app_system_user -R $logdir*
+
+# ToDo: (?)
+# make a loop if the $yaml already exists
+# ask user what to do
+echo -n "$yaml_content" > "$yaml"
+
+# ToDo: make complex yaml file phraser
+
+# Yaml Interpreter
+sed -i "s/\${app_system_user}/$app_system_user/g" $yaml
+sed -i "s/\${app_displayname}/\"$app_displayname\"/g" $yaml
+sed -i "s/\${app_password}/$app_password/g" $yaml
+sed -i "s/\${db_type}/$db_type/g" $yaml
+sed -i "s/\${db_oracleservice}/$oracleservice\n/g" $yaml
+sed -i "s/\${db_host}/$db_host/g" $yaml
+sed -i "s/\${db_port}/:$db_port/g" $yaml
+sed -i "s/\${db_name}/$db_name/g" $yaml
+sed -i "s/\${db_user}/$db_user/g" $yaml
+sed -i "s/\${db_pass}/$db_pass/g" $yaml
+sed -i "s/\${java_heap_max}/$java_heap_max$mb/g" $yaml
+sed -i "s/\${java_heap_min}/$java_heap_min$mb/g" $yaml
+sed -i "s/\${java_permgen}/$java_permgen$mb/g" $yaml
+# Add/Removes empty spaces if $javabin !/= empty
+if [ -z "$java_binary_path" ]
+then
+	sed -i '/${javabin}/d' $yaml
+else
+	sed -i "s+\${javabin}+$javabin\n+g" $yaml
+fi
+sed -i "s+\${javabin}+$javabin+g" $yaml
+sed -i "s+\${path}+$path+g" $yaml
+
+# Make sure permissions are still correct
+chown $app_system_user:$app_system_user -R /home/$app_system_user
+goodbye
+}
+
+# Java Configuration
+java_config(){
+
+mb="M"
+
+# Java Heap (Max Size)
+java_heap_max_func(){
+echo -e "\n----------------------------------------------------------\n"
+read -p "Specify \"Java Heap Max Size\": " -i 512 -e java_heap_max
+} 
+
+# Java Heap (Min Size)
+java_heap_min_func(){
+echo -e "\n----------------------------------------------------------\n"
+read -p "Specify \"Java Heap Min Size\": " -i 512 -e java_heap_min
+}
+
+# Max PermGen Size
+java_permgen_func(){
+echo -e "\n----------------------------------------------------------\n"
+read -p "Specify \"Max PermGen Size\": " -i 128 -e java_permgen
+}
+
+# Java Binary Path
+java_binary_path_func(){
+default=Y
+echo -e "\n----------------------------------------------------------\n"
+echo -e "Configure \"Java Binary Path\"? i.e: (/usr/bin/java)"
+echo -e "\nThis step is optional, do you want to skip it?"
+
+read -p "[Y/n]? " java_bin
+java_bin=${java_bin:-$default}
+
+for letter in "$java_bin"; do
+
+if [[ "$letter" == [Nn] ]];
+then
+	echo -e "\n----------------------------------------------------------\n"
+	read -p ": " java_binary_path
+
+	javabin="javabin: $java_binary_path"
+
+elif [[ "$letter" == [Yy] ]];
+then
+	echo -e "\nSkipping ...\n"
+	continue
+
+else
+	wrong_key
+	continue
+fi
+done
+}
+
+# Java Binary Path Edit
+java_binary_path_edit_func(){
+echo -e "\n----------------------------------------------------------\n"
+echo -e "Configure \"Java Binary Path\"? i.e: (/usr/bin/java)"
+read -p ": " java_binary_path
+}
+
+java_spec(){
+echo -e "\n----------------------------------------------------------\n"
+echo -e "You've specified following values:"
+echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
+echo -e "Java Heap Max Size: $java_heap_max$mb"
+echo -e "Java Heap Min Size: $java_heap_min$mb"
+echo -e "Max PermGen Size: $java_permgen$mb"
+echo -e "Java Binary Path: $java_binary_path"
+echo -e "\n++++++++++++++++++++++++++++++++++++++++++++++++++++++++++\n"
+}
+
+# Java Config Start
+while [ java_init != "Q" ]
+do
+clear
+
+# Display menu
+echo -e "\n-------------------------------------------------------\n"
+
+default="Y"
+read -p "Do you want to use the default JVM settings [Y/n]? " java_init
+java_init=${java_init:-$default}
+
+	case $java_init in
+
+	N|n)
+		# calling db functions
+		java_heap_max_func
+		java_heap_min_func
+		java_permgen_func
+		java_binary_path_func
+
+		java_spec
+
+		java_config_confirm_func
+	;;
+
+	Y|y)
+		java_heap_max="512"
+		java_heap_min="512"
+		java_permgen="128"
+
+		# ToDo: Make new dialog/Remove?
+		echo -e "\n--------------------------------------"
+		echo -e "\nRunning Configuration Management ...\n"
+        config_mgmt_func
+        goodbye
+	;;
+	
+	*)
+		wrong_key
+	;;
+
+	esac
+done
+}
+
+# java_config confirm
+java_config_confirm_func(){
+
+#java_config_confirm
+while [ java_config_confirm != "Q" ]
+do
+clear
+
+java_spec
+
+echo "Are these settings correct [Y/n]? "
+
+default=Y
+
+read -p ": " java_config_confirm
+java_config_confirm=${java_config_confirm:-$default}
+
+	case $java_config_confirm in
+
+	Y|y)
+		config_mgmt_func	
+	;;
+
+	N|n)
+		java_spec
+
+		echo -e "\nWhat would you like to edit\n"
+		echo "[1] Java Heap Max Size"
+		echo "[2] Java Heap Min Size"
+		echo "[3] Max PermGen Size"
+		echo "[4] Java Binary Path"
+
+	read -p "Enter option number: " java_config_edit
+
+	for letter in "$java_config_edit"; do
+
+	if [[ "$letter" == [1] ]];
+	then
+		java_heap_max_func
+		java_spec
+
+	elif [[ "$letter" == [2] ]];
+	then
+		java_heap_min_func
+		java_spec
+
+	elif [[ "$letter" == [3] ]];
+	then
+		java_permgen_func
+		java_spec
+	
+	elif [[ "$letter" == [4] ]];
+	then
+		java_binary_path_edit_func
+		java_spec
+	
+	else 
+		wrong_key
+	fi
+	
+	done
+	;;
+
+	*)
+		wrong_key
+	;;
+
+	esac
+done
+}
+
+# Function Calls (beginning of the end)
+
+# Root Check Call
+root_check
+
+# Distro Checker
+distro_checker
+
+# Call Service Settings
+service_settings
+
+# Install Start
+install_start_func
+
+# Service Settings Confirm
+service_settings_confirm
+
+# Destination Path
+destination_path_func
+
+# Call db_config/confirm
+db_config
+db_config_confirm_func
+
+# Call java_config/confirm
+java_config
+java_config_confirm_func
+
+# Nuff said
+config_mgmt_func
+goodbye
+
+# teh end
+exit 0

@@ -1,0 +1,49 @@
+#!/bin/sh
+
+  RPM_SOURCE_DIR="/home/rpmbuild/rpmbuild/SOURCES"
+  RPM_BUILD_DIR="/home/rpmbuild/rpmbuild/BUILD"
+  RPM_OPT_FLAGS="-O2 -g -pipe -Wall -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector --param=ssp-buffer-size=4 -m64 -mtune=generic"
+  RPM_ARCH="x86_64"
+  RPM_OS="linux"
+  export RPM_SOURCE_DIR RPM_BUILD_DIR RPM_OPT_FLAGS RPM_ARCH RPM_OS
+  RPM_DOC_DIR="/usr/share/doc"
+  export RPM_DOC_DIR
+  RPM_PACKAGE_NAME="automx"
+  RPM_PACKAGE_VERSION="1.0.2"
+  RPM_PACKAGE_RELEASE="1"
+  export RPM_PACKAGE_NAME RPM_PACKAGE_VERSION RPM_PACKAGE_RELEASE
+  LANG=C
+  export LANG
+  unset CDPATH DISPLAY ||:
+  RPM_BUILD_ROOT="/home/rpmbuild/rpmbuild/BUILDROOT/automx-1.0.2-1.x86_64"
+  export RPM_BUILD_ROOT
+  
+  PKG_CONFIG_PATH="/usr/lib64/pkgconfig:/usr/share/pkgconfig"
+  export PKG_CONFIG_PATH
+  
+  set -x
+  umask 022
+  cd "/home/rpmbuild/rpmbuild/BUILD"
+LANG=C
+export LANG
+unset DISPLAY
+
+cd '/home/rpmbuild/rpmbuild/BUILD'
+rm -rf 'automx-1.0.2'
+/usr/bin/gzip -dc '/home/rpmbuild/rpmbuild/SOURCES/automx-1.0.2.tar.gz' | /bin/tar -xf - 
+STATUS=$?
+if [ $STATUS -ne 0 ]; then
+  exit $STATUS
+fi
+cd 'automx-1.0.2'
+/bin/chmod -Rf a+rX,u+w,g-w,o-w .
+
+
+#%build
+LANG=C
+export LANG
+unset DISPLAY
+
+#exit 0
+
+exit 0
