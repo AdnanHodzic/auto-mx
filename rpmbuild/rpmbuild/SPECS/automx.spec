@@ -5,7 +5,7 @@ Summary: Mendix Auto Utility (auto-mx)
 
 License: GPL-3.0+
 URL: https://mendix.com		
-Source0: automx-1.0.tar.gz	
+Source0: automx-1.0.2.tar.gz	
 #BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildRoot: %{_tmppath}/%{name}-buildroot
 
