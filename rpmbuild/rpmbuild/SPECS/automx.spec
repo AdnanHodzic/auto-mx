@@ -8,6 +8,7 @@ URL: https://mendix.com
 Source0: automx-1.0.2.tar.gz	
 #BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildRoot: %{_tmppath}/%{name}-buildroot
+BuildArch: noarch
 
 Requires(pre): jre >= 1.7, m2ee-tools
 
