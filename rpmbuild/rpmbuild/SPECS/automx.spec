@@ -1,4 +1,4 @@
- Name: automx
+Name: automx
 Version: 1.0.2
 Release: 3
 Summary: Mendix Auto Utility (auto-mx)	
@@ -44,11 +44,12 @@ echo hallo
 
 
 %changelog
-* Tue Jan 20 2015 Adnan Hodzic <adnan.hodzic@mendix.com> 1.0.2-2
-- Debugged el7 install problem
+* Tue Jan 28 2015 Adnan Hodzic <adnan.hodzic@mendix.com> 1.0.2
+- Debugged el7 installation error
 - Added latest auto-mx source
 - Updated postinst dialog with -e paramater
 * Wed Jan 15 2015 Marck Oemar <marck.oemar@mendix.com> 1.0-2
 - removed postgresql dep
 * Wed Jan 7 2015 Marck Oemar <marck.oemar@mendix.com> 1.0-1
 - initial version
+
