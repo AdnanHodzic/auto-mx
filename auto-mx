@@ -483,10 +483,35 @@ then
 else
 	echo -e "Installing ... $package\n"
 	yum -y install postgresql-server postgresql-contrib
+	
+	# Output EL major release number
+	el_major='rpm -qa \*-release | grep -Ei "oracle|redhat|centos" | cut -d"-" -f3'
+
+	# Detect if EL6 or 7 and act accordingly
+	# i.e: <7 doesn't have systemd
+	if [[ $el_major == 6 ]]
+	then
+		echo "it's el6 yall!"
+		# database initialization and start
+		/etc/init.d/postgresql initdb
+		chkconfig postgresql on
+		service postgresql start
+	elif [[ $el_major == 7 ]]
+	then
+		# database initialization and start
+		postgresql-setup initdb
+		systemctl start postgresql
+	else
+		echo -e "\n---------------------------------------"
+		echo -e "\nUnsupported Enterprise Linux version"
+		echo -e "\n---------------------------------------"
+	fi
+
+	
 	# database initialization
-	postgresql-setup initdb
+	#postgresql-setup initdb
 	# postgres start
-	systemctl start postgresql
+	#systemctl start postgresql
 	echo -e "\nInstall complete, press any key to continue\n"
 	read key 
 fi
