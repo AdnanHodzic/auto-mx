@@ -1,11 +1,11 @@
 Name: automx
-Version: 1.0.2
-Release: 3
-Summary: Mendix Auto Utility (auto-mx)	
+Version: 1.0.3
+Release: 1
+Summary: Mendix Auto Utility (auto-mx)
 
 License: GPL-3.0+
-URL: https://mendix.com		
-Source0: automx-1.0.2.tar.gz	
+URL: https://mendix.com	
+Source0: automx-1.0.3.tar.gz
 #BuildRoot:      %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 BuildRoot: %{_tmppath}/%{name}-buildroot
 BuildArch: noarch
@@ -45,6 +45,9 @@ echo hallo
 
 
 %changelog
+* Fri Jan 30 2015 Adnan Hodzic <adnan.hodzic@mendix.com> 1.0.3-1
+- Entirely read Production release 
+- Option "666" fully functional on both EL6/7
 * Tue Jan 28 2015 Adnan Hodzic <adnan.hodzic@mendix.com> 1.0.2
 - Debugged el7 installation error
 - Added latest auto-mx source
