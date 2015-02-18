@@ -528,7 +528,7 @@ else
 fi
 
 # Action
-su - postgres -c "psql -d template1 -U postgres -c \"CREATE USER mxdbuser WITH PASSWORD 'mx7gdb_p5w' \" "
+su - postgres -c "psql -d template1 -U postgres -c \"CREATE USER mxdbuser WITH PASSWORD 'change-M3' \" "
 su - postgres -c "psql -d template1 -U postgres -c \"CREATE DATABASE mxdb \" "
 su - postgres -c "psql -d template1 -U postgres -c \"GRANT ALL PRIVILEGES ON DATABASE mxdb to mxdbuser \" "
 echo -e "\n----------------------------------------"
@@ -542,7 +542,7 @@ db_host="127.0.0.1"
 db_port="5432"
 db_name="mxdb"
 db_user="mxdbuser"
-db_pass="mx7gdb_p5w"
+db_pass="change-M3"
 
 java_config
 java_config_confirm
@@ -579,10 +579,9 @@ echo -e "\n----------------------------------------------------------\n"
 read -p "Specify \"Database Username\": " -i mxdbuser -e db_user
 }
 
-# db_password
+# db_password | randomly generated
 db_pass_func(){
-echo -e "\n----------------------------------------------------------\n"
-read -p "Specify \"Database Password\": " -i mx7gdb_p5w -e db_pass
+db_pass="$(cat /dev/urandom| tr -cd "A-z1-9" | head -c16)"
 }
 
 db_spec(){
@@ -637,7 +636,7 @@ echo -e "Database host: $db_host"
 echo -e "Database port: $db_port"
 echo -e "Database name: $db_name"
 echo -e "Database username: $db_user"
-echo -e "Database pasword: $db_password\n"
+echo -e "Database pasword: $db_pass\n"
 }
 
 # Database Config Confirmation Function

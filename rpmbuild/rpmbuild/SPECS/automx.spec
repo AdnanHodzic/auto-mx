@@ -1,6 +1,6 @@
 Name: automx
 Version: 1.0.3
-Release: 1
+Release: 2
 Summary: Mendix Auto Utility (auto-mx)
 
 License: GPL-3.0+
@@ -45,6 +45,8 @@ echo hallo
 
 
 %changelog
+* Thu Feb 19 2015 Adnan Hodzic <adnan.hodzic@mendix.com> 1.0.3-2
+- Implemented randomly generated database passwords
 * Fri Jan 30 2015 Adnan Hodzic <adnan.hodzic@mendix.com> 1.0.3-1
 - Entirely read Production release 
 - Option "666" fully functional on both EL6/7
