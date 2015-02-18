@@ -581,8 +581,6 @@ read -p "Specify \"Database Username\": " -i mxdbuser -e db_user
 
 # db_password | randomly generated
 db_pass_func(){
-#echo -e "\n----------------------------------------------------------\n"
-#read -p "Specify \"Database Password\": " -i mx7gdb_p5w -e db_pass
 db_pass="$(cat /dev/urandom| tr -cd "A-z1-9" | head -c16)"
 }
 
@@ -638,7 +636,7 @@ echo -e "Database host: $db_host"
 echo -e "Database port: $db_port"
 echo -e "Database name: $db_name"
 echo -e "Database username: $db_user"
-echo -e "Database pasword: $db_password\n"
+echo -e "Database pasword: $db_pass\n"
 }
 
 # Database Config Confirmation Function
