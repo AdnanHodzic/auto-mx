@@ -394,11 +394,6 @@ exit
 # Database configuration
 db_config(){
 
-# Random password generator for database
-db_password_gen_func(){
-db_password="$(cat /dev/urandom| tr -cd "A-z1-9" | head -c12)"
-}
-
 # db_type
 db_type_func(){
 echo -e "\n----------------------------------------------------------\n"
@@ -533,7 +528,7 @@ else
 fi
 
 # Action
-su - postgres -c "psql -d template1 -U postgres -c \"CREATE USER mxdbuser WITH PASSWORD '$db_pass' \" "
+su - postgres -c "psql -d template1 -U postgres -c \"CREATE USER mxdbuser WITH PASSWORD 'change-M3' \" "
 su - postgres -c "psql -d template1 -U postgres -c \"CREATE DATABASE mxdb \" "
 su - postgres -c "psql -d template1 -U postgres -c \"GRANT ALL PRIVILEGES ON DATABASE mxdb to mxdbuser \" "
 echo -e "\n----------------------------------------"
@@ -547,7 +542,7 @@ db_host="127.0.0.1"
 db_port="5432"
 db_name="mxdb"
 db_user="mxdbuser"
-#db_pass="mx7gdb_p5w"
+db_pass="change-M3"
 
 java_config
 java_config_confirm
